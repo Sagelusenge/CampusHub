@@ -1,19 +1,36 @@
-# CampusHub — Base de données MySQL
+# CampusHub
 
-Cette première étape contient uniquement une base MySQL entièrement nommée en français. Il n'y a ni backend, ni frontend, ni Prisma, ni système de migrations.
+Plateforme universitaire d'orientation, de découverte et de valorisation des talents étudiants.
 
-## Contenu
+## Organisation actuelle
 
 ```text
-Projet Realisation/
-└── database/
-    ├── 01_structure.sql       # Tables, relations, contraintes et index
-    ├── 02_automatismes.sql    # Fonctions, compteurs et triggers
-    ├── 03_procedures.sql      # Procédures métier
-    ├── 04_vues.sql            # Vues de lecture et statistiques
-    ├── 05_donnees_test.sql    # Données fictives
-    ├── 06_exemples_requetes.sql # Exemples commentés
-    └── README.md              # Guide d'utilisation
+CampusHub/
+├── backend/    # API REST Express.js
+└── database/   # Structure MySQL, triggers, procédures et vues
 ```
 
-Les numéros indiquent uniquement l'ordre d'exécution ; ces fichiers ne sont pas des migrations.
+## Base de données
+
+Les scripts MySQL sont numérotés dans leur ordre d'exécution. Consultez le [guide de la base](database/README.md) avant leur première utilisation.
+
+## Backend
+
+Le backend utilise Express, MySQL2, JWT et Zod. Son organisation suit le chemin :
+
+```text
+route → middleware → controller → service → MySQL
+```
+
+Consultez le [guide du backend](backend/README.md) pour l'installation, la configuration et les premières routes.
+
+## Démarrage rapide du backend
+
+```powershell
+cd backend
+Copy-Item .env.example .env
+npm install
+npm run dev
+```
+
+L'API est ensuite disponible par défaut sur `http://localhost:4000/api/v1`.
