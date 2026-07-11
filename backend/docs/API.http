@@ -1,0 +1,615 @@
+### ============================================================
+### CampusHub API - Requêtes complètes
+### Compatible avec l'extension VS Code « REST Client »
+### Exécutez la connexion puis remplacez les codes selon votre base.
+### ============================================================
+
+@baseUrl = http://localhost:4000/api/v1
+@codeUniversite = ISIG00012026
+@codeUniversite2 = AIC00022026
+@codeUtilisateur = ETU00022026
+@codeProfil = PET00012026
+@codeCampus = CAM00012026
+@codeFaculte = FST00012026
+@codeFiliere = IG00012026
+@codeService = SER00012026
+@codeInfrastructure = INF00012026
+@codeCondition = CDA00012026
+@codePublication = PUB00012026
+@codeMedia = MED00012026
+@codeCommentaire = COM00012026
+@codeSignalement = SIG00012026
+@codeNotification = NOT00012026
+
+### Santé de l'API
+GET {{baseUrl}}/sante
+Accept: application/json
+
+### ============================================================
+### AUTHENTIFICATION
+### ============================================================
+
+### Inscription étudiant
+# @name inscription
+POST {{baseUrl}}/auth/inscription
+Content-Type: application/json
+
+{
+  "email": "nouvel.etudiant@campushub.cd",
+  "motDePasse": "MotDePasse123!",
+  "role": "ETUDIANT",
+  "nomAffichage": "Nouvel Étudiant",
+  "ville": "Goma",
+  "province": "Nord-Kivu"
+}
+
+### Connexion
+### Après l'inscription, un administrateur doit d'abord passer le compte à ACTIF.
+# @name connexion
+POST {{baseUrl}}/auth/connexion
+Content-Type: application/json
+
+{
+  "email": "nouvel.etudiant@campushub.cd",
+  "motDePasse": "MotDePasse123!"
+}
+
+### Les requêtes protégées utilisent automatiquement la réponse de connexion.
+@jetonAcces = {{connexion.response.body.$.donnees.jetonAcces}}
+@jetonActualisation = {{connexion.response.body.$.donnees.jetonActualisation}}
+
+### Actualiser les jetons
+# @name actualisation
+POST {{baseUrl}}/auth/actualiser
+Content-Type: application/json
+
+{
+  "jetonActualisation": "{{jetonActualisation}}"
+}
+
+### Déconnexion
+POST {{baseUrl}}/auth/deconnexion
+Content-Type: application/json
+
+{
+  "jetonActualisation": "{{actualisation.response.body.$.donnees.jetonActualisation}}"
+}
+
+### ============================================================
+### UTILISATEURS
+### ============================================================
+
+### Mon compte
+GET {{baseUrl}}/utilisateurs/moi
+Authorization: Bearer {{jetonAcces}}
+
+### Modifier mon compte
+PATCH {{baseUrl}}/utilisateurs/moi
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nomAffichage": "Étudiant CampusHub",
+  "biographie": "Étudiant passionné par le développement web.",
+  "urlPhotoProfil": "https://example.com/profil.jpg",
+  "ville": "Goma",
+  "province": "Nord-Kivu"
+}
+
+### Liste administrative des utilisateurs
+GET {{baseUrl}}/utilisateurs?role=ETUDIANT&statut=ACTIF&page=1&limite=20
+Authorization: Bearer {{jetonAcces}}
+
+### Profil public d'un utilisateur
+GET {{baseUrl}}/utilisateurs/{{codeUtilisateur}}
+
+### Modifier le statut d'un utilisateur - Administrateur
+PATCH {{baseUrl}}/utilisateurs/{{codeUtilisateur}}/statut
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "statutCompte": "ACTIF",
+  "statutVerification": "VERIFIE"
+}
+
+### Suivre un utilisateur
+POST {{baseUrl}}/utilisateurs/{{codeUtilisateur}}/suivre
+Authorization: Bearer {{jetonAcces}}
+
+### Ne plus suivre un utilisateur
+DELETE {{baseUrl}}/utilisateurs/{{codeUtilisateur}}/suivre
+Authorization: Bearer {{jetonAcces}}
+
+### ============================================================
+### PROFILS ÉTUDIANTS
+### ============================================================
+
+### Rechercher les profils
+GET {{baseUrl}}/profils?universite={{codeUniversite}}&competence=JavaScript&page=1&limite=20
+
+### Lire un profil
+GET {{baseUrl}}/profils/{{codeProfil}}
+
+### Lire mon profil étudiant
+GET {{baseUrl}}/profils/moi
+Authorization: Bearer {{jetonAcces}}
+
+### Créer mon profil étudiant
+POST {{baseUrl}}/profils
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "codeUniversite": "{{codeUniversite}}",
+  "codeFiliere": "{{codeFiliere}}",
+  "matriculeEtudiant": "ETU-2026-001",
+  "titreProfil": "Développeur web étudiant",
+  "competences": ["JavaScript", "Node.js", "MySQL"],
+  "anneeDiplomation": 2027
+}
+
+### Modifier mon profil étudiant
+PATCH {{baseUrl}}/profils/moi
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "titreProfil": "Développeur full-stack étudiant",
+  "competences": ["JavaScript", "React", "Express", "MySQL"],
+  "anneeDiplomation": 2027,
+  "estVisible": true
+}
+
+### Masquer mon profil
+DELETE {{baseUrl}}/profils/moi
+Authorization: Bearer {{jetonAcces}}
+
+### ============================================================
+### UNIVERSITÉS
+### ============================================================
+
+### Rechercher les universités
+GET {{baseUrl}}/universites?ville=Goma&type=PRIVEE&filiere=Informatique&fraisMaximum=700&service=Bibliothèque
+
+### Comparer deux universités
+GET {{baseUrl}}/universites/comparer?codes={{codeUniversite}},{{codeUniversite2}}
+
+### Statistiques d'une université
+GET {{baseUrl}}/universites/{{codeUniversite}}/statistiques
+
+### Fiche complète
+GET {{baseUrl}}/universites/{{codeUniversite}}
+
+### Créer une université
+POST {{baseUrl}}/universites
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nom": "Université CampusHub de Goma",
+  "sigle": "UCHG",
+  "slug": "universite-campushub-goma",
+  "type": "PRIVEE",
+  "description": "Université de démonstration CampusHub.",
+  "ville": "Goma",
+  "province": "Nord-Kivu",
+  "email": "contact@uchg.cd",
+  "telephone": "+243990000000"
+}
+
+### Modifier une université
+PATCH {{baseUrl}}/universites/{{codeUniversite}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "description": "Nouvelle description institutionnelle.",
+  "siteWeb": "https://universite.example.com",
+  "adresse": "Avenue de l'Université, Goma",
+  "inscriptionsOuvertes": true,
+  "dateDebutInscription": "2026-07-01",
+  "dateFinInscription": "2026-09-30"
+}
+
+### Supprimer une université - Administrateur
+DELETE {{baseUrl}}/universites/{{codeUniversite}}
+Authorization: Bearer {{jetonAcces}}
+
+### ============================================================
+### CAMPUS
+### ============================================================
+
+GET {{baseUrl}}/catalogue/universites/{{codeUniversite}}/campus
+
+### Créer un campus
+POST {{baseUrl}}/catalogue/universites/{{codeUniversite}}/campus
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nom": "Campus central",
+  "adresse": "Avenue du Campus, Goma",
+  "ville": "Goma",
+  "province": "Nord-Kivu",
+  "latitude": -1.6792,
+  "longitude": 29.2228,
+  "estPrincipal": true
+}
+
+### Modifier un campus
+PATCH {{baseUrl}}/catalogue/campus/{{codeCampus}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nom": "Campus principal",
+  "adresse": "Nouvelle adresse du campus",
+  "estPrincipal": true
+}
+
+### Supprimer un campus
+DELETE {{baseUrl}}/catalogue/campus/{{codeCampus}}
+Authorization: Bearer {{jetonAcces}}
+
+### ============================================================
+### FACULTÉS ET FILIÈRES
+### ============================================================
+
+GET {{baseUrl}}/catalogue/universites/{{codeUniversite}}/facultes
+
+### Créer une faculté
+POST {{baseUrl}}/catalogue/universites/{{codeUniversite}}/facultes
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nom": "Faculté des Sciences et Technologies",
+  "slug": "sciences-et-technologies",
+  "description": "Formations scientifiques et technologiques."
+}
+
+### Modifier une faculté
+PATCH {{baseUrl}}/catalogue/facultes/{{codeFaculte}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nom": "Faculté des Sciences Appliquées",
+  "description": "Description mise à jour."
+}
+
+### Supprimer une faculté
+DELETE {{baseUrl}}/catalogue/facultes/{{codeFaculte}}
+Authorization: Bearer {{jetonAcces}}
+
+GET {{baseUrl}}/catalogue/facultes/{{codeFaculte}}/filieres
+
+### Créer une filière
+POST {{baseUrl}}/catalogue/facultes/{{codeFaculte}}/filieres
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nom": "Génie Logiciel",
+  "slug": "genie-logiciel",
+  "domaine": "Informatique",
+  "niveauDiplome": "LICENCE",
+  "dureeAnnees": 3,
+  "description": "Formation en conception de logiciels.",
+  "fraisMinimum": 450,
+  "fraisMaximum": 650,
+  "devise": "USD",
+  "estActive": true
+}
+
+### Modifier une filière
+PATCH {{baseUrl}}/catalogue/filieres/{{codeFiliere}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "fraisMinimum": 500,
+  "fraisMaximum": 700,
+  "dureeAnnees": 3,
+  "estActive": true
+}
+
+### Supprimer une filière
+DELETE {{baseUrl}}/catalogue/filieres/{{codeFiliere}}
+Authorization: Bearer {{jetonAcces}}
+
+### Associer la filière au campus
+POST {{baseUrl}}/catalogue/campus/{{codeCampus}}/filieres/{{codeFiliere}}
+Authorization: Bearer {{jetonAcces}}
+
+### Retirer la filière du campus
+DELETE {{baseUrl}}/catalogue/campus/{{codeCampus}}/filieres/{{codeFiliere}}
+Authorization: Bearer {{jetonAcces}}
+
+### ============================================================
+### SERVICES, INFRASTRUCTURES ET CONDITIONS D'ADMISSION
+### ============================================================
+
+GET {{baseUrl}}/catalogue/universites/{{codeUniversite}}/services
+
+### Créer un service
+POST {{baseUrl}}/catalogue/universites/{{codeUniversite}}/services
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nom": "Bibliothèque numérique",
+  "description": "Accès aux livres et revues numériques.",
+  "estDisponible": true
+}
+
+### Modifier un service
+PATCH {{baseUrl}}/catalogue/services/{{codeService}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "description": "Nouvelle description du service.",
+  "estDisponible": true
+}
+
+DELETE {{baseUrl}}/catalogue/services/{{codeService}}
+Authorization: Bearer {{jetonAcces}}
+
+GET {{baseUrl}}/catalogue/universites/{{codeUniversite}}/infrastructures
+
+### Créer une infrastructure
+POST {{baseUrl}}/catalogue/universites/{{codeUniversite}}/infrastructures
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nom": "Laboratoire informatique",
+  "categorie": "LABORATOIRE",
+  "description": "Laboratoire équipé de 30 ordinateurs.",
+  "quantite": 2
+}
+
+### Modifier une infrastructure
+PATCH {{baseUrl}}/catalogue/infrastructures/{{codeInfrastructure}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "description": "Laboratoire rénové et connecté à Internet.",
+  "quantite": 3
+}
+
+DELETE {{baseUrl}}/catalogue/infrastructures/{{codeInfrastructure}}
+Authorization: Bearer {{jetonAcces}}
+
+GET {{baseUrl}}/catalogue/universites/{{codeUniversite}}/conditions-admission
+
+### Créer une condition d'admission
+POST {{baseUrl}}/catalogue/universites/{{codeUniversite}}/conditions-admission
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "titre": "Admission en première année",
+  "description": "Présenter le diplôme d'État, les bulletins et une pièce d'identité.",
+  "niveauDiplome": "LICENCE"
+}
+
+### Modifier une condition d'admission
+PATCH {{baseUrl}}/catalogue/conditions-admission/{{codeCondition}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "titre": "Conditions d'admission en licence",
+  "description": "Présenter les documents scolaires et administratifs requis."
+}
+
+DELETE {{baseUrl}}/catalogue/conditions-admission/{{codeCondition}}
+Authorization: Bearer {{jetonAcces}}
+
+### ============================================================
+### MEMBRES INSTITUTIONNELS
+### ============================================================
+
+GET {{baseUrl}}/catalogue/universites/{{codeUniversite}}/membres
+Authorization: Bearer {{jetonAcces}}
+
+POST {{baseUrl}}/catalogue/universites/{{codeUniversite}}/membres
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "codeUtilisateur": "UNI00032026",
+  "fonction": "Responsable des inscriptions",
+  "estProprietaire": false
+}
+
+DELETE {{baseUrl}}/catalogue/membres/MUN00012026
+Authorization: Bearer {{jetonAcces}}
+
+### ============================================================
+### PUBLICATIONS, MÉDIAS ET COMMENTAIRES
+### ============================================================
+
+GET {{baseUrl}}/publications?universite={{codeUniversite}}&type=PROJET&etiquette=Node&page=1&limite=20
+
+GET {{baseUrl}}/publications/{{codePublication}}
+
+### Créer et publier
+POST {{baseUrl}}/publications
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "codeUniversite": "{{codeUniversite}}",
+  "titre": "Application mobile de gestion académique",
+  "contenu": "Présentation détaillée du projet étudiant.",
+  "type": "PROJET",
+  "etiquettes": ["mobile", "Node.js", "MySQL"],
+  "publier": true
+}
+
+### Modifier une publication
+PATCH {{baseUrl}}/publications/{{codePublication}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "titre": "Nouveau titre du projet",
+  "contenu": "Contenu mis à jour.",
+  "etiquettes": ["React", "Express", "MySQL"],
+  "statut": "PUBLIEE"
+}
+
+DELETE {{baseUrl}}/publications/{{codePublication}}
+Authorization: Bearer {{jetonAcces}}
+
+### Ajouter une image
+POST {{baseUrl}}/publications/{{codePublication}}/medias
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "type": "IMAGE",
+  "url": "https://example.com/projet.jpg",
+  "urlMiniature": "https://example.com/projet-miniature.jpg",
+  "identifiantStockage": "campushub/projet-001",
+  "typeMime": "image/jpeg",
+  "tailleOctets": 250000,
+  "largeurPixels": 1200,
+  "hauteurPixels": 800,
+  "ordre": 0
+}
+
+### Ajouter une vidéo courte
+POST {{baseUrl}}/publications/{{codePublication}}/medias
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "type": "VIDEO",
+  "url": "https://example.com/video.mp4",
+  "urlMiniature": "https://example.com/video-miniature.jpg",
+  "typeMime": "video/mp4",
+  "tailleOctets": 20000000,
+  "largeurPixels": 1280,
+  "hauteurPixels": 720,
+  "dureeSecondes": 60,
+  "ordre": 1
+}
+
+DELETE {{baseUrl}}/publications/medias/{{codeMedia}}
+Authorization: Bearer {{jetonAcces}}
+
+### Commenter
+POST {{baseUrl}}/publications/{{codePublication}}/commentaires
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "contenu": "Excellent projet, félicitations !",
+  "codeCommentaireParent": null
+}
+
+### Modifier un commentaire
+PATCH {{baseUrl}}/publications/commentaires/{{codeCommentaire}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "contenu": "Commentaire corrigé."
+}
+
+DELETE {{baseUrl}}/publications/commentaires/{{codeCommentaire}}
+Authorization: Bearer {{jetonAcces}}
+
+### ============================================================
+### INTERACTIONS
+### ============================================================
+
+POST {{baseUrl}}/interactions/publications/{{codePublication}}/jaime
+Authorization: Bearer {{jetonAcces}}
+
+GET {{baseUrl}}/interactions/favoris
+Authorization: Bearer {{jetonAcces}}
+
+POST {{baseUrl}}/interactions/publications/{{codePublication}}/favori
+Authorization: Bearer {{jetonAcces}}
+
+DELETE {{baseUrl}}/interactions/publications/{{codePublication}}/favori
+Authorization: Bearer {{jetonAcces}}
+
+GET {{baseUrl}}/interactions/universites-suivies
+Authorization: Bearer {{jetonAcces}}
+
+POST {{baseUrl}}/interactions/universites/{{codeUniversite}}/suivre
+Authorization: Bearer {{jetonAcces}}
+
+DELETE {{baseUrl}}/interactions/universites/{{codeUniversite}}/suivre
+Authorization: Bearer {{jetonAcces}}
+
+### ============================================================
+### MODÉRATION
+### ============================================================
+
+### Signaler une publication
+POST {{baseUrl}}/moderation/signalements
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "codePublication": "{{codePublication}}",
+  "motif": "Contenu inapproprié",
+  "details": "Description détaillée du problème rencontré."
+}
+
+GET {{baseUrl}}/moderation/signalements?statut=OUVERT&page=1&limite=20
+Authorization: Bearer {{jetonAcces}}
+
+### Traiter un signalement - Administrateur
+PATCH {{baseUrl}}/moderation/signalements/{{codeSignalement}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "statut": "RESOLU",
+  "resolution": "Le contenu a été examiné et la décision a été enregistrée."
+}
+
+### ============================================================
+### NOTIFICATIONS
+### ============================================================
+
+GET {{baseUrl}}/notifications?nonLues=true&page=1&limite=20
+Authorization: Bearer {{jetonAcces}}
+
+PATCH {{baseUrl}}/notifications/tout-lire
+Authorization: Bearer {{jetonAcces}}
+
+PATCH {{baseUrl}}/notifications/{{codeNotification}}/lire
+Authorization: Bearer {{jetonAcces}}
+
+DELETE {{baseUrl}}/notifications/{{codeNotification}}
+Authorization: Bearer {{jetonAcces}}
+
+### ============================================================
+### ADMINISTRATION
+### ============================================================
+
+GET {{baseUrl}}/administration/tableau-de-bord
+Authorization: Bearer {{jetonAcces}}
+
+GET {{baseUrl}}/administration/audit?typeEntite=UNIVERSITE&page=1&limite=30
+Authorization: Bearer {{jetonAcces}}
+
+### Vérifier une université
+PATCH {{baseUrl}}/administration/universites/{{codeUniversite}}/verification
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "statut": "VERIFIEE"
+}

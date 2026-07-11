@@ -2,6 +2,18 @@
 
 Préfixe de toutes les routes : `/api/v1`.
 
+## Fichier de requêtes prêt à exécuter
+
+Le fichier [API.http](API.http) contient toutes les requêtes avec :
+
+- la méthode HTTP (`GET`, `POST`, `PATCH` ou `DELETE`) ;
+- l'URL complète ;
+- les en-têtes nécessaires ;
+- le body JSON correspondant à chaque création ou modification ;
+- des variables pour les codes et les jetons JWT.
+
+Dans VS Code, installez l'extension **REST Client**, ouvrez `API.http`, puis cliquez sur **Send Request** au-dessus de la requête souhaitée.
+
 Une route marquée **Connecté** exige l'en-tête :
 
 ```http
