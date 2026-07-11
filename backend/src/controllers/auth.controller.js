@@ -1,4 +1,9 @@
-import { connecterUtilisateur, inscrireUtilisateur } from '../services/auth.service.js';
+import {
+  actualiserSession,
+  connecterUtilisateur,
+  deconnecterSession,
+  inscrireUtilisateur,
+} from '../services/auth.service.js';
 import { envoyerSucces } from '../utils/reponse-api.js';
 
 export async function inscription(requete, reponse) {
@@ -16,5 +21,15 @@ export async function inscription(requete, reponse) {
 export async function connexion(requete, reponse) {
   const { email, motDePasse } = requete.validees.body;
   const resultat = await connecterUtilisateur(email, motDePasse);
+  return envoyerSucces(reponse, resultat);
+}
+
+export async function actualiser(requete, reponse) {
+  const resultat = await actualiserSession(requete.validees.body.jetonActualisation);
+  return envoyerSucces(reponse, resultat);
+}
+
+export async function deconnexion(requete, reponse) {
+  const resultat = await deconnecterSession(requete.validees.body.jetonActualisation);
   return envoyerSucces(reponse, resultat);
 }

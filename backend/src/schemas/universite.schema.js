@@ -26,3 +26,25 @@ export const schemaCreationUniversite = z.object({
   email: z.string().trim().email().max(190).optional(),
   telephone: texteOptionnel(40),
 });
+
+export const schemaModificationUniversite = z.object({
+  nom: z.string().trim().min(3).max(180).optional(),
+  sigle: z.string().trim().max(20).nullable().optional(),
+  description: z.string().trim().max(5000).nullable().optional(),
+  urlLogo: z.string().url().max(500).nullable().optional(),
+  urlCouverture: z.string().url().max(500).nullable().optional(),
+  siteWeb: z.string().url().max(500).nullable().optional(),
+  email: z.string().email().max(190).nullable().optional(),
+  telephone: z.string().trim().max(40).nullable().optional(),
+  anneeFondation: z.coerce.number().int().min(1000).max(2200).nullable().optional(),
+  adresse: z.string().trim().max(255).nullable().optional(),
+  ville: z.string().trim().min(2).max(100).optional(),
+  province: z.string().trim().min(2).max(100).optional(),
+  inscriptionsOuvertes: z.boolean().optional(),
+  dateDebutInscription: z.string().date().nullable().optional(),
+  dateFinInscription: z.string().date().nullable().optional(),
+}).refine((o) => Object.keys(o).length > 0);
+
+export const schemaComparaisonUniversites = z.object({
+  codes: z.string().trim().min(5).max(500),
+});

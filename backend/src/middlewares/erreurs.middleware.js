@@ -1,4 +1,5 @@
 import { ErreurApi } from '../utils/erreur-api.js';
+import { environnement } from '../config/environnement.js';
 
 export function routeIntrouvable(requete, _reponse, suivant) {
   suivant(new ErreurApi(404, `Route introuvable : ${requete.method} ${requete.originalUrl}`));
@@ -29,6 +30,9 @@ export function gestionnaireErreurs(erreurInitiale, _requete, reponse, _suivant)
     erreur: {
       message,
       ...(erreur.details ? { details: erreur.details } : {}),
+      ...(codeHttp === 500 && environnement.NODE_ENV === 'development'
+        ? { technique: erreur.message, code: erreur.code }
+        : {}),
     },
   });
 }

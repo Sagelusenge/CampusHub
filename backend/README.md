@@ -53,3 +53,13 @@ Avant le démarrage, exécutez les scripts du dossier `database` et adaptez les 
 | POST | `/api/v1/universites` | ADMINISTRATEUR/UNIVERSITE | Créer une université |
 
 Toutes les réponses utilisent la forme `{ succes, donnees }` ou `{ succes, erreur }`.
+
+La liste complète des routes, rôles et opérations se trouve dans [docs/API.md](docs/API.md).
+
+## Débogage
+
+- `npm run check` vérifie la syntaxe de tous les fichiers JavaScript.
+- `npm test` exécute les tests HTTP sans exiger MySQL.
+- En développement, les requêtes sont affichées dans le terminal avec leur statut et leur durée.
+- Les erreurs `500` affichent un message technique uniquement en développement.
+- La logique SQL se trouve exclusivement dans `services`, ce qui permet de suivre facilement une requête depuis sa route.

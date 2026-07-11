@@ -15,6 +15,7 @@ const schemaEnvironnement = z.object({
   DB_CONNECTION_LIMIT: z.coerce.number().int().min(1).max(50).default(10),
   JWT_SECRET: z.string().min(32).default('developpement-uniquement-changez-moi-123456'),
   JWT_EXPIRES_IN: z.string().default('1d'),
+  REFRESH_TOKEN_DAYS: z.coerce.number().int().min(1).max(365).default(30),
   BCRYPT_ROUNDS: z.coerce.number().int().min(10).max(14).default(12),
 });
 
