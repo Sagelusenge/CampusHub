@@ -1,6 +1,39 @@
-import * as service from '../services/moderation.service.js';
+import {
+  creerSignalement,
+  listerSignalements,
+  traiterSignalement,
+} from '../services/moderation.service.js';
 import { envoyerSucces } from '../utils/reponse-api.js';
 
-export const signaler = async (r, s) => envoyerSucces(s, await service.creerSignalement(r.utilisateur.id, r.validees.body), 201);
-export async function lister(r, s) { const x = await service.listerSignalements(r.validees.query); return envoyerSucces(s, x.signalements, 200, x.meta); }
-export const traiter = async (r, s) => envoyerSucces(s, await service.traiterSignalement(r.validees.params.code, r.utilisateur.id, r.validees.body));
+// POST /api/v1/moderation/signalements
+export async function signaler(requete, reponse) {
+  const utilisateurId = requete.utilisateur.id;
+  const donnees = requete.validees.body;
+  const signalement = await creerSignalement(utilisateurId, donnees);
+
+  return envoyerSucces(reponse, signalement, 201, undefined, 'Signalement enregistré.');
+}
+
+// GET /api/v1/moderation/signalements
+export async function lister(requete, reponse) {
+  const filtres = requete.validees.query;
+  const resultat = await listerSignalements(filtres);
+
+  return envoyerSucces(
+    reponse,
+    resultat.signalements,
+    200,
+    resultat.meta,
+    'Signalements chargés.',
+  );
+}
+
+// PATCH /api/v1/moderation/signalements/:code
+export async function traiter(requete, reponse) {
+  const { code } = requete.validees.params;
+  const moderateurId = requete.utilisateur.id;
+  const decision = requete.validees.body;
+  const signalement = await traiterSignalement(code, moderateurId, decision);
+
+  return envoyerSucces(reponse, signalement, 200, undefined, 'Signalement traité.');
+}

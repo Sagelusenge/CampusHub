@@ -1,10 +1,54 @@
-import * as service from '../services/notifications.service.js';
+import {
+  listerNotifications,
+  marquerLue as marquerNotificationLue,
+  marquerToutesLues as marquerToutesNotificationsLues,
+  supprimerNotification,
+} from '../services/notifications.service.js';
 import { envoyerSucces } from '../utils/reponse-api.js';
 
-export async function lister(r, s) {
-  const x = await service.listerNotifications(r.utilisateur.id, r.validees.query);
-  return envoyerSucces(s, { notifications: x.notifications, nonLues: x.nonLues }, 200, x.meta);
+// GET /api/v1/notifications
+export async function lister(requete, reponse) {
+  const utilisateurId = requete.utilisateur.id;
+  const filtres = requete.validees.query;
+  const resultat = await listerNotifications(utilisateurId, filtres);
+
+  return envoyerSucces(
+    reponse,
+    { notifications: resultat.notifications, nonLues: resultat.nonLues },
+    200,
+    resultat.meta,
+    'Notifications chargées.',
+  );
 }
-export const marquerLue = async (r, s) => envoyerSucces(s, await service.marquerLue(r.utilisateur.id, r.validees.params.code));
-export const marquerToutesLues = async (r, s) => envoyerSucces(s, await service.marquerToutesLues(r.utilisateur.id));
-export const supprimer = async (r, s) => envoyerSucces(s, await service.supprimerNotification(r.utilisateur.id, r.validees.params.code));
+
+// PATCH /api/v1/notifications/:code/lire
+export async function marquerLue(requete, reponse) {
+  const utilisateurId = requete.utilisateur.id;
+  const { code } = requete.validees.params;
+  const resultat = await marquerNotificationLue(utilisateurId, code);
+
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Notification marquée comme lue.');
+}
+
+// PATCH /api/v1/notifications/tout-lire
+export async function marquerToutesLues(requete, reponse) {
+  const utilisateurId = requete.utilisateur.id;
+  const resultat = await marquerToutesNotificationsLues(utilisateurId);
+
+  return envoyerSucces(
+    reponse,
+    resultat,
+    200,
+    undefined,
+    `${resultat.nombre} notification(s) marquée(s) comme lue(s).`,
+  );
+}
+
+// DELETE /api/v1/notifications/:code
+export async function supprimer(requete, reponse) {
+  const utilisateurId = requete.utilisateur.id;
+  const { code } = requete.validees.params;
+  const resultat = await supprimerNotification(utilisateurId, code);
+
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Notification supprimée.');
+}

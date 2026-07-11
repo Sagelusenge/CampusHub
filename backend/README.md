@@ -63,3 +63,15 @@ La liste complète des routes, rôles et opérations se trouve dans [docs/API.md
 - En développement, les requêtes sont affichées dans le terminal avec leur statut et leur durée.
 - Les erreurs `500` affichent un message technique uniquement en développement.
 - La logique SQL se trouve exclusivement dans `services`, ce qui permet de suivre facilement une requête depuis sa route.
+
+### Responsabilité d'un controller
+
+Un controller CampusHub n'est plus une simple fonction d'une ligne. Il doit maintenant :
+
+1. indiquer la route HTTP concernée ;
+2. extraire les paramètres, le body et l'utilisateur connecté ;
+3. donner des noms métier aux données ;
+4. appeler le service correspondant ;
+5. choisir le statut HTTP et le message de succès.
+
+Les requêtes SQL et transactions restent dans les services. Les `try/catch` ne sont pas répétés dans chaque controller : `gestionnaireAsync` transmet les erreurs au middleware global, qui les formate de manière uniforme.

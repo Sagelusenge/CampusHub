@@ -1,38 +1,242 @@
-import * as service from '../services/catalogue.service.js';
+import * as catalogueService from '../services/catalogue.service.js';
 import { envoyerSucces } from '../utils/reponse-api.js';
 
-export const listerCampus = async (r, s) => envoyerSucces(s, await service.listerCampus(r.validees.params.code));
-export const creerCampus = async (r, s) => envoyerSucces(s, await service.creerCampus(r.validees.params.code, r.validees.body, r.utilisateur), 201);
-export const modifierCampus = async (r, s) => envoyerSucces(s, await service.modifierCampus(r.validees.params.code, r.validees.body, r.utilisateur));
-export const supprimerCampus = async (r, s) => envoyerSucces(s, await service.supprimerCampus(r.validees.params.code, r.utilisateur));
+// ---------- Campus ----------
 
-export const listerFacultes = async (r, s) => envoyerSucces(s, await service.listerFacultes(r.validees.params.code));
-export const creerFaculte = async (r, s) => envoyerSucces(s, await service.creerFaculte(r.validees.params.code, r.validees.body, r.utilisateur), 201);
-export const modifierFaculte = async (r, s) => envoyerSucces(s, await service.modifierFaculte(r.validees.params.code, r.validees.body, r.utilisateur));
-export const supprimerFaculte = async (r, s) => envoyerSucces(s, await service.supprimerFaculte(r.validees.params.code, r.utilisateur));
+// GET /api/v1/catalogue/universites/:code/campus
+export async function listerCampus(requete, reponse) {
+  const { code } = requete.validees.params;
+  const campus = await catalogueService.listerCampus(code);
+  return envoyerSucces(reponse, campus, 200, undefined, 'Campus chargés.');
+}
 
-export const listerFilieres = async (r, s) => envoyerSucces(s, await service.listerFilieres(r.validees.params.code));
-export const creerFiliere = async (r, s) => envoyerSucces(s, await service.creerFiliere(r.validees.params.code, r.validees.body, r.utilisateur), 201);
-export const modifierFiliere = async (r, s) => envoyerSucces(s, await service.modifierFiliere(r.validees.params.code, r.validees.body, r.utilisateur));
-export const supprimerFiliere = async (r, s) => envoyerSucces(s, await service.supprimerFiliere(r.validees.params.code, r.utilisateur));
-export const associerFiliere = async (r, s) => envoyerSucces(s, await service.associerFiliereCampus(r.validees.params.codeCampus, r.validees.params.codeFiliere, r.utilisateur));
-export const dissocierFiliere = async (r, s) => envoyerSucces(s, await service.dissocierFiliereCampus(r.validees.params.codeCampus, r.validees.params.codeFiliere, r.utilisateur));
+// POST /api/v1/catalogue/universites/:code/campus
+export async function creerCampus(requete, reponse) {
+  const { code } = requete.validees.params;
+  const donneesCampus = requete.validees.body;
+  const campus = await catalogueService.creerCampus(code, donneesCampus, requete.utilisateur);
+  return envoyerSucces(reponse, campus, 201, undefined, 'Campus créé.');
+}
 
-export const listerServices = async (r, s) => envoyerSucces(s, await service.listerServices(r.validees.params.code));
-export const creerService = async (r, s) => envoyerSucces(s, await service.creerService(r.validees.params.code, r.validees.body, r.utilisateur), 201);
-export const modifierService = async (r, s) => envoyerSucces(s, await service.modifierService(r.validees.params.code, r.validees.body, r.utilisateur));
-export const supprimerService = async (r, s) => envoyerSucces(s, await service.supprimerService(r.validees.params.code, r.utilisateur));
+// PATCH /api/v1/catalogue/campus/:code
+export async function modifierCampus(requete, reponse) {
+  const { code } = requete.validees.params;
+  const modifications = requete.validees.body;
+  const campus = await catalogueService.modifierCampus(code, modifications, requete.utilisateur);
+  return envoyerSucces(reponse, campus, 200, undefined, 'Campus mis à jour.');
+}
 
-export const listerInfrastructures = async (r, s) => envoyerSucces(s, await service.listerInfrastructures(r.validees.params.code));
-export const creerInfrastructure = async (r, s) => envoyerSucces(s, await service.creerInfrastructure(r.validees.params.code, r.validees.body, r.utilisateur), 201);
-export const modifierInfrastructure = async (r, s) => envoyerSucces(s, await service.modifierInfrastructure(r.validees.params.code, r.validees.body, r.utilisateur));
-export const supprimerInfrastructure = async (r, s) => envoyerSucces(s, await service.supprimerInfrastructure(r.validees.params.code, r.utilisateur));
+// DELETE /api/v1/catalogue/campus/:code
+export async function supprimerCampus(requete, reponse) {
+  const { code } = requete.validees.params;
+  const resultat = await catalogueService.supprimerCampus(code, requete.utilisateur);
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Campus supprimé.');
+}
 
-export const listerConditions = async (r, s) => envoyerSucces(s, await service.listerConditions(r.validees.params.code));
-export const creerCondition = async (r, s) => envoyerSucces(s, await service.creerCondition(r.validees.params.code, r.validees.body, r.utilisateur), 201);
-export const modifierCondition = async (r, s) => envoyerSucces(s, await service.modifierCondition(r.validees.params.code, r.validees.body, r.utilisateur));
-export const supprimerCondition = async (r, s) => envoyerSucces(s, await service.supprimerCondition(r.validees.params.code, r.utilisateur));
+// ---------- Facultés ----------
 
-export const listerMembres = async (r, s) => envoyerSucces(s, await service.listerMembres(r.validees.params.code, r.utilisateur));
-export const ajouterMembre = async (r, s) => envoyerSucces(s, await service.ajouterMembre(r.validees.params.code, r.validees.body, r.utilisateur), 201);
-export const retirerMembre = async (r, s) => envoyerSucces(s, await service.retirerMembre(r.validees.params.code, r.utilisateur));
+export async function listerFacultes(requete, reponse) {
+  const { code } = requete.validees.params;
+  const facultes = await catalogueService.listerFacultes(code);
+  return envoyerSucces(reponse, facultes, 200, undefined, 'Facultés chargées.');
+}
+
+export async function creerFaculte(requete, reponse) {
+  const { code } = requete.validees.params;
+  const donneesFaculte = requete.validees.body;
+  const faculte = await catalogueService.creerFaculte(code, donneesFaculte, requete.utilisateur);
+  return envoyerSucces(reponse, faculte, 201, undefined, 'Faculté créée.');
+}
+
+export async function modifierFaculte(requete, reponse) {
+  const { code } = requete.validees.params;
+  const faculte = await catalogueService.modifierFaculte(
+    code,
+    requete.validees.body,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, faculte, 200, undefined, 'Faculté mise à jour.');
+}
+
+export async function supprimerFaculte(requete, reponse) {
+  const { code } = requete.validees.params;
+  const resultat = await catalogueService.supprimerFaculte(code, requete.utilisateur);
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Faculté supprimée.');
+}
+
+// ---------- Filières ----------
+
+export async function listerFilieres(requete, reponse) {
+  const { code } = requete.validees.params;
+  const filieres = await catalogueService.listerFilieres(code);
+  return envoyerSucces(reponse, filieres, 200, undefined, 'Filières chargées.');
+}
+
+export async function creerFiliere(requete, reponse) {
+  const { code } = requete.validees.params;
+  const donneesFiliere = requete.validees.body;
+  const filiere = await catalogueService.creerFiliere(code, donneesFiliere, requete.utilisateur);
+  return envoyerSucces(reponse, filiere, 201, undefined, 'Filière créée.');
+}
+
+export async function modifierFiliere(requete, reponse) {
+  const { code } = requete.validees.params;
+  const filiere = await catalogueService.modifierFiliere(
+    code,
+    requete.validees.body,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, filiere, 200, undefined, 'Filière mise à jour.');
+}
+
+export async function supprimerFiliere(requete, reponse) {
+  const { code } = requete.validees.params;
+  const resultat = await catalogueService.supprimerFiliere(code, requete.utilisateur);
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Filière supprimée.');
+}
+
+export async function associerFiliere(requete, reponse) {
+  const { codeCampus, codeFiliere } = requete.validees.params;
+  const resultat = await catalogueService.associerFiliereCampus(
+    codeCampus,
+    codeFiliere,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Filière associée au campus.');
+}
+
+export async function dissocierFiliere(requete, reponse) {
+  const { codeCampus, codeFiliere } = requete.validees.params;
+  const resultat = await catalogueService.dissocierFiliereCampus(
+    codeCampus,
+    codeFiliere,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Filière retirée du campus.');
+}
+
+// ---------- Services universitaires ----------
+
+export async function listerServices(requete, reponse) {
+  const { code } = requete.validees.params;
+  const services = await catalogueService.listerServices(code);
+  return envoyerSucces(reponse, services, 200, undefined, 'Services universitaires chargés.');
+}
+
+export async function creerService(requete, reponse) {
+  const { code } = requete.validees.params;
+  const service = await catalogueService.creerService(
+    code,
+    requete.validees.body,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, service, 201, undefined, 'Service universitaire créé.');
+}
+
+export async function modifierService(requete, reponse) {
+  const { code } = requete.validees.params;
+  const service = await catalogueService.modifierService(
+    code,
+    requete.validees.body,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, service, 200, undefined, 'Service universitaire mis à jour.');
+}
+
+export async function supprimerService(requete, reponse) {
+  const { code } = requete.validees.params;
+  const resultat = await catalogueService.supprimerService(code, requete.utilisateur);
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Service universitaire supprimé.');
+}
+
+// ---------- Infrastructures ----------
+
+export async function listerInfrastructures(requete, reponse) {
+  const { code } = requete.validees.params;
+  const infrastructures = await catalogueService.listerInfrastructures(code);
+  return envoyerSucces(reponse, infrastructures, 200, undefined, 'Infrastructures chargées.');
+}
+
+export async function creerInfrastructure(requete, reponse) {
+  const { code } = requete.validees.params;
+  const infrastructure = await catalogueService.creerInfrastructure(
+    code,
+    requete.validees.body,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, infrastructure, 201, undefined, 'Infrastructure créée.');
+}
+
+export async function modifierInfrastructure(requete, reponse) {
+  const { code } = requete.validees.params;
+  const infrastructure = await catalogueService.modifierInfrastructure(
+    code,
+    requete.validees.body,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, infrastructure, 200, undefined, 'Infrastructure mise à jour.');
+}
+
+export async function supprimerInfrastructure(requete, reponse) {
+  const { code } = requete.validees.params;
+  const resultat = await catalogueService.supprimerInfrastructure(code, requete.utilisateur);
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Infrastructure supprimée.');
+}
+
+// ---------- Conditions d’admission ----------
+
+export async function listerConditions(requete, reponse) {
+  const { code } = requete.validees.params;
+  const conditions = await catalogueService.listerConditions(code);
+  return envoyerSucces(reponse, conditions, 200, undefined, 'Conditions d’admission chargées.');
+}
+
+export async function creerCondition(requete, reponse) {
+  const { code } = requete.validees.params;
+  const condition = await catalogueService.creerCondition(
+    code,
+    requete.validees.body,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, condition, 201, undefined, 'Condition d’admission créée.');
+}
+
+export async function modifierCondition(requete, reponse) {
+  const { code } = requete.validees.params;
+  const condition = await catalogueService.modifierCondition(
+    code,
+    requete.validees.body,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, condition, 200, undefined, 'Condition d’admission mise à jour.');
+}
+
+export async function supprimerCondition(requete, reponse) {
+  const { code } = requete.validees.params;
+  const resultat = await catalogueService.supprimerCondition(code, requete.utilisateur);
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Condition d’admission supprimée.');
+}
+
+// ---------- Membres institutionnels ----------
+
+export async function listerMembres(requete, reponse) {
+  const { code } = requete.validees.params;
+  const membres = await catalogueService.listerMembres(code, requete.utilisateur);
+  return envoyerSucces(reponse, membres, 200, undefined, 'Membres institutionnels chargés.');
+}
+
+export async function ajouterMembre(requete, reponse) {
+  const { code } = requete.validees.params;
+  const membre = await catalogueService.ajouterMembre(
+    code,
+    requete.validees.body,
+    requete.utilisateur,
+  );
+  return envoyerSucces(reponse, membre, 201, undefined, 'Membre institutionnel ajouté.');
+}
+
+export async function retirerMembre(requete, reponse) {
+  const { code } = requete.validees.params;
+  const resultat = await catalogueService.retirerMembre(code, requete.utilisateur);
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Membre institutionnel retiré.');
+}
