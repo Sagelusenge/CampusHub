@@ -1,0 +1,18 @@
+# Dépendances Node.js
+node_modules/
+
+# Configuration locale et secrets
+.env
+.env.*.local
+
+# Journaux et sorties
+*.log
+logs/
+coverage/
+dist/
+
+# Éditeurs et système
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
