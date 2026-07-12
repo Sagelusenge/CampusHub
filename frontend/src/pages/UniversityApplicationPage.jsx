@@ -1,16 +1,18 @@
-import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Check, Eye, EyeOff, FileCheck2, LockKeyhole, Mail, MapPin, Send } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Check, CreditCard, Eye, EyeOff, FileCheck2, LockKeyhole, Mail, Send } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { PageShell } from '../components/PageShell.jsx';
 import { Spinner } from '../components/Spinner.jsx';
+import { LocationSelector } from '../components/LocationSelector.jsx';
+import { FileUploadField } from '../components/FileUploadField.jsx';
 
 const initialForm = {
   nomAffichage: '',
   email: '',
   motDePasse: '',
-  ville: 'Goma',
-  province: 'Nord-Kivu',
+  countryCode: 'CD', pays: 'Democratic Republic of the Congo',
+  stateCode: '', ville: '', province: '',
 };
 
 export function UniversityApplicationPage() {
@@ -31,7 +33,7 @@ export function UniversityApplicationPage() {
     try {
       const response = await apiRequest('/auth/inscription', {
         method: 'POST',
-        body: { ...form, role: 'UNIVERSITE' },
+        body: { email:form.email,motDePasse:form.motDePasse,role:'UNIVERSITE',nomAffichage:form.nomAffichage,pays:form.pays,ville:form.ville,province:form.province },
       });
       setResult(response.donnees);
     } catch (err) {
@@ -44,25 +46,7 @@ export function UniversityApplicationPage() {
   if (result) {
     return (
       <PageShell>
-        <section className="success-page">
-          <div className="success-card">
-            <div className="success-icon"><Check size={34} /></div>
-            <span className="eyebrow eyebrow--accent">Demande transmise</span>
-            <h1>Votre établissement est en cours d’examen.</h1>
-            <p>L’administration CampusHub vérifiera votre demande avant d’activer votre accès institutionnel.</p>
-            <div className="request-reference">
-              <span>Référence de la demande</span>
-              <strong>{result.code_utilisateur || result.codeUtilisateur}</strong>
-            </div>
-            <div className="steps-list">
-              <div className="steps-list__item steps-list__item--done"><span><Check size={16} /></span><div><strong>Demande reçue</strong><small>Vos informations sont enregistrées.</small></div></div>
-              <div className="steps-list__item"><span>2</span><div><strong>Vérification administrative</strong><small>L’équipe examine l’identité de votre établissement.</small></div></div>
-              <div className="steps-list__item"><span>3</span><div><strong>Création de la fiche publique</strong><small>Après activation, connectez-vous pour compléter votre université.</small></div></div>
-            </div>
-            <Link className="button button--full" to="/connexion">Aller à la connexion <ArrowRight size={18} /></Link>
-            <Link className="text-link centered" to="/">Retour à l’accueil</Link>
-          </div>
-        </section>
+        <PaymentStep code={result.code_utilisateur || result.codeUtilisateur} />
       </PageShell>
     );
   }
@@ -78,8 +62,8 @@ export function UniversityApplicationPage() {
             <p>CampusHub protège la confiance de sa communauté grâce à un processus simple de validation.</p>
             <div className="process-card">
               <div><span><Send size={18} /></span><p><strong>1. Envoyez votre demande</strong><small>Créez le compte officiel de l’établissement.</small></p></div>
-              <div><span><FileCheck2 size={18} /></span><p><strong>2. Nous vérifions</strong><small>Un administrateur accepte ou rejette la demande.</small></p></div>
-              <div><span><BadgeCheck size={18} /></span><p><strong>3. Publiez votre fiche</strong><small>Ajoutez campus, facultés, filières et services.</small></p></div>
+              <div><span><CreditCard size={18} /></span><p><strong>2. Réglez 20 $</strong><small>13 $ d’accès + 7 $ de certification.</small></p></div>
+              <div><span><FileCheck2 size={18} /></span><p><strong>3. Nous vérifions</strong><small>Le paiement validé active le compte.</small></p></div>
             </div>
           </aside>
 
@@ -105,14 +89,7 @@ export function UniversityApplicationPage() {
               <div className="input-with-icon"><LockKeyhole size={18} /><input type={showPassword ? 'text' : 'password'} required minLength="8" maxLength="72" placeholder="8 caractères minimum" value={form.motDePasse} onChange={update('motDePasse')} /><button type="button" onClick={() => setShowPassword((value) => !value)} aria-label="Afficher le mot de passe">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>
               <small>Conservez-le : il permettra de se connecter après validation.</small>
             </label>
-            <label className="form-field">
-              <span>Ville</span>
-              <div className="input-with-icon"><MapPin size={18} /><input required value={form.ville} onChange={update('ville')} /></div>
-            </label>
-            <label className="form-field">
-              <span>Province</span>
-              <div className="input-with-icon"><MapPin size={18} /><input required value={form.province} onChange={update('province')} /></div>
-            </label>
+            <div className="form-field--wide"><LocationSelector value={form} emailContact={form.email} onChange={changes=>setForm(current=>({...current,...changes}))}/></div>
 
             <label className="consent form-field--wide">
               <input type="checkbox" required />
@@ -128,4 +105,12 @@ export function UniversityApplicationPage() {
       </section>
     </PageShell>
   );
+}
+
+function PaymentStep({code}) {
+  const [form,setForm]=useState({moyenPaiement:'MOBILE_MONEY',referencePaiement:'',urlPreuve:''});
+  const [loading,setLoading]=useState(false); const [error,setError]=useState(''); const [sent,setSent]=useState(false);
+  async function submit(event){event.preventDefault();if(!form.urlPreuve){setError('Ajoutez une preuve de paiement.');return;}setLoading(true);setError('');try{await apiRequest('/abonnements/paiements',{method:'POST',body:{codeUtilisateur:code,...form}});setSent(true)}catch(err){setError(err.message)}finally{setLoading(false)}}
+  if(sent)return <section className="success-page"><div className="success-card"><div className="success-icon"><Check/></div><span className="eyebrow eyebrow--accent">Paiement transmis</span><h1>Votre activation est en cours.</h1><p>Un administrateur vérifiera la preuve. Vous recevrez ensuite l’accès pour créer la fiche de l’université.</p><div className="request-reference"><span>Compte institutionnel</span><strong>{code}</strong></div><Link className="button button--full" to="/connexion">Essayer la connexion <ArrowRight/></Link></div></section>;
+  return <section className="subscription-checkout"><div className="container checkout-layout"><div className="plan-card"><span className="pill pill--teal"><BadgeCheck/>CampusHub Certifié</span><h1>Activez votre espace institutionnel.</h1><p>Un abonnement simple, renouvelé tous les 30 jours.</p><div className="price"><strong>20 $</strong><span>/ mois</span></div><div className="price-breakdown"><span>Accès complet CampusHub <strong>13 $</strong></span><span>Badge et certification <strong>7 $</strong></span></div><ul><li><Check/>Fiche publique et catalogue complet</li><li><Check/>Validation des étudiants affiliés</li><li><Check/>Publications et statistiques</li><li><Check/>Badge certifié et priorité dans l’annuaire</li><li><Check/>Alertes de renouvellement</li></ul></div><form className="form-card payment-form" onSubmit={submit}><span className="eyebrow eyebrow--accent">Étape 2 sur 2</span><h2>Preuve de paiement</h2><p>Le compte sera activé après contrôle par l’administration.</p>{error&&<div className="alert alert--error">{error}</div>}<label className="form-field"><span>Moyen de paiement</span><select value={form.moyenPaiement} onChange={e=>setForm({...form,moyenPaiement:e.target.value})}><option value="MOBILE_MONEY">Mobile Money</option><option value="CARTE">Carte</option><option value="VIREMENT">Virement</option><option value="ESPECES">Espèces</option><option value="AUTRE">Autre</option></select></label><label className="form-field"><span>Référence de la transaction</span><input required value={form.referencePaiement} onChange={e=>setForm({...form,referencePaiement:e.target.value})} placeholder="Ex. MP240712001"/></label><FileUploadField label="Charger la preuve depuis la machine" value={form.urlPreuve} onUploaded={url=>setForm({...form,urlPreuve:url})} proof/><button className="button button--large button--full" disabled={loading}>{loading?<Spinner/>:<><CreditCard/>Envoyer pour validation</>}</button><div className="request-reference"><span>Référence du compte</span><strong>{code}</strong></div></form></div></section>;
 }

@@ -45,12 +45,24 @@ export async function obtenirMonProfil(utilisateurId) {
 }
 
 export async function creerProfil(utilisateurId, donnees) {
-  const [[universites], [filieres]] = await Promise.all([
+  const [[universites], [filieres], [affiliations], [profilsExistants]] = await Promise.all([
     baseDeDonnees.execute('SELECT id FROM universites WHERE code_universite = ? LIMIT 1', [donnees.codeUniversite.toUpperCase()]),
-    baseDeDonnees.execute('SELECT id FROM filieres WHERE code_filiere = ? LIMIT 1', [donnees.codeFiliere.toUpperCase()]),
+    baseDeDonnees.execute('SELECT id, universite_id FROM filieres WHERE code_filiere = ? LIMIT 1', [donnees.codeFiliere.toUpperCase()]),
+    baseDeDonnees.execute(
+      `SELECT d.id FROM demandes_affiliation_etudiante d
+       JOIN universites u ON u.id = d.universite_id
+       JOIN filieres f ON f.id = d.filiere_id
+       WHERE d.etudiant_id = ? AND d.statut = 'ACCEPTEE'
+         AND u.code_universite = ? AND f.code_filiere = ? LIMIT 1`,
+      [utilisateurId, donnees.codeUniversite.toUpperCase(), donnees.codeFiliere.toUpperCase()],
+    ),
+    baseDeDonnees.execute('SELECT id FROM profils_etudiants WHERE utilisateur_id = ? LIMIT 1', [utilisateurId]),
   ]);
   if (!universites[0]) throw new ErreurApi(404, 'Université introuvable.');
   if (!filieres[0]) throw new ErreurApi(404, 'Filière introuvable.');
+  if (filieres[0].universite_id !== universites[0].id) throw new ErreurApi(400, 'Cette filière ne dépend pas de l’université choisie.');
+  if (!affiliations[0]) throw new ErreurApi(403, 'Votre université doit confirmer votre affiliation avant la création du profil.');
+  if (profilsExistants[0]) throw new ErreurApi(409, 'Votre profil étudiant existe déjà.');
   const [resultats] = await baseDeDonnees.query(
     'CALL sp_creer_profil_etudiant(?, ?, ?, ?, ?, ?, ?)',
     [utilisateurId, universites[0].id, filieres[0].id, donnees.matriculeEtudiant ?? null,

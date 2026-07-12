@@ -55,7 +55,9 @@ export function AdminDashboardPage() {
     Math.max(55, Number(stats.utilisateurs || 0) * 5),
     Math.max(30, Number(stats.mentions_jaime || 0) * 4),
   ].map((value) => Math.min(value, 94));
-  const totalActions = Number(stats.comptes_en_attente || 0) + Number(stats.universites_a_verifier || 0) + Number(stats.signalements_a_traiter || 0);
+  const totalActions = Number(stats.comptes_en_attente || 0) + Number(stats.universites_a_verifier || 0)
+    + Number(stats.signalements_a_traiter || 0) + Number(stats.paiements_a_verifier || 0)
+    + Number(stats.villes_a_examiner || 0);
 
   return (
     <div className="dashboard-view">
@@ -88,6 +90,8 @@ export function AdminDashboardPage() {
             <Link to="/administration/demandes"><span><i className="dot dot--amber" /> Comptes</span><strong>{stats.comptes_en_attente || 0}</strong></Link>
             <Link to="/administration/universites"><span><i className="dot dot--teal" /> Universités</span><strong>{stats.universites_a_verifier || 0}</strong></Link>
             <Link to="/administration/moderation"><span><i className="dot dot--red" /> Signalements</span><strong>{stats.signalements_a_traiter || 0}</strong></Link>
+            <Link to="/administration/abonnements"><span><i className="dot dot--amber" /> Paiements</span><strong>{stats.paiements_a_verifier || 0}</strong></Link>
+            <Link to="/administration/localisations"><span><i className="dot dot--teal" /> Villes proposées</span><strong>{stats.villes_a_examiner || 0}</strong></Link>
           </div>
         </section>
       </div>

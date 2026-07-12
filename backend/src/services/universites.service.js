@@ -3,6 +3,20 @@ import { ErreurApi } from '../utils/erreur-api.js';
 import { construireMiseAJour } from '../utils/sql.js';
 import { trouverUniversiteParCode, verifierGestionUniversite } from './autorisations.service.js';
 
+function creerSlug(texte) {
+  return texte.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 170) || 'universite';
+}
+
+async function slugDisponible(connexion, slugBase) {
+  let slug = slugBase; let suffixe = 1;
+  while (true) {
+    const [lignes] = await connexion.execute('SELECT id FROM universites WHERE slug = ? LIMIT 1', [slug]);
+    if (!lignes[0]) return slug;
+    suffixe += 1; slug = `${slugBase}-${suffixe}`;
+  }
+}
+
 export async function rechercherUniversites(filtres) {
   const [resultats] = await baseDeDonnees.query(
     'CALL sp_rechercher_universites(?, ?, ?, ?, ?, ?)',
@@ -15,7 +29,15 @@ export async function rechercherUniversites(filtres) {
       filtres.service ?? null,
     ],
   );
-  return resultats[0];
+  const [certifiees] = await baseDeDonnees.query(
+    `SELECT DISTINCT universite_id FROM abonnements_universite
+     WHERE statut = 'ACTIF' AND date_fin > CURRENT_TIMESTAMP AND universite_id IS NOT NULL`,
+  );
+  const idsCertifies = new Set(certifiees.map((item) => Number(item.universite_id)));
+  return resultats[0].map((universite) => ({
+    ...universite,
+    est_certifiee: idsCertifies.has(Number(universite.id)),
+  }));
 }
 
 export async function obtenirUniversiteParCode(code) {
@@ -27,7 +49,9 @@ export async function obtenirUniversiteParCode(code) {
        (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id) AS nombre_etudiants,
        (SELECT COUNT(*) FROM abonnements_universites au WHERE au.universite_id = u.id) AS nombre_abonnes,
        (SELECT MIN(fi.frais_minimum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_minimum,
-       (SELECT MAX(fi.frais_maximum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_maximum
+       (SELECT MAX(fi.frais_maximum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_maximum,
+       EXISTS(SELECT 1 FROM abonnements_universite au
+         WHERE au.universite_id = u.id AND au.statut = 'ACTIF' AND au.date_fin > CURRENT_TIMESTAMP) AS est_certifiee
      FROM universites u WHERE u.code_universite = ? LIMIT 1`,
     [code.toUpperCase()],
   );
@@ -80,20 +104,35 @@ export async function creerUniversite(donnees, utilisateur) {
   const connexion = await baseDeDonnees.getConnection();
   try {
     await connexion.beginTransaction();
+    if (utilisateur.role === 'UNIVERSITE') {
+      const [abonnements] = await connexion.execute(
+        `SELECT id FROM abonnements_universite
+         WHERE utilisateur_id = ? AND statut = 'ACTIF' AND date_fin > CURRENT_TIMESTAMP LIMIT 1`,
+        [utilisateur.id],
+      );
+      if (!abonnements[0]) throw new ErreurApi(403, 'Un abonnement CampusHub actif est requis avant de créer la fiche universitaire.');
+    }
+    const slug = await slugDisponible(connexion, donnees.slug ?? creerSlug(donnees.nom));
     const [resultats] = await connexion.query(
       'CALL sp_ajouter_universite(?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
-        donnees.nom, donnees.sigle ?? null, donnees.slug, donnees.type,
+        donnees.nom, donnees.sigle ?? null, slug, donnees.type,
         donnees.description ?? null, donnees.ville, donnees.province,
         donnees.email ?? null, donnees.telephone ?? null,
       ],
     );
     const universite = resultats[0][0];
+    if (donnees.pays) await connexion.execute('UPDATE universites SET pays = ? WHERE id = ?', [donnees.pays, universite.id]);
     if (utilisateur.role === 'UNIVERSITE') {
       await connexion.execute(
         `INSERT INTO membres_universite
           (code_membre, universite_id, utilisateur_id, fonction, est_proprietaire)
          VALUES ('', ?, ?, 'Administrateur institutionnel', 1)`,
+        [universite.id, utilisateur.id],
+      );
+      await connexion.execute(
+        `UPDATE abonnements_universite SET universite_id = ?
+         WHERE utilisateur_id = ? AND statut = 'ACTIF' AND universite_id IS NULL`,
         [universite.id, utilisateur.id],
       );
     }
@@ -113,7 +152,7 @@ export async function modifierUniversite(code, donnees, utilisateur) {
   const { clause, valeurs } = construireMiseAJour(donnees, {
     nom: 'nom', sigle: 'sigle', description: 'description', urlLogo: 'url_logo',
     urlCouverture: 'url_couverture', siteWeb: 'site_web', email: 'email', telephone: 'telephone',
-    anneeFondation: 'annee_fondation', adresse: 'adresse', ville: 'ville', province: 'province',
+    anneeFondation: 'annee_fondation', adresse: 'adresse', pays: 'pays', ville: 'ville', province: 'province',
     inscriptionsOuvertes: 'inscriptions_ouvertes', dateDebutInscription: 'date_debut_inscription',
     dateFinInscription: 'date_fin_inscription',
   });

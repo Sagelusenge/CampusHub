@@ -8,7 +8,8 @@ export function Header() {
   const { estConnecte, utilisateur, deconnexion } = useAuth();
   const navigate = useNavigate();
 
-  const espace = utilisateur?.role === 'ADMINISTRATEUR' ? '/administration' : '/espace-universite';
+  const espace = utilisateur?.role === 'ADMINISTRATEUR' ? '/administration'
+    : utilisateur?.role === 'ETUDIANT' ? '/espace-etudiant' : '/espace-universite';
 
   async function quitter() {
     await deconnexion();

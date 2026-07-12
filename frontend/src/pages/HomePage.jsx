@@ -181,8 +181,8 @@ export function HomePage() {
             <p>Envoyez votre demande. Notre équipe vérifie votre identité avant toute publication.</p>
           </div>
           <div className="cta-actions">
+            <Link className="button button--light" to="/inscription-etudiant"><GraduationCap size={18} /> S’inscrire comme étudiant</Link>
             <Link className="button button--teal" to="/partenariat"><Building2 size={18} /> Demande de partenariat</Link>
-            <Link className="button button--light" to="/connexion">Accéder à mon espace</Link>
           </div>
         </Reveal>
       </section>

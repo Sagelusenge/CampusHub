@@ -2,8 +2,10 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import path from 'node:path';
 import { rateLimit } from 'express-rate-limit';
 import { environnement } from './config/environnement.js';
+import { dossierTeleversements } from './config/televersement.js';
 import { gestionnaireErreurs, routeIntrouvable } from './middlewares/erreurs.middleware.js';
 import { routesApi } from './routes/index.js';
 
@@ -18,10 +20,11 @@ const originesFrontend = environnement.NODE_ENV === 'production'
     ])];
 
 app.disable('x-powered-by');
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: originesFrontend, credentials: true }));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+app.use('/uploads', express.static(path.resolve(dossierTeleversements), { maxAge: '7d', index: false }));
 app.use(morgan(environnement.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, limit: 300 }));
 

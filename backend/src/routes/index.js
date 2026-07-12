@@ -10,11 +10,19 @@ import { routePublications } from './publications.routes.js';
 import { routeSante } from './sante.routes.js';
 import { routeUniversites } from './universites.routes.js';
 import { routeUtilisateurs } from './utilisateurs.routes.js';
+import { routeAbonnements } from './abonnements.routes.js';
+import { routeAffiliations } from './affiliations.routes.js';
+import { routeLocalisations } from './localisations.routes.js';
+import { routeTeleversements } from './televersements.routes.js';
 
 export const routesApi = Router();
 
 routesApi.use('/sante', routeSante);
 routesApi.use('/auth', routeAuthentification);
+routesApi.use('/abonnements', routeAbonnements);
+routesApi.use('/affiliations', routeAffiliations);
+routesApi.use('/localisations', routeLocalisations);
+routesApi.use('/televersements', routeTeleversements);
 routesApi.use('/universites', routeUniversites);
 routesApi.use('/utilisateurs', routeUtilisateurs);
 routesApi.use('/profils', routeProfils);

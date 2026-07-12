@@ -10,6 +10,7 @@ node_modules/
 logs/
 coverage/
 dist/
+backend/uploads/
 
 # Éditeurs et système
 .vscode/

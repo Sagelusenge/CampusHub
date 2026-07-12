@@ -5,6 +5,7 @@ export const schemaInscription = z.object({
   motDePasse: z.string().min(8).max(72),
   role: z.enum(['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ENTREPRISE']),
   nomAffichage: z.string().trim().min(2).max(120),
+  pays: z.string().trim().min(2).max(100).optional(),
   ville: z.string().trim().max(100).optional(),
   province: z.string().trim().max(100).optional(),
 });

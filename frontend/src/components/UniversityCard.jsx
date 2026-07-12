@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, MapPin, ShieldCheck, Users } from 'lucide-react';
+import { ArrowUpRight, BadgeCheck, BookOpen, MapPin, ShieldCheck, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from './StatusBadge.jsx';
 
@@ -13,7 +13,7 @@ export function UniversityCard({ university, index = 0 }) {
     <article className="university-card">
       <div className="university-card__image">
         <img src={university.url_couverture || images[index % images.length]} alt={`Campus de ${university.nom}`} />
-        <div className="official-badge"><ShieldCheck size={15} /> Institution vérifiée</div>
+        <div className="official-badge">{university.est_certifiee ? <BadgeCheck size={15} /> : <ShieldCheck size={15} />} {university.est_certifiee ? 'CampusHub certifiée' : 'Institution vérifiée'}</div>
       </div>
       <div className="university-card__body">
         <div className="university-card__title">

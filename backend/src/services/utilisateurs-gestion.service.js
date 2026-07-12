@@ -4,7 +4,7 @@ import { construireMiseAJour, metaPagination, pagination } from '../utils/sql.js
 import { trouverUtilisateurParId } from './utilisateurs.service.js';
 
 const colonnesPubliques = `id, code_utilisateur, role, statut_verification,
-  nom_affichage, url_photo_profil, biographie, ville, province, date_creation`;
+  nom_affichage, url_photo_profil, biographie, pays, ville, province, date_creation`;
 
 export async function listerUtilisateurs(filtres) {
   const { page, limite, decalage } = pagination(filtres.page, filtres.limite);

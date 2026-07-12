@@ -3,6 +3,7 @@ import { DashboardShell } from './components/DashboardShell.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import { InstitutionProvider } from './context/InstitutionContext.jsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.jsx';
+import { AdminLocationsPage } from './pages/AdminLocationsPage.jsx';
 import { AdminAuditPage, AdminModerationPage, AdminRequestsPage, AdminUniversitiesPage, AdminUsersPage } from './pages/AdminManagementPages.jsx';
 import { ComparePage } from './pages/ComparePage.jsx';
 import { HomePage } from './pages/HomePage.jsx';
@@ -17,12 +18,17 @@ import { NotificationsPage } from './pages/NotificationsPage.jsx';
 import { PortfolioDetailPage } from './pages/PortfolioDetailPage.jsx';
 import { PortfoliosPage } from './pages/PortfoliosPage.jsx';
 import { SettingsPage } from './pages/SettingsPage.jsx';
+import { StudentAffiliationPage, StudentDashboardPage, StudentProfilePage } from './pages/StudentPages.jsx';
+import { StudentRegistrationPage } from './pages/StudentRegistrationPage.jsx';
+import { AdminSubscriptionsPage, InstitutionSubscriptionPage } from './pages/SubscriptionsPages.jsx';
 import { UniversitiesPage } from './pages/UniversitiesPage.jsx';
 import { UniversityApplicationPage } from './pages/UniversityApplicationPage.jsx';
+import { UniversityAffiliationsPage } from './pages/UniversityAffiliationsPage.jsx';
 import { UniversityDetailPage } from './pages/UniversityDetailPage.jsx';
 
 const protectAdmin = <ProtectedRoute roles={['ADMINISTRATEUR']}><DashboardShell role="admin" /></ProtectedRoute>;
 const protectInstitution = <ProtectedRoute roles={['UNIVERSITE']}><InstitutionProvider><DashboardShell role="institution" /></InstitutionProvider></ProtectedRoute>;
+const protectStudent = <ProtectedRoute roles={['ETUDIANT']}><DashboardShell role="student" /></ProtectedRoute>;
 
 export function App() {
   return <Routes>
@@ -34,6 +40,7 @@ export function App() {
     <Route path="/portfolios/:code" element={<PortfolioDetailPage />} />
     <Route path="/connexion" element={<LoginPage />} />
     <Route path="/partenariat" element={<UniversityApplicationPage />} />
+    <Route path="/inscription-etudiant" element={<StudentRegistrationPage />} />
 
     <Route element={protectAdmin}>
       <Route path="/administration" element={<AdminDashboardPage />} />
@@ -42,6 +49,8 @@ export function App() {
       <Route path="/administration/utilisateurs" element={<AdminUsersPage />} />
       <Route path="/administration/moderation" element={<AdminModerationPage />} />
       <Route path="/administration/audit" element={<AdminAuditPage />} />
+      <Route path="/administration/abonnements" element={<AdminSubscriptionsPage />} />
+      <Route path="/administration/localisations" element={<AdminLocationsPage />} />
       <Route path="/administration/notifications" element={<NotificationsPage />} />
       <Route path="/administration/parametres" element={<SettingsPage />} />
     </Route>
@@ -55,8 +64,18 @@ export function App() {
       <Route path="/espace-universite/infrastructures" element={<InstitutionResourcePage type="infrastructures" />} />
       <Route path="/espace-universite/admissions" element={<InstitutionResourcePage type="admissions" />} />
       <Route path="/espace-universite/publications" element={<InstitutionPublicationsPage />} />
+      <Route path="/espace-universite/affiliations" element={<UniversityAffiliationsPage />} />
+      <Route path="/espace-universite/abonnement" element={<InstitutionSubscriptionPage />} />
       <Route path="/espace-universite/notifications" element={<NotificationsPage />} />
       <Route path="/espace-universite/parametres" element={<SettingsPage />} />
+    </Route>
+
+    <Route element={protectStudent}>
+      <Route path="/espace-etudiant" element={<StudentDashboardPage />} />
+      <Route path="/espace-etudiant/affiliation" element={<StudentAffiliationPage />} />
+      <Route path="/espace-etudiant/profil" element={<StudentProfilePage />} />
+      <Route path="/espace-etudiant/notifications" element={<NotificationsPage />} />
+      <Route path="/espace-etudiant/parametres" element={<SettingsPage />} />
     </Route>
 
     <Route path="*" element={<NotFoundPage />} />

@@ -30,4 +30,15 @@ export async function apiRequest(path, options = {}) {
   return payload;
 }
 
+export async function uploadFile(path, file, token) {
+  const body = new FormData(); body.append('fichier', file);
+  const response = await fetch(`${API_URL}${path}`, {
+    method: 'POST', body,
+    headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+  });
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) throw new ApiError(payload?.erreur?.message || 'Le fichier n’a pas pu être envoyé.', response.status, payload?.erreur);
+  return payload;
+}
+
 export { API_URL };

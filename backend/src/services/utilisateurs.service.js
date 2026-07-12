@@ -2,7 +2,7 @@ import { baseDeDonnees } from '../config/base-de-donnees.js';
 
 const colonnesPubliques = `
   id, code_utilisateur, email, role, statut_compte, statut_verification,
-  nom_affichage, url_photo_profil, biographie, ville, province,
+  nom_affichage, url_photo_profil, biographie, pays, ville, province,
   date_verification_email, date_derniere_connexion, date_creation
 `;
 

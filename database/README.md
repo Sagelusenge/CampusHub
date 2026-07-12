@@ -11,7 +11,8 @@
 2. Ouvrir les scripts avec **File > Open SQL Script**.
 3. Exécuter, dans l'ordre, `01_structure.sql`, `02_automatismes.sql`, `03_procedures.sql` et `04_vues.sql`.
 4. Exécuter ensuite `05_donnees_test.sql` si vous souhaitez des données fictives.
-5. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
+5. Exécuter `07_abonnements_affiliations_localisations.sql` pour les abonnements, affiliations et villes proposées.
+6. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
 
 ## Création depuis le client MySQL
 
@@ -23,6 +24,7 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/02_automat
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/03_procedures.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/04_vues.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/05_donnees_test.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/07_abonnements_affiliations_localisations.sql;
 ```
 
 ## Organisation fonctionnelle
@@ -32,6 +34,8 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/05_donnees
 - Vie académique : `publications`, `medias_publication`, `commentaires`.
 - Interactions : `mentions_jaime`, `favoris_publications`, `abonnements_utilisateurs`, `abonnements_universites`.
 - Administration : `signalements`, `notifications`, `journal_audit`.
+- Abonnements : `plans_abonnement`, `paiements_abonnement`, `abonnements_universite`.
+- Affiliations : `demandes_affiliation_etudiante`, `suggestions_localisation`.
 
 Les fichiers médias ne sont pas enregistrés directement dans MySQL. La table `medias_publication` conserve leur URL et leurs informations techniques.
 
@@ -47,8 +51,8 @@ La table `compteurs_sequences` garantit que deux insertions simultanées ne reç
 
 ## Automatismes disponibles
 
-- 23 triggers : numérotation, validation, notifications et audit.
+- 28 triggers : numérotation, validation, notifications et audit.
 - 14 procédures : inscription, catalogue, publication, recherche, comparaison et modération.
-- 7 vues : universités, filières, profils, fil d'actualité, statistiques, signalements et notifications.
+- 8 vues : universités, filières, profils, fil d'actualité, statistiques, signalements, notifications et abonnements.
 
 Le fichier `06_exemples_requetes.sql` montre comment appeler les procédures et interroger les vues.

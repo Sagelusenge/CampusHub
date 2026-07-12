@@ -1,10 +1,16 @@
 import { BadgeCheck, BookOpen, Building2, Clock3, FileText, GraduationCap, MapPin, School, Users, Wrench } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { apiRequest } from '../api/client.js';
 import { StatusBadge } from '../components/StatusBadge.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useInstitution } from '../context/InstitutionContext.jsx';
 
 export function InstitutionDashboardPage() {
   const { universite } = useInstitution();
+  const { token } = useAuth();
+  const [abonnement, setAbonnement] = useState(null);
+  useEffect(() => { apiRequest('/abonnements/moi', { token }).then((r) => setAbonnement(r.donnees)).catch(() => setAbonnement(null)); }, [token]);
   if (!universite) return <NoUniversity />;
 
   const counts = [
@@ -17,6 +23,7 @@ export function InstitutionDashboardPage() {
 
   return <div className="dashboard-view">
     <div className="dashboard-welcome institution-welcome"><div><span>Espace institutionnel</span><h1>{universite.nom}</h1><p><MapPin /> {universite.ville}, {universite.province} • {universite.code_universite}</p></div><StatusBadge status={universite.statut_verification} /></div>
+    <div className={`verification-strip ${abonnement?.statut === 'ACTIF' && abonnement.jours_restants > 7 ? 'verification-strip--success' : ''}`}><span>{abonnement?.statut === 'ACTIF' ? <BadgeCheck /> : <Clock3 />}</span><div><strong>{abonnement?.statut === 'ACTIF' ? `${abonnement.jours_restants} jour(s) d’abonnement restant(s)` : 'Abonnement à renouveler'}</strong><p>{abonnement?.statut === 'ACTIF' ? 'Une alerte renforcée apparaîtra durant les 7 derniers jours.' : 'Renouvelez votre accès pour conserver les services et le badge certifié.'}</p></div><Link to="/espace-universite/abonnement">Gérer</Link></div>
     <div className={`verification-strip ${verified ? 'verification-strip--success' : ''}`}><span>{verified ? <BadgeCheck /> : <Clock3 />}</span><div><strong>{verified ? 'Votre fiche est publiée' : 'Vérification finale en cours'}</strong><p>{verified ? 'Les étudiants peuvent maintenant découvrir votre université.' : 'Vous pouvez compléter toutes les rubriques pendant l’examen.'}</p></div><Link to="/espace-universite/fiche">Voir la fiche</Link></div>
     <div className="metric-grid">{counts.map(({label,value,icon:Icon,tone,href}) => <Link className="metric-card" to={href} key={label}><span className={`metric-card__icon metric-card__icon--${tone}`}><Icon /></span><small>{label}</small><strong>{value}</strong><p>Gérer cette rubrique</p></Link>)}</div>
     <div className="analytics-grid institution-analytics">

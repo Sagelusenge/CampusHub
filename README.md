@@ -46,3 +46,16 @@ npm run dev
 ```
 
 L’interface est ensuite disponible sur `http://127.0.0.1:5173`.
+
+## Parcours métier ajoutés
+
+- localisation guidée `pays → province/État → ville`, avec la RDC par défaut ;
+- signalement au manager lorsqu’une ville manque dans la liste ;
+- inscription étudiant, demande d’affiliation et confirmation par l’université ;
+- abonnement institutionnel mensuel de 20 USD : 13 USD d’accès et 7 USD de certification ;
+- activation après validation du paiement, badge certifié et compte à rebours ;
+- téléversement local des images et preuves dans `backend/uploads` ;
+- slug/identifiant URL universitaire généré automatiquement à partir du nom ;
+- indicateur rouge affiché sur la cloche uniquement en présence de notifications non lues.
+
+Le parcours API correspondant est décrit dans [PARCOURS_ABONNEMENT_AFFILIATION.md](backend/docs/PARCOURS_ABONNEMENT_AFFILIATION.md).

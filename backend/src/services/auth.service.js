@@ -55,7 +55,16 @@ export async function inscrireUtilisateur(donnees) {
     ],
   );
 
-  return resultats[0][0];
+  const utilisateur = resultats[0][0];
+  if (donnees.role === 'ETUDIANT' || donnees.role === 'VISITEUR') {
+    await baseDeDonnees.execute(`UPDATE utilisateurs SET statut_compte = 'ACTIF' WHERE id = ?`, [utilisateur.id]);
+    utilisateur.statut_compte = 'ACTIF';
+  }
+  if (donnees.pays) {
+    await baseDeDonnees.execute('UPDATE utilisateurs SET pays = ? WHERE id = ?', [donnees.pays, utilisateur.id]);
+    utilisateur.pays = donnees.pays;
+  }
+  return utilisateur;
 }
 
 export async function connecterUtilisateur(email, motDePasse) {

@@ -14,7 +14,10 @@ export async function tableauDeBord() {
       (SELECT COUNT(*) FROM publications WHERE statut_publication = 'PUBLIEE') AS publications,
       (SELECT COUNT(*) FROM signalements WHERE statut_signalement IN ('OUVERT', 'EN_EXAMEN')) AS signalements_a_traiter,
       (SELECT COUNT(*) FROM commentaires) AS commentaires,
-      (SELECT COUNT(*) FROM mentions_jaime) AS mentions_jaime
+      (SELECT COUNT(*) FROM mentions_jaime) AS mentions_jaime,
+      (SELECT COUNT(*) FROM paiements_abonnement WHERE statut = 'EN_ATTENTE') AS paiements_a_verifier,
+      (SELECT COUNT(*) FROM abonnements_universite WHERE statut = 'ACTIF' AND date_fin BETWEEN CURRENT_TIMESTAMP AND DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 7 DAY)) AS abonnements_expirant_bientot,
+      (SELECT COUNT(*) FROM suggestions_localisation WHERE statut = 'EN_ATTENTE') AS villes_a_examiner
   `);
   const [sequences] = await baseDeDonnees.query('SELECT nom_sequence, derniere_valeur FROM compteurs_sequences ORDER BY nom_sequence');
   return { indicateurs: lignes[0], compteurs: sequences };

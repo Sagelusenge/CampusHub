@@ -16,7 +16,9 @@ export async function inscription(requete, reponse) {
     utilisateur,
     201,
     undefined,
-    'Compte créé. Il doit être activé avant la première connexion.',
+    donneesInscription.role === 'ETUDIANT'
+      ? 'Compte étudiant créé. Vous pouvez maintenant vous connecter.'
+      : 'Compte créé. Le paiement mensuel doit être validé avant la première connexion.',
   );
 }
 
