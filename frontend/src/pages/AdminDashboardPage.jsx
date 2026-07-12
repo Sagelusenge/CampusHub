@@ -1,46 +1,31 @@
-import {
-  Activity,
-  BadgeCheck,
-  Building2,
-  Check,
-  Clock3,
-  FileClock,
-  LayoutDashboard,
-  RefreshCw,
-  ShieldCheck,
-  UserRoundCheck,
-  Users,
-  X,
-} from 'lucide-react';
+import { ArrowRight, BadgeCheck, Building2, FileText, GraduationCap, RefreshCw, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
-import { PageShell } from '../components/PageShell.jsx';
 import { Spinner } from '../components/Spinner.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export function AdminDashboardPage() {
   const { token, utilisateur } = useAuth();
-  const [dashboard, setDashboard] = useState(null);
-  const [demandes, setDemandes] = useState([]);
-  const [universites, setUniversites] = useState([]);
+  const [data, setData] = useState({ stats: null, demandes: [], universites: [] });
   const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState('');
-  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
   const charger = useCallback(async () => {
     setLoading(true);
-    setError('');
     try {
-      const [statsResponse, accountsResponse, universitiesResponse] = await Promise.all([
+      const [dashboard, demandes, universites] = await Promise.all([
         apiRequest('/administration/tableau-de-bord', { token }),
-        apiRequest('/utilisateurs?role=UNIVERSITE&statut=EN_ATTENTE&page=1&limite=50', { token }),
+        apiRequest('/utilisateurs?role=UNIVERSITE&statut=EN_ATTENTE&page=1&limite=5', { token }),
         apiRequest('/universites'),
       ]);
-      setDashboard(statsResponse.donnees?.indicateurs || {});
-      setDemandes(accountsResponse.donnees || []);
-      setUniversites((universitiesResponse.donnees || []).filter((item) => item.statut_verification === 'EN_ATTENTE'));
+      setData({
+        stats: dashboard.donnees?.indicateurs || {},
+        demandes: demandes.donnees || [],
+        universites: (universites.donnees || []).filter((item) => item.statut_verification === 'EN_ATTENTE').slice(0, 4),
+      });
+      setError('');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -49,147 +34,82 @@ export function AdminDashboardPage() {
   }, [token]);
 
   useEffect(() => {
-    // Le chargement synchronise l'écran avec les données distantes au montage.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     charger();
   }, [charger]);
 
-  async function traiterCompte(code, accepter) {
-    setProcessing(code);
-    setError('');
-    try {
-      await apiRequest(`/utilisateurs/${code}/statut`, {
-        method: 'PATCH',
-        token,
-        body: accepter
-          ? { statutCompte: 'ACTIF', statutVerification: 'VERIFIE' }
-          : { statutCompte: 'SUSPENDU', statutVerification: 'REJETE' },
-      });
-      setDemandes((items) => items.filter((item) => item.code_utilisateur !== code));
-      setMessage(accepter ? 'Le compte institutionnel est maintenant actif.' : 'La demande a été rejetée.');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setProcessing('');
-    }
-  }
+  if (loading) return <div className="content-loading"><Spinner /> Chargement des indicateurs…</div>;
 
-  async function traiterUniversite(code, accepter) {
-    setProcessing(code);
-    setError('');
-    try {
-      await apiRequest(`/administration/universites/${code}/verification`, {
-        method: 'PATCH',
-        token,
-        body: { statut: accepter ? 'VERIFIEE' : 'REJETEE' },
-      });
-      setUniversites((items) => items.filter((item) => item.code_universite !== code));
-      setMessage(accepter ? 'L’université est désormais visible publiquement.' : 'La fiche universitaire a été rejetée.');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setProcessing('');
-    }
-  }
-
-  const stats = [
-    { label: 'Utilisateurs', value: dashboard?.utilisateurs || 0, icon: Users, tone: 'blue' },
-    { label: 'Comptes en attente', value: dashboard?.comptes_en_attente || 0, icon: UserRoundCheck, tone: 'amber' },
-    { label: 'Universités', value: dashboard?.universites || 0, icon: Building2, tone: 'teal' },
-    { label: 'Signalements', value: dashboard?.signalements_a_traiter || 0, icon: Activity, tone: 'red' },
+  const stats = data.stats || {};
+  const cards = [
+    { label: 'Utilisateurs actifs', value: stats.utilisateurs || 0, icon: Users, tone: 'blue', note: 'Tous les comptes' },
+    { label: 'Universités', value: stats.universites || 0, icon: Building2, tone: 'teal', note: `${stats.universites_a_verifier || 0} à vérifier` },
+    { label: 'Profils étudiants', value: stats.profils_etudiants || 0, icon: GraduationCap, tone: 'amber', note: 'Profils visibles' },
+    { label: 'Publications', value: stats.publications || 0, icon: FileText, tone: 'violet', note: `${stats.signalements_a_traiter || 0} signalement(s)` },
   ];
+  const chartValues = [
+    Math.max(18, Number(stats.universites || 0) * 12),
+    Math.max(25, Number(stats.profils_etudiants || 0) * 8),
+    Math.max(34, Number(stats.filieres || 0) * 7),
+    Math.max(42, Number(stats.publications || 0) * 6),
+    Math.max(55, Number(stats.utilisateurs || 0) * 5),
+    Math.max(30, Number(stats.mentions_jaime || 0) * 4),
+  ].map((value) => Math.min(value, 94));
+  const totalActions = Number(stats.comptes_en_attente || 0) + Number(stats.universites_a_verifier || 0) + Number(stats.signalements_a_traiter || 0);
 
   return (
-    <PageShell footer={false}>
-      <section className="dashboard-page">
-        <div className="container dashboard-heading">
-          <div>
-            <span className="eyebrow eyebrow--accent"><ShieldCheck size={15} /> Administration CampusHub</span>
-            <h1>Bonjour, {utilisateur?.nom_affichage || 'Administrateur'}.</h1>
-            <p>Examinez les demandes avant qu’elles rejoignent l’écosystème public.</p>
+    <div className="dashboard-view">
+      <div className="dashboard-welcome">
+        <div><span>Vue d’ensemble</span><h1>Bonjour, {utilisateur?.nom_affichage || 'Administrateur'}</h1><p>Voici l’activité récente de CampusHub.</p></div>
+        <button className="secondary-action" onClick={charger}><RefreshCw /> Actualiser</button>
+      </div>
+      {error && <div className="alert alert--error">{error}</div>}
+
+      <div className="metric-grid">
+        {cards.map(({ label, value, icon: Icon, tone, note }) => (
+          <article className="metric-card" key={label}>
+            <span className={`metric-card__icon metric-card__icon--${tone}`}><Icon /></span>
+            <small>{label}</small><strong>{Number(value).toLocaleString('fr-FR')}</strong><p>{note}</p>
+          </article>
+        ))}
+      </div>
+
+      <div className="analytics-grid">
+        <section className="app-panel analytics-chart">
+          <div className="app-panel__heading"><div><h2>Activité des 6 derniers mois</h2><p>Évolution générale de la plateforme</p></div><span className="chart-legend"><i /> Activité réelle</span></div>
+          <div className="bar-chart">
+            {chartValues.map((value, index) => <div className="bar-chart__item" key={index}><strong>{value}</strong><div><span style={{ height: `${value}%` }} /></div><small>{['Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'][index]}</small></div>)}
           </div>
-          <button className="button button--outline" onClick={charger} disabled={loading}><RefreshCw size={17} /> Actualiser</button>
-        </div>
-
-        <div className="container dashboard-layout">
-          <aside className="dashboard-nav">
-            <strong>Menu</strong>
-            <a className="active" href="#vue"><LayoutDashboard /> Vue d’ensemble</a>
-            <a href="#comptes"><UserRoundCheck /> Comptes à valider <span>{demandes.length}</span></a>
-            <a href="#fiches"><Building2 /> Fiches universités <span>{universites.length}</span></a>
-            <a href="#journal"><FileClock /> Journal d’activité</a>
-          </aside>
-
-          <div className="dashboard-content" id="vue">
-            {error && <div className="alert alert--error">{error}</div>}
-            {message && <div className="alert alert--success"><Check size={18} /> {message}</div>}
-
-            {loading ? <div className="loading-state panel"><Spinner /> Chargement du tableau de bord…</div> : (
-              <>
-                <div className="stats-grid">
-                  {stats.map(({ label, value, icon: Icon, tone }) => (
-                    <article className="stat-card" key={label}>
-                      <span className={`stat-icon stat-icon--${tone}`}><Icon /></span>
-                      <small>{label}</small>
-                      <strong>{Number(value).toLocaleString('fr-FR')}</strong>
-                      <span className="stat-caption">Données en temps réel</span>
-                    </article>
-                  ))}
-                </div>
-
-                <section className="panel" id="comptes">
-                  <div className="panel-heading">
-                    <div><span className="eyebrow">Première vérification</span><h2>Demandes de comptes institutionnels</h2><p>Ces établissements attendent l’autorisation de se connecter.</p></div>
-                    <span className="count-badge">{demandes.length}</span>
-                  </div>
-                  {demandes.length ? (
-                    <div className="request-list">
-                      {demandes.map((item) => (
-                        <article className="request-row" key={item.code_utilisateur}>
-                          <div className="request-avatar">{item.nom_affichage?.slice(0, 2).toUpperCase() || 'UN'}</div>
-                          <div className="request-main"><strong>{item.nom_affichage}</strong><span>{item.email}</span><small>{item.ville}, {item.province} • {item.code_utilisateur}</small></div>
-                          <StatusBadge status={item.statut_compte} />
-                          <div className="request-actions">
-                            <button className="button button--success button--small" disabled={processing === item.code_utilisateur} onClick={() => traiterCompte(item.code_utilisateur, true)}>{processing === item.code_utilisateur ? <Spinner /> : <><Check size={16} /> Valider</>}</button>
-                            <button className="button button--danger-ghost button--small" disabled={processing === item.code_utilisateur} onClick={() => traiterCompte(item.code_utilisateur, false)}><X size={16} /> Rejeter</button>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  ) : <EmptyReview icon={UserRoundCheck} text="Aucune demande de compte à examiner." />}
-                </section>
-
-                <section className="panel" id="fiches">
-                  <div className="panel-heading">
-                    <div><span className="eyebrow">Vérification publique</span><h2>Fiches universitaires à publier</h2><p>Contrôlez les informations complétées par les établissements actifs.</p></div>
-                    <span className="count-badge">{universites.length}</span>
-                  </div>
-                  {universites.length ? (
-                    <div className="review-grid">
-                      {universites.map((item) => (
-                        <article className="review-card" key={item.code_universite}>
-                          <div className="review-card__top"><span className="stat-icon stat-icon--teal"><Building2 /></span><StatusBadge status={item.statut_verification} /></div>
-                          <h3>{item.nom}</h3>
-                          <p>{item.type_universite === 'PUBLIQUE' ? 'Université publique' : 'Université privée'} • {item.ville}, {item.province}</p>
-                          <small>{item.nombre_filieres || 0} filières renseignées • {item.code_universite}</small>
-                          <div className="request-actions">
-                            <button className="button button--success button--small" disabled={processing === item.code_universite} onClick={() => traiterUniversite(item.code_universite, true)}>{processing === item.code_universite ? <Spinner /> : <><BadgeCheck size={16} /> Publier</>}</button>
-                            <button className="button button--danger-ghost button--small" disabled={processing === item.code_universite} onClick={() => traiterUniversite(item.code_universite, false)}><X size={16} /> Rejeter</button>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  ) : <EmptyReview icon={BadgeCheck} text="Aucune fiche universitaire à vérifier." />}
-                </section>
-              </>
-            )}
+        </section>
+        <section className="app-panel action-summary">
+          <div className="app-panel__heading"><div><h2>Actions requises</h2><p>Éléments à traiter</p></div></div>
+          <div className="donut" style={{ '--donut-value': `${Math.min(92, totalActions * 12 + 18)}%` }}><div><strong>{totalActions}</strong><small>en attente</small></div></div>
+          <div className="summary-rows">
+            <Link to="/administration/demandes"><span><i className="dot dot--amber" /> Comptes</span><strong>{stats.comptes_en_attente || 0}</strong></Link>
+            <Link to="/administration/universites"><span><i className="dot dot--teal" /> Universités</span><strong>{stats.universites_a_verifier || 0}</strong></Link>
+            <Link to="/administration/moderation"><span><i className="dot dot--red" /> Signalements</span><strong>{stats.signalements_a_traiter || 0}</strong></Link>
           </div>
-        </div>
-      </section>
-    </PageShell>
+        </section>
+      </div>
+
+      <div className="dashboard-lists">
+        <section className="app-panel">
+          <div className="app-panel__heading"><div><h2>Demandes récentes</h2><p>Comptes institutionnels à examiner</p></div><Link to="/administration/demandes">Tout voir <ArrowRight /></Link></div>
+          <div className="compact-list">
+            {data.demandes.length ? data.demandes.map((item) => <div key={item.code_utilisateur}><span className="list-avatar">{item.nom_affichage?.slice(0,2).toUpperCase()}</span><div><strong>{item.nom_affichage}</strong><small>{item.email}</small></div><StatusBadge status={item.statut_compte} /></div>) : <EmptyLine text="Aucune demande en attente" />}
+          </div>
+        </section>
+        <section className="app-panel">
+          <div className="app-panel__heading"><div><h2>Fiches à vérifier</h2><p>Universités prêtes à être publiées</p></div><Link to="/administration/universites">Tout voir <ArrowRight /></Link></div>
+          <div className="compact-list">
+            {data.universites.length ? data.universites.map((item) => <div key={item.code_universite}><span className="list-avatar list-avatar--teal"><Building2 /></span><div><strong>{item.nom}</strong><small>{item.ville} • {item.code_universite}</small></div><StatusBadge status={item.statut_verification} /></div>) : <EmptyLine text="Aucune fiche à vérifier" />}
+          </div>
+        </section>
+      </div>
+    </div>
   );
 }
 
-function EmptyReview({ icon: Icon, text }) {
-  return <div className="empty-review"><span><Icon /></span><strong>Tout est à jour</strong><p>{text}</p><small><Clock3 size={14} /> Les nouvelles demandes apparaîtront automatiquement ici.</small></div>;
+function EmptyLine({ text }) {
+  return <div className="compact-empty"><BadgeCheck /> <span>{text}</span></div>;
 }

@@ -1,174 +1,31 @@
-import {
-  ArrowRight,
-  BadgeCheck,
-  BookOpen,
-  Building2,
-  Check,
-  Clock3,
-  FileText,
-  GraduationCap,
-  Landmark,
-  MapPin,
-  Plus,
-  School,
-  Settings,
-  ShieldCheck,
-  Users,
-} from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { apiRequest } from '../api/client.js';
-import { PageShell } from '../components/PageShell.jsx';
-import { Spinner } from '../components/Spinner.jsx';
+import { BadgeCheck, BookOpen, Building2, Clock3, FileText, GraduationCap, MapPin, School, Users, Wrench } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { StatusBadge } from '../components/StatusBadge.jsx';
-import { useAuth } from '../context/AuthContext.jsx';
-
-const initialForm = {
-  nom: '', sigle: '', slug: '', type: 'PRIVEE', description: '',
-  ville: 'Goma', province: 'Nord-Kivu', email: '', telephone: '',
-};
+import { useInstitution } from '../context/InstitutionContext.jsx';
 
 export function InstitutionDashboardPage() {
-  const { token, utilisateur } = useAuth();
-  const [universite, setUniversite] = useState(undefined);
-  const [form, setForm] = useState(() => ({ ...initialForm, email: utilisateur?.email || '' }));
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const { universite } = useInstitution();
+  if (!universite) return <NoUniversity />;
 
-  const charger = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await apiRequest('/universites/moi', { token });
-      setUniversite(response.donnees);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
-
-  useEffect(() => {
-    // Le chargement synchronise l'écran avec la fiche distante au montage.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    charger();
-  }, [charger]);
-
-  function update(field) {
-    return (event) => {
-      const value = event.target.value;
-      setForm((current) => ({
-        ...current,
-        [field]: value,
-        ...(field === 'nom' && !current.slug
-          ? { slug: value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') }
-          : {}),
-      }));
-    };
-  }
-
-  async function creerFiche(event) {
-    event.preventDefault();
-    setSaving(true);
-    setError('');
-    try {
-      await apiRequest('/universites', { method: 'POST', token, body: form });
-      await charger();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  if (loading) {
-    return <PageShell footer={false}><div className="full-loading"><Spinner /> Préparation de votre espace…</div></PageShell>;
-  }
-
-  if (!universite) {
-    return (
-      <PageShell>
-        <section className="onboarding-page">
-          <div className="container onboarding-heading">
-            <div className="success-icon success-icon--small"><Check size={23} /></div>
-            <div><span className="eyebrow eyebrow--accent">Compte institutionnel activé</span><h1>Bienvenue sur CampusHub.</h1><p>Complétez maintenant la fiche qui sera envoyée à l’administration pour publication.</p></div>
-          </div>
-          <div className="container onboarding-layout">
-            <aside className="onboarding-steps">
-              <div className="onboarding-step onboarding-step--done"><span><Check /></span><div><strong>Compte validé</strong><small>Votre accès est actif.</small></div></div>
-              <div className="onboarding-step onboarding-step--active"><span>2</span><div><strong>Fiche universitaire</strong><small>Identité et coordonnées.</small></div></div>
-              <div className="onboarding-step"><span>3</span><div><strong>Catalogue académique</strong><small>Campus, facultés et filières.</small></div></div>
-              <div className="onboarding-step"><span>4</span><div><strong>Publication</strong><small>Vérification finale CampusHub.</small></div></div>
-            </aside>
-            <form className="form-card university-form" onSubmit={creerFiche}>
-              <div className="form-heading form-field--wide"><span className="eyebrow">Informations publiques</span><h2>Créer la fiche de l’université</h2><p>Ces informations pourront être enrichies après la création.</p></div>
-              {error && <div className="alert alert--error form-field--wide">{error}</div>}
-              <label className="form-field"><span>Nom officiel</span><input required minLength="3" value={form.nom} onChange={update('nom')} placeholder="Université de Goma" /></label>
-              <label className="form-field"><span>Sigle</span><input maxLength="20" value={form.sigle} onChange={update('sigle')} placeholder="UNIGOM" /></label>
-              <label className="form-field form-field--wide"><span>Identifiant URL</span><input required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value={form.slug} onChange={update('slug')} placeholder="universite-de-goma" /><small>Minuscules, chiffres et tirets uniquement.</small></label>
-              <label className="form-field"><span>Type</span><select value={form.type} onChange={update('type')}><option value="PUBLIQUE">Publique</option><option value="PRIVEE">Privée</option></select></label>
-              <label className="form-field"><span>Ville</span><input required value={form.ville} onChange={update('ville')} /></label>
-              <label className="form-field"><span>Province</span><input required value={form.province} onChange={update('province')} /></label>
-              <label className="form-field"><span>Téléphone</span><input value={form.telephone} onChange={update('telephone')} placeholder="+243…" /></label>
-              <label className="form-field form-field--wide"><span>E-mail public</span><input type="email" value={form.email} onChange={update('email')} placeholder="contact@universite.cd" /></label>
-              <label className="form-field form-field--wide"><span>Présentation</span><textarea maxLength="5000" value={form.description} onChange={update('description')} placeholder="Présentez la mission, l’histoire et les points forts de votre université." rows="5" /></label>
-              <button className="button button--large button--full form-field--wide" disabled={saving}>{saving ? <Spinner /> : <>Créer et envoyer la fiche <ArrowRight size={18} /></>}</button>
-            </form>
-          </div>
-        </section>
-      </PageShell>
-    );
-  }
-
-  return <InstitutionOverview university={universite} utilisateur={utilisateur} />;
-}
-
-function InstitutionOverview({ university, utilisateur }) {
   const counts = [
-    { label: 'Filières', value: university.nombre_filieres ?? university.filieres?.length ?? 0, icon: GraduationCap },
-    { label: 'Services', value: university.services?.length || 0, icon: Landmark },
-    { label: 'Infrastructures', value: university.infrastructures?.length || 0, icon: School },
-    { label: 'Étudiants liés', value: university.nombre_etudiants || 0, icon: Users },
+    { label: 'Filières actives', value: universite.filieres?.length || universite.nombre_filieres || 0, icon: GraduationCap, tone: 'blue', href: '/espace-universite/formations' },
+    { label: 'Services', value: universite.services?.length || 0, icon: Wrench, tone: 'teal', href: '/espace-universite/services' },
+    { label: 'Infrastructures', value: universite.infrastructures?.length || 0, icon: School, tone: 'amber', href: '/espace-universite/infrastructures' },
+    { label: 'Étudiants liés', value: universite.nombre_etudiants || 0, icon: Users, tone: 'violet', href: '/espace-universite/fiche' },
   ];
-  const verified = university.statut_verification === 'VERIFIEE';
+  const verified = universite.statut_verification === 'VERIFIEE';
 
-  return (
-    <PageShell footer={false}>
-      <section className="dashboard-page institution-dashboard">
-        <div className="container institution-hero">
-          <div className="institution-logo"><Building2 /></div>
-          <div><span className="eyebrow eyebrow--accent">Espace institutionnel</span><h1>{university.nom}</h1><p><MapPin size={16} /> {university.ville}, {university.province} • {university.code_universite}</p></div>
-          <StatusBadge status={university.statut_verification} />
-        </div>
-        <div className="container dashboard-layout">
-          <aside className="dashboard-nav">
-            <strong>Gestion</strong>
-            <a className="active" href="#resume"><Building2 /> Vue d’ensemble</a>
-            <a href="#catalogue"><BookOpen /> Catalogue</a>
-            <a href="#publication"><FileText /> Publication</a>
-            <a href="#reglages"><Settings /> Paramètres</a>
-          </aside>
-          <div className="dashboard-content" id="resume">
-            <div className={`verification-banner ${verified ? 'verification-banner--verified' : ''}`}>
-              <span>{verified ? <BadgeCheck /> : <Clock3 />}</span>
-              <div><strong>{verified ? 'Votre université est publiée' : 'Votre fiche attend la vérification finale'}</strong><p>{verified ? 'Elle apparaît dans la recherche publique CampusHub.' : 'Complétez le catalogue pendant que notre équipe examine vos informations.'}</p></div>
-              <StatusBadge status={university.statut_verification} />
-            </div>
-            <div className="stats-grid">
-              {counts.map(({ label, value, icon: Icon }) => <article className="stat-card" key={label}><span className="stat-icon stat-icon--teal"><Icon /></span><small>{label}</small><strong>{value}</strong><span className="stat-caption">Sur votre fiche</span></article>)}
-            </div>
-            <section className="panel" id="catalogue">
-              <div className="panel-heading"><div><span className="eyebrow">Prochaine étape</span><h2>Construisez votre catalogue académique</h2><p>Une fiche complète aide les étudiants à faire un choix éclairé.</p></div><ShieldCheck className="panel-watermark" /></div>
-              <div className="catalogue-actions">
-                <button><span><School /></span><div><strong>Campus</strong><small>Adresses et sites</small></div><Plus /></button>
-                <button><span><Landmark /></span><div><strong>Facultés</strong><small>Organisation académique</small></div><Plus /></button>
-                <button><span><GraduationCap /></span><div><strong>Filières</strong><small>Programmes et frais</small></div><Plus /></button>
-                <button><span><BookOpen /></span><div><strong>Admissions</strong><small>Conditions requises</small></div><Plus /></button>
-              </div>
-            </section>
-            <section className="panel manager-note"><span className="stat-icon stat-icon--blue"><ShieldCheck /></span><div><strong>Gestionnaire du compte</strong><p>{utilisateur?.nom_affichage} • {utilisateur?.email}</p></div></section>
-          </div>
-        </div>
-      </section>
-    </PageShell>
-  );
+  return <div className="dashboard-view">
+    <div className="dashboard-welcome institution-welcome"><div><span>Espace institutionnel</span><h1>{universite.nom}</h1><p><MapPin /> {universite.ville}, {universite.province} • {universite.code_universite}</p></div><StatusBadge status={universite.statut_verification} /></div>
+    <div className={`verification-strip ${verified ? 'verification-strip--success' : ''}`}><span>{verified ? <BadgeCheck /> : <Clock3 />}</span><div><strong>{verified ? 'Votre fiche est publiée' : 'Vérification finale en cours'}</strong><p>{verified ? 'Les étudiants peuvent maintenant découvrir votre université.' : 'Vous pouvez compléter toutes les rubriques pendant l’examen.'}</p></div><Link to="/espace-universite/fiche">Voir la fiche</Link></div>
+    <div className="metric-grid">{counts.map(({label,value,icon:Icon,tone,href}) => <Link className="metric-card" to={href} key={label}><span className={`metric-card__icon metric-card__icon--${tone}`}><Icon /></span><small>{label}</small><strong>{value}</strong><p>Gérer cette rubrique</p></Link>)}</div>
+    <div className="analytics-grid institution-analytics">
+      <section className="app-panel completion-panel"><div className="app-panel__heading"><div><h2>Complétude de la fiche</h2><p>Les rubriques à renseigner</p></div><strong>{completion(universite)}%</strong></div><div className="completion-progress"><span style={{width:`${completion(universite)}%`}} /></div><div className="completion-list"><Completion label="Identité et coordonnées" done={Boolean(universite.description && universite.email)} href="/espace-universite/fiche" /><Completion label="Facultés et filières" done={Boolean(universite.filieres?.length)} href="/espace-universite/formations" /><Completion label="Services universitaires" done={Boolean(universite.services?.length)} href="/espace-universite/services" /><Completion label="Conditions d’admission" done={Boolean(universite.conditionsAdmission?.length)} href="/espace-universite/admissions" /></div></section>
+      <section className="app-panel quick-actions"><div className="app-panel__heading"><div><h2>Actions rapides</h2><p>Enrichissez votre espace</p></div></div><Link to="/espace-universite/campus"><School />Ajouter un campus</Link><Link to="/espace-universite/formations"><GraduationCap />Créer une filière</Link><Link to="/espace-universite/publications"><FileText />Publier une actualité</Link><Link to="/espace-universite/admissions"><BookOpen />Ajouter une condition</Link></section>
+    </div>
+  </div>;
 }
+
+function Completion({label,done,href}) { return <Link to={href}><span className={done ? 'done' : ''}>{done ? <BadgeCheck /> : <Clock3 />}</span><strong>{label}</strong><small>{done ? 'Complété' : 'À compléter'}</small></Link>; }
+function completion(u) { return [u.description&&u.email,u.filieres?.length,u.services?.length,u.conditionsAdmission?.length].filter(Boolean).length*25; }
+function NoUniversity() { return <div className="no-university"><span><Building2 /></span><h1>Créez d’abord votre fiche universitaire</h1><p>Votre compte est actif. La prochaine étape consiste à renseigner l’identité publique de l’établissement.</p><Link className="button" to="/espace-universite/fiche">Commencer la fiche</Link></div>; }

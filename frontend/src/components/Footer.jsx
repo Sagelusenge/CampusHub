@@ -15,8 +15,8 @@ export function Footer() {
         </div>
         <div>
           <h3>Explorer</h3>
-          <Link to="/#universites">Universités</Link>
-          <Link to="/#projets">Projets étudiants</Link>
+          <Link to="/universites">Universités</Link>
+          <Link to="/portfolios">Projets étudiants</Link>
           <Link to="/partenariat">Partenariat universitaire</Link>
         </div>
         <div>

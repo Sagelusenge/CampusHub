@@ -5,10 +5,15 @@ Application React/Vite reliée à l’API Express de CampusHub.
 ## Parcours disponibles
 
 - accueil public avec recherche d’universités vérifiées ;
+- annuaire, fiche détaillée et comparateur d’universités ;
+- annuaire des talents et portfolios étudiants ;
 - demande de partenariat universitaire ;
 - connexion selon le rôle ;
-- validation des comptes et des fiches par l’administrateur ;
-- création et suivi de la fiche dans l’espace institutionnel.
+- dashboard administrateur avec demandes, universités, utilisateurs, modération et audit ;
+- dashboard institutionnel avec fiche, campus, facultés, filières, services, infrastructures, admissions et publications ;
+- notifications et paramètres de compte.
+
+Les espaces connectés utilisent une barre latérale persistante et une barre supérieure unique. Sur mobile, la barre latérale devient un menu coulissant.
 
 ## Démarrage
 

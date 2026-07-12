@@ -1,4 +1,5 @@
 import { ArrowUpRight, BookOpen, MapPin, ShieldCheck, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { StatusBadge } from './StatusBadge.jsx';
 
 const images = [
@@ -27,7 +28,7 @@ export function UniversityCard({ university, index = 0 }) {
           <span><BookOpen size={16} /> {university.nombre_filieres || 0} filières</span>
           <span><Users size={16} /> {university.nombre_etudiants || 0} étudiants</span>
         </div>
-        <button className="button button--outline button--full">Explorer le campus <ArrowUpRight size={17} /></button>
+        <Link className="button button--outline button--full" to={`/universites/${university.code_universite}`}>Explorer le campus <ArrowUpRight size={17} /></Link>
       </div>
     </article>
   );

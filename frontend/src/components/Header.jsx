@@ -25,8 +25,8 @@ export function Header() {
 
         <nav className={`main-nav ${menuOpen ? 'main-nav--open' : ''}`} aria-label="Navigation principale">
           <NavLink to="/" end onClick={() => setMenuOpen(false)}>Découvrir</NavLink>
-          <NavLink to="/#projets" onClick={() => setMenuOpen(false)}>Portfolios</NavLink>
-          <NavLink to="/#universites" onClick={() => setMenuOpen(false)}>Universités</NavLink>
+          <NavLink to="/portfolios" onClick={() => setMenuOpen(false)}>Portfolios</NavLink>
+          <NavLink to="/universites" onClick={() => setMenuOpen(false)}>Universités</NavLink>
           <NavLink className="nav-mobile-action" to="/partenariat" onClick={() => setMenuOpen(false)}>Devenir partenaire</NavLink>
         </nav>
 

@@ -134,7 +134,7 @@ export function HomePage() {
               <h2>Projets étudiants à découvrir</h2>
               <p>Des idées conçues sur nos campus pour répondre aux défis de la région.</p>
             </div>
-            <button className="text-link">Voir tous les portfolios <ArrowRight size={17} /></button>
+            <Link className="text-link" to="/portfolios">Voir tous les portfolios <ArrowRight size={17} /></Link>
           </Reveal>
 
           <div className="projects-grid">

@@ -7,6 +7,12 @@ const labels = {
   REJETE: 'Rejeté',
   REJETEE: 'Rejetée',
   NON_VERIFIE: 'Non vérifié',
+  OUVERT: 'Ouvert',
+  EN_EXAMEN: 'En examen',
+  RESOLU: 'Résolu',
+  PUBLIEE: 'Publiée',
+  BROUILLON: 'Brouillon',
+  ARCHIVEE: 'Archivée',
 };
 
 export function StatusBadge({ status }) {

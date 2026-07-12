@@ -20,7 +20,15 @@ export async function rechercherUniversites(filtres) {
 
 export async function obtenirUniversiteParCode(code) {
   const [universites] = await baseDeDonnees.execute(
-    'SELECT * FROM vue_universites_resume WHERE code_universite = ? LIMIT 1',
+    `SELECT u.*,
+       (SELECT COUNT(*) FROM campus c WHERE c.universite_id = u.id) AS nombre_campus,
+       (SELECT COUNT(*) FROM facultes fa WHERE fa.universite_id = u.id) AS nombre_facultes,
+       (SELECT COUNT(*) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS nombre_filieres,
+       (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id) AS nombre_etudiants,
+       (SELECT COUNT(*) FROM abonnements_universites au WHERE au.universite_id = u.id) AS nombre_abonnes,
+       (SELECT MIN(fi.frais_minimum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_minimum,
+       (SELECT MAX(fi.frais_maximum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_maximum
+     FROM universites u WHERE u.code_universite = ? LIMIT 1`,
     [code.toUpperCase()],
   );
   const universite = universites[0];
