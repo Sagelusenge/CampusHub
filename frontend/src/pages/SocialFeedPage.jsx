@@ -21,6 +21,10 @@ function formatDate(value) {
   return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 }
 
+function publicationImage(url) {
+  return !url || url.includes('exemple.test') ? '/images/projet-agritech.webp' : url;
+}
+
 export function SocialFeedPage({ embedded = false }) {
   const { token, estConnecte, utilisateur } = useAuth();
   const [items, setItems] = useState([]);
@@ -176,7 +180,7 @@ export function SocialFeedPage({ embedded = false }) {
           return <article className="social-post app-panel" key={item.code_publication} id={item.code_publication}>
             <header><span className="social-avatar">{initials(item.nom_auteur)}</span><div><strong>{item.nom_auteur}</strong><small>{item.nom_universite || 'Communauté CampusHub'} · {formatDate(item.date_publication)}</small></div><button aria-label="Options"><MoreHorizontal /></button></header>
             <div className="social-post__body"><span className="social-post__type">{item.type_publication}</span>{item.titre && <h2>{item.titre}</h2>}<p>{item.contenu}</p>{Array.isArray(item.etiquettes) && <div className="social-tags">{item.etiquettes.map((tag) => <span key={tag}>#{tag}</span>)}</div>}</div>
-            {item.url_media && <img className="social-post__media" src={item.url_media} alt={item.titre || 'Média de la publication'} />}
+            {item.url_media && <img className="social-post__media" src={publicationImage(item.url_media)} alt={item.titre || 'Média de la publication'} />}
             <div className="social-post__counts"><span>{item.nombre_jaime || 0} appréciation(s)</span><span>{item.nombre_commentaires || 0} commentaire(s)</span></div>
             <footer>
               {estConnecte ? <button className={liked.has(item.code_publication) ? 'active' : ''} onClick={() => toggleLike(item)}><Heart />J’aime</button> : <Link to="/connexion"><Heart />J’aime</Link>}

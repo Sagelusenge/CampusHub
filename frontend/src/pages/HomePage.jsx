@@ -20,8 +20,8 @@ import { Spinner } from '../components/Spinner.jsx';
 import { UniversityCard } from '../components/UniversityCard.jsx';
 
 const projectImages = {
-  main: 'https://images.unsplash.com/photo-1573496130407-57329f01f769?auto=format&fit=crop&w=1200&q=85',
-  solar: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1000&q=85',
+  main: '/images/projet-agritech.webp',
+  solar: '/images/campus-technologie.webp',
 };
 
 export function HomePage() {
