@@ -2,6 +2,10 @@
 
 Préfixe de toutes les routes : `/api/v1`.
 
+## Parcours conseillé
+
+Le fichier [PARCOURS_API.md](PARCOURS_API.md) présente un scénario complet dans l'ordre des dépendances : activation des comptes, création de l'université, du campus, de la faculté et de la filière, puis profil étudiant, publication et modération.
+
 ## Fichier de requêtes prêt à exécuter
 
 Le fichier [API.http](API.http) contient toutes les requêtes avec :
