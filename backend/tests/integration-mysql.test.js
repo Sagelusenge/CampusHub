@@ -46,6 +46,8 @@ test('parcours métier complet avec MySQL', { skip: !actif }, async (contexte) =
     type: 'PRIVEE', ville: 'Goma', province: 'Nord-Kivu',
   });
   assert.match(universite.code_universite, /^AIC/);
+  const monUniversite = await appeler('get', '/api/v1/universites/moi', institution.jetonAcces);
+  assert.equal(monUniversite.code_universite, universite.code_universite);
 
   const campus = await appeler('post', `/api/v1/catalogue/universites/${universite.code_universite}/campus`, institution.jetonAcces, {
     nom: 'Campus central', ville: 'Goma', province: 'Nord-Kivu', estPrincipal: true,

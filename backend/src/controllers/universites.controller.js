@@ -3,6 +3,7 @@ import {
   creerUniversite,
   modifierUniversite,
   obtenirUniversiteParCode,
+  obtenirUniversiteDuGestionnaire,
   rechercherUniversites,
   statistiquesUniversite,
   supprimerUniversite,
@@ -23,6 +24,19 @@ export async function afficher(requete, reponse) {
   const universite = await obtenirUniversiteParCode(code);
 
   return envoyerSucces(reponse, universite, 200, undefined, 'Fiche universitaire chargée.');
+}
+
+// GET /api/v1/universites/moi
+export async function maFiche(requete, reponse) {
+  const universite = await obtenirUniversiteDuGestionnaire(requete.utilisateur.id);
+
+  return envoyerSucces(
+    reponse,
+    universite,
+    200,
+    undefined,
+    universite ? 'Fiche universitaire chargée.' : 'Aucune fiche universitaire créée.',
+  );
 }
 
 // POST /api/v1/universites

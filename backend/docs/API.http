@@ -181,6 +181,10 @@ GET {{baseUrl}}/universites/{{codeUniversite}}/statistiques
 ### Fiche complète
 GET {{baseUrl}}/universites/{{codeUniversite}}
 
+### Ma fiche institutionnelle
+GET {{baseUrl}}/universites/moi
+Authorization: Bearer {{jetonAcces}}
+
 ### Créer une université
 POST {{baseUrl}}/universites
 Authorization: Bearer {{jetonAcces}}

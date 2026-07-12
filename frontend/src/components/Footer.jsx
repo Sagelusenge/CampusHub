@@ -1,0 +1,35 @@
+import { Building2, Mail, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+export function Footer() {
+  return (
+    <footer className="site-footer">
+      <div className="container footer-grid">
+        <div>
+          <Link className="brand brand--footer" to="/">
+            <span className="brand-mark"><Building2 size={19} /></span>
+            <span>Campus<span>Hub</span></span>
+          </Link>
+          <p>Le point de rencontre entre les universités vérifiées et les talents de demain.</p>
+          <div className="footer-contact"><MapPin size={16} /> Goma, République démocratique du Congo</div>
+        </div>
+        <div>
+          <h3>Explorer</h3>
+          <Link to="/#universites">Universités</Link>
+          <Link to="/#projets">Projets étudiants</Link>
+          <Link to="/partenariat">Partenariat universitaire</Link>
+        </div>
+        <div>
+          <h3>CampusHub</h3>
+          <a href="mailto:contact@campushub.cd"><Mail size={15} /> contact@campushub.cd</a>
+          <span>Processus de vérification</span>
+          <span>Confidentialité</span>
+        </div>
+      </div>
+      <div className="container footer-bottom">
+        <span>© 2026 CampusHub.</span>
+        <span>Éducation • Transparence • Innovation</span>
+      </div>
+    </footer>
+  );
+}

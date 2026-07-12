@@ -57,6 +57,7 @@ Authorization: Bearer <jetonAcces>
 | GET | `/universites/comparer?codes=...` | Public | Comparer deux ou trois établissements |
 | GET | `/universites/:code` | Public | Fiche complète |
 | GET | `/universites/:code/statistiques` | Public | Statistiques factuelles |
+| GET | `/universites/moi` | Université | Retrouver la fiche gérée par le compte connecté |
 | POST | `/universites` | Université/Admin | Créer une fiche et rattacher son propriétaire |
 | PATCH | `/universites/:code` | Gestionnaire/Admin | Modifier la fiche |
 | DELETE | `/universites/:code` | Administrateur | Supprimer la fiche et ses dépendances |

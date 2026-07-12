@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { afficher, comparer, creer, lister, modifier, statistiques, supprimer } from '../controllers/universites.controller.js';
+import { afficher, comparer, creer, lister, maFiche, modifier, statistiques, supprimer } from '../controllers/universites.controller.js';
 import { authentifier, autoriserRoles } from '../middlewares/authentification.middleware.js';
 import { valider } from '../middlewares/validation.middleware.js';
 import {
@@ -15,6 +15,7 @@ export const routeUniversites = Router();
 
 routeUniversites.get('/', valider(schemaRechercheUniversites, 'query'), gestionnaireAsync(lister));
 routeUniversites.get('/comparer', valider(schemaComparaisonUniversites, 'query'), gestionnaireAsync(comparer));
+routeUniversites.get('/moi', authentifier, autoriserRoles('UNIVERSITE'), gestionnaireAsync(maFiche));
 routeUniversites.get('/:code/statistiques', valider(schemaCodeUniversite, 'params'), gestionnaireAsync(statistiques));
 routeUniversites.get('/:code', valider(schemaCodeUniversite, 'params'), gestionnaireAsync(afficher));
 routeUniversites.post(

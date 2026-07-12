@@ -54,6 +54,20 @@ export async function obtenirUniversiteParCode(code) {
   };
 }
 
+export async function obtenirUniversiteDuGestionnaire(utilisateurId) {
+  const [lignes] = await baseDeDonnees.execute(
+    `SELECT u.code_universite
+     FROM membres_universite m
+     JOIN universites u ON u.id = m.universite_id
+     WHERE m.utilisateur_id = ? AND m.est_proprietaire = 1
+     ORDER BY m.date_creation DESC
+     LIMIT 1`,
+    [utilisateurId],
+  );
+  if (!lignes[0]) return null;
+  return obtenirUniversiteParCode(lignes[0].code_universite);
+}
+
 export async function creerUniversite(donnees, utilisateur) {
   const connexion = await baseDeDonnees.getConnection();
   try {

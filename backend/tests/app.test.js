@@ -23,3 +23,8 @@ test('une inscription invalide est refusée avant le controller', async () => {
   assert.equal(reponse.body.succes, false);
   assert.equal(reponse.body.erreur.message, 'Les données envoyées sont invalides.');
 });
+
+test('la fiche institutionnelle personnelle exige une connexion', async () => {
+  const reponse = await request(app).get('/api/v1/universites/moi').expect(401);
+  assert.equal(reponse.body.succes, false);
+});
