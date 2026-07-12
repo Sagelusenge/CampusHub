@@ -6,6 +6,12 @@ export function routeIntrouvable(requete, _reponse, suivant) {
 }
 
 function convertirErreurMysql(erreur) {
+  if (erreur.name === 'MulterError' && erreur.code === 'LIMIT_FILE_SIZE') {
+    return new ErreurApi(413, 'Le fichier est trop volumineux. Limite : 5 Mo pour une photo et 8 Mo pour une preuve.');
+  }
+  if (erreur.name === 'MulterError') {
+    return new ErreurApi(400, `Le fichier envoyé est invalide : ${erreur.message}`);
+  }
   if (erreur.code === 'ER_DUP_ENTRY') {
     return new ErreurApi(409, 'Cette information existe déjà dans la base de données.');
   }

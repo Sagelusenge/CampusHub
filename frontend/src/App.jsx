@@ -1,7 +1,8 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { DashboardShell } from './components/DashboardShell.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import { InstitutionProvider } from './context/InstitutionContext.jsx';
+import { useAuth } from './context/AuthContext.jsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.jsx';
 import { AdminLocationsPage } from './pages/AdminLocationsPage.jsx';
 import { AdminAuditPage, AdminModerationPage, AdminRequestsPage, AdminUniversitiesPage, AdminUsersPage } from './pages/AdminManagementPages.jsx';
@@ -18,6 +19,7 @@ import { NotificationsPage } from './pages/NotificationsPage.jsx';
 import { PortfolioDetailPage } from './pages/PortfolioDetailPage.jsx';
 import { PortfoliosPage } from './pages/PortfoliosPage.jsx';
 import { SettingsPage } from './pages/SettingsPage.jsx';
+import { SocialFeedPage } from './pages/SocialFeedPage.jsx';
 import { StudentAffiliationPage, StudentDashboardPage, StudentProfilePage } from './pages/StudentPages.jsx';
 import { StudentRegistrationPage } from './pages/StudentRegistrationPage.jsx';
 import { AdminSubscriptionsPage, InstitutionSubscriptionPage } from './pages/SubscriptionsPages.jsx';
@@ -30,15 +32,29 @@ const protectAdmin = <ProtectedRoute roles={['ADMINISTRATEUR']}><DashboardShell 
 const protectInstitution = <ProtectedRoute roles={['UNIVERSITE']}><InstitutionProvider><DashboardShell role="institution" /></InstitutionProvider></ProtectedRoute>;
 const protectStudent = <ProtectedRoute roles={['ETUDIANT']}><DashboardShell role="student" /></ProtectedRoute>;
 
+function destinationFor(role) {
+  if (role === 'ADMINISTRATEUR') return '/administration';
+  if (role === 'ETUDIANT') return '/espace-etudiant';
+  if (role === 'UNIVERSITE') return '/espace-universite';
+  return null;
+}
+
+function ConnectedHome({ children }) {
+  const { estConnecte, utilisateur } = useAuth();
+  const destination = destinationFor(utilisateur?.role);
+  return estConnecte && destination ? <Navigate to={destination} replace /> : children;
+}
+
 export function App() {
   return <Routes>
-    <Route path="/" element={<HomePage />} />
+    <Route path="/" element={<ConnectedHome><HomePage /></ConnectedHome>} />
     <Route path="/universites" element={<UniversitiesPage />} />
     <Route path="/universites/:code" element={<UniversityDetailPage />} />
     <Route path="/comparaison" element={<ComparePage />} />
     <Route path="/portfolios" element={<PortfoliosPage />} />
     <Route path="/portfolios/:code" element={<PortfolioDetailPage />} />
-    <Route path="/connexion" element={<LoginPage />} />
+    <Route path="/actualites" element={<SocialFeedPage />} />
+    <Route path="/connexion" element={<ConnectedHome><LoginPage /></ConnectedHome>} />
     <Route path="/partenariat" element={<UniversityApplicationPage />} />
     <Route path="/inscription-etudiant" element={<StudentRegistrationPage />} />
 
@@ -74,6 +90,7 @@ export function App() {
       <Route path="/espace-etudiant" element={<StudentDashboardPage />} />
       <Route path="/espace-etudiant/affiliation" element={<StudentAffiliationPage />} />
       <Route path="/espace-etudiant/profil" element={<StudentProfilePage />} />
+      <Route path="/espace-etudiant/actualites" element={<SocialFeedPage embedded />} />
       <Route path="/espace-etudiant/notifications" element={<NotificationsPage />} />
       <Route path="/espace-etudiant/parametres" element={<SettingsPage />} />
     </Route>

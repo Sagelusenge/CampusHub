@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 export function AdminDashboardPage() {
   const { token, utilisateur } = useAuth();
-  const [data, setData] = useState({ stats: null, demandes: [], universites: [] });
+  const [data, setData] = useState({ stats: null, activite: [], demandes: [], universites: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -22,6 +22,7 @@ export function AdminDashboardPage() {
       ]);
       setData({
         stats: dashboard.donnees?.indicateurs || {},
+        activite: dashboard.donnees?.activiteMensuelle || [],
         demandes: demandes.donnees || [],
         universites: (universites.donnees || []).filter((item) => item.statut_verification === 'EN_ATTENTE').slice(0, 4),
       });
@@ -47,14 +48,11 @@ export function AdminDashboardPage() {
     { label: 'Profils étudiants', value: stats.profils_etudiants || 0, icon: GraduationCap, tone: 'amber', note: 'Profils visibles' },
     { label: 'Publications', value: stats.publications || 0, icon: FileText, tone: 'violet', note: `${stats.signalements_a_traiter || 0} signalement(s)` },
   ];
-  const chartValues = [
-    Math.max(18, Number(stats.universites || 0) * 12),
-    Math.max(25, Number(stats.profils_etudiants || 0) * 8),
-    Math.max(34, Number(stats.filieres || 0) * 7),
-    Math.max(42, Number(stats.publications || 0) * 6),
-    Math.max(55, Number(stats.utilisateurs || 0) * 5),
-    Math.max(30, Number(stats.mentions_jaime || 0) * 4),
-  ].map((value) => Math.min(value, 94));
+  const maximumActivite = Math.max(1, ...data.activite.map((item) => Number(item.nouveauxUtilisateurs)));
+  const chartValues = data.activite.map((item) => ({
+    ...item,
+    hauteur: Math.max(4, Math.round(Number(item.nouveauxUtilisateurs) / maximumActivite * 94)),
+  }));
   const totalActions = Number(stats.comptes_en_attente || 0) + Number(stats.universites_a_verifier || 0)
     + Number(stats.signalements_a_traiter || 0) + Number(stats.paiements_a_verifier || 0)
     + Number(stats.villes_a_examiner || 0);
@@ -80,7 +78,7 @@ export function AdminDashboardPage() {
         <section className="app-panel analytics-chart">
           <div className="app-panel__heading"><div><h2>Activité des 6 derniers mois</h2><p>Évolution générale de la plateforme</p></div><span className="chart-legend"><i /> Activité réelle</span></div>
           <div className="bar-chart">
-            {chartValues.map((value, index) => <div className="bar-chart__item" key={index}><strong>{value}</strong><div><span style={{ height: `${value}%` }} /></div><small>{['Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'][index]}</small></div>)}
+            {chartValues.map((item) => <div className="bar-chart__item" key={item.mois}><strong>{item.nouveauxUtilisateurs}</strong><div><span style={{ height: `${item.hauteur}%` }} /></div><small>{new Date(`${item.mois}-02`).toLocaleDateString('fr-FR',{month:'short'})}</small></div>)}
           </div>
         </section>
         <section className="app-panel action-summary">

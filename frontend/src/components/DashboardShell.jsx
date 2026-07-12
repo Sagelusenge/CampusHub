@@ -5,6 +5,7 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   ClipboardCheck,
   CreditCard,
   FileClock,
@@ -13,6 +14,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Newspaper,
   MapPin,
   Settings,
   ShieldCheck,
@@ -41,11 +43,13 @@ const adminNavigation = [
 const institutionNavigation = [
   { to: '/espace-universite', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/espace-universite/fiche', label: 'Fiche publique', icon: Building2 },
-  { to: '/espace-universite/campus', label: 'Campus', icon: School },
-  { to: '/espace-universite/formations', label: 'Facultés & filières', icon: GraduationCap },
-  { to: '/espace-universite/services', label: 'Services', icon: Wrench },
-  { to: '/espace-universite/infrastructures', label: 'Infrastructures', icon: Activity },
-  { to: '/espace-universite/admissions', label: 'Admissions', icon: BookOpen },
+  { label: 'Campus & offre', icon: School, children: [
+    { to: '/espace-universite/campus', label: 'Campus', icon: MapPin },
+    { to: '/espace-universite/formations', label: 'Facultés & filières', icon: GraduationCap },
+    { to: '/espace-universite/services', label: 'Services', icon: Wrench },
+    { to: '/espace-universite/infrastructures', label: 'Infrastructures', icon: Activity },
+    { to: '/espace-universite/admissions', label: 'Admissions', icon: BookOpen },
+  ] },
   { to: '/espace-universite/publications', label: 'Publications', icon: FileText },
   { to: '/espace-universite/affiliations', label: 'Demandes étudiantes', icon: ClipboardCheck },
   { to: '/espace-universite/abonnement', label: 'Abonnement', icon: CreditCard },
@@ -54,6 +58,7 @@ const institutionNavigation = [
 
 const studentNavigation = [
   { to: '/espace-etudiant', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
+  { to: '/espace-etudiant/actualites', label: 'Réseau CampusHub', icon: Newspaper },
   { to: '/espace-etudiant/affiliation', label: 'Mon affiliation', icon: Building2 },
   { to: '/espace-etudiant/profil', label: 'Mon profil', icon: GraduationCap },
   { to: '/espace-etudiant/notifications', label: 'Notifications', icon: Bell },
@@ -81,6 +86,7 @@ const titles = {
   '/espace-universite/abonnement': 'Abonnement',
   '/espace-universite/notifications': 'Notifications',
   '/espace-etudiant': 'Tableau de bord',
+  '/espace-etudiant/actualites': 'Réseau CampusHub',
   '/espace-etudiant/affiliation': 'Mon affiliation',
   '/espace-etudiant/profil': 'Mon profil',
   '/espace-etudiant/notifications': 'Notifications',
@@ -90,6 +96,7 @@ export function DashboardShell({ role }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unread, setUnread] = useState(0);
+  const [campusOpen, setCampusOpen] = useState(true);
   const { utilisateur, token, deconnexion } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -119,9 +126,16 @@ export function DashboardShell({ role }) {
 
         <nav className="app-navigation" aria-label="Navigation de l’espace connecté">
           <span className="app-navigation__label">Menu principal</span>
-          {navigation.map(({ to, label, icon: Icon, end }) => (
-            <NavLink key={to} to={to} end={end} onClick={() => setMobileOpen(false)} title={collapsed ? label : undefined}>
-              <Icon /><span>{label}</span>
+          {navigation.map((item) => item.children ? (
+            <div className={`nav-group ${campusOpen ? 'nav-group--open' : ''}`} key={item.label}>
+              <button type="button" className="nav-group__trigger" onClick={() => setCampusOpen((value) => !value)} title={collapsed ? item.label : undefined}>
+                <item.icon /><span>{item.label}</span><ChevronDown className="nav-group__chevron" />
+              </button>
+              {campusOpen && <div className="nav-group__children">{item.children.map((child) => <NavLink key={child.to} to={child.to} onClick={() => setMobileOpen(false)}><child.icon /><span>{child.label}</span></NavLink>)}</div>}
+            </div>
+          ) : (
+            <NavLink key={item.to} to={item.to} end={item.end} onClick={() => setMobileOpen(false)} title={collapsed ? item.label : undefined}>
+              <item.icon /><span>{item.label}</span>
             </NavLink>
           ))}
         </nav>

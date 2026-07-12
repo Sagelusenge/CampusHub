@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 export const schemaPaiementAbonnement = z.object({
   codeUtilisateur: z.string().trim().min(5).max(30),
+  codePlan: z.string().trim().min(5).max(30),
+  typePaiement: z.enum(['ABONNEMENT', 'CERTIFICATION']).default('ABONNEMENT'),
   moyenPaiement: z.enum(['MOBILE_MONEY', 'CARTE', 'VIREMENT', 'ESPECES', 'AUTRE']),
   referencePaiement: z.string().trim().min(3).max(120),
   urlPreuve: z.string().url().max(500).nullable().optional(),

@@ -30,8 +30,8 @@ export async function rechercherUniversites(filtres) {
     ],
   );
   const [certifiees] = await baseDeDonnees.query(
-    `SELECT DISTINCT universite_id FROM abonnements_universite
-     WHERE statut = 'ACTIF' AND date_fin > CURRENT_TIMESTAMP AND universite_id IS NOT NULL`,
+    `SELECT DISTINCT universite_id FROM certifications_universite
+     WHERE statut = 'ACTIF' AND date_fin > CURRENT_TIMESTAMP`,
   );
   const idsCertifies = new Set(certifiees.map((item) => Number(item.universite_id)));
   return resultats[0].map((universite) => ({
@@ -50,8 +50,8 @@ export async function obtenirUniversiteParCode(code) {
        (SELECT COUNT(*) FROM abonnements_universites au WHERE au.universite_id = u.id) AS nombre_abonnes,
        (SELECT MIN(fi.frais_minimum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_minimum,
        (SELECT MAX(fi.frais_maximum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_maximum,
-       EXISTS(SELECT 1 FROM abonnements_universite au
-         WHERE au.universite_id = u.id AND au.statut = 'ACTIF' AND au.date_fin > CURRENT_TIMESTAMP) AS est_certifiee
+       EXISTS(SELECT 1 FROM certifications_universite cu
+         WHERE cu.universite_id = u.id AND cu.statut = 'ACTIF' AND cu.date_fin > CURRENT_TIMESTAMP) AS est_certifiee
      FROM universites u WHERE u.code_universite = ? LIMIT 1`,
     [code.toUpperCase()],
   );
@@ -122,7 +122,10 @@ export async function creerUniversite(donnees, utilisateur) {
       ],
     );
     const universite = resultats[0][0];
-    if (donnees.pays) await connexion.execute('UPDATE universites SET pays = ? WHERE id = ?', [donnees.pays, universite.id]);
+    await connexion.execute(
+      `UPDATE universites SET pays = COALESCE(?, pays), url_logo = ?, url_couverture = ? WHERE id = ?`,
+      [donnees.pays ?? null, donnees.urlLogo ?? null, donnees.urlCouverture ?? null, universite.id],
+    );
     if (utilisateur.role === 'UNIVERSITE') {
       await connexion.execute(
         `INSERT INTO membres_universite

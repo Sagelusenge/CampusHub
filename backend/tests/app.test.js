@@ -21,7 +21,7 @@ test('une inscription invalide est refusée avant le controller', async () => {
     .send({ email: 'adresse-invalide' })
     .expect(400);
   assert.equal(reponse.body.succes, false);
-  assert.equal(reponse.body.erreur.message, 'Les données envoyées sont invalides.');
+  assert.match(reponse.body.erreur.message, /champ « email » est invalide/i);
 });
 
 test('la fiche institutionnelle personnelle exige une connexion', async () => {

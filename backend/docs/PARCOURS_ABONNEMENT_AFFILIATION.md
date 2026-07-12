@@ -29,11 +29,15 @@ Puis `POST /abonnements/paiements` :
 ```json
 {
   "codeUtilisateur": "UNI00012026",
+  "codePlan": "PLN00012026",
+  "typePaiement": "ABONNEMENT",
   "moyenPaiement": "MOBILE_MONEY",
   "referencePaiement": "MP-2026-001",
   "urlPreuve": "http://127.0.0.1:4000/uploads/preuves/fichier.png"
 }
 ```
+
+Les plans disponibles se récupèrent avec `GET /abonnements/plans` : Essentiel 20 USD, Professionnel 35 USD et Excellence 50 USD. Une fois la fiche et un pack actifs, le badge se commande avec le même endpoint en envoyant `"typePaiement": "CERTIFICATION"`. Son prix est fixé à 7 USD pour 30 jours.
 
 ## 3. Valider le paiement comme administrateur
 

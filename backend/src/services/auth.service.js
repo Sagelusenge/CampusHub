@@ -64,6 +64,12 @@ export async function inscrireUtilisateur(donnees) {
     await baseDeDonnees.execute('UPDATE utilisateurs SET pays = ? WHERE id = ?', [donnees.pays, utilisateur.id]);
     utilisateur.pays = donnees.pays;
   }
+  if (donnees.role === 'ETUDIANT') {
+    await baseDeDonnees.query('CALL sp_creer_profil_etudiant(?, ?, ?, ?, ?, ?, ?)', [
+      utilisateur.id, null, null, donnees.matriculeEtudiant,
+      'Étudiant CampusHub', JSON.stringify([]), null,
+    ]);
+  }
   return utilisateur;
 }
 

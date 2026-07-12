@@ -21,6 +21,8 @@ export const schemaCreationUniversite = z.object({
   slug: z.string().trim().min(3).max(190).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
   type: z.enum(['PUBLIQUE', 'PRIVEE']),
   description: texteOptionnel(5000),
+  urlLogo: z.string().url().max(500).optional(),
+  urlCouverture: z.string().url().max(500).optional(),
   pays: texteOptionnel(100),
   ville: z.string().trim().min(2).max(100),
   province: z.string().trim().min(2).max(100),

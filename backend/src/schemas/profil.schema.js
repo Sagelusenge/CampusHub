@@ -13,7 +13,7 @@ export const schemaCodeProfil = z.object({ code: z.string().trim().min(5).max(30
 export const schemaCreationProfil = z.object({
   codeUniversite: z.string().trim().min(5).max(30),
   codeFiliere: z.string().trim().min(5).max(30),
-  matriculeEtudiant: z.string().trim().max(80).optional(),
+  matriculeEtudiant: z.string().trim().min(2).max(80),
   titreProfil: z.string().trim().max(180).optional(),
   competences: z.array(z.string().trim().min(1).max(80)).max(50).default([]),
   anneeDiplomation: z.coerce.number().int().min(1950).max(2200).optional(),

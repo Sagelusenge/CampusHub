@@ -1,11 +1,12 @@
-import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Check, CreditCard, Eye, EyeOff, FileCheck2, LockKeyhole, Mail, Send } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, ArrowRight, Building2, Check, CreditCard, Eye, EyeOff, FileCheck2, LockKeyhole, Mail, Send } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { PageShell } from '../components/PageShell.jsx';
 import { Spinner } from '../components/Spinner.jsx';
 import { LocationSelector } from '../components/LocationSelector.jsx';
 import { FileUploadField } from '../components/FileUploadField.jsx';
+import { PlanSelector } from '../components/PlanSelector.jsx';
 
 const initialForm = {
   nomAffichage: '',
@@ -62,7 +63,7 @@ export function UniversityApplicationPage() {
             <p>CampusHub protège la confiance de sa communauté grâce à un processus simple de validation.</p>
             <div className="process-card">
               <div><span><Send size={18} /></span><p><strong>1. Envoyez votre demande</strong><small>Créez le compte officiel de l’établissement.</small></p></div>
-              <div><span><CreditCard size={18} /></span><p><strong>2. Réglez 20 $</strong><small>13 $ d’accès + 7 $ de certification.</small></p></div>
+              <div><span><CreditCard size={18} /></span><p><strong>2. Choisissez votre pack</strong><small>Essentiel 20 $, Professionnel 35 $ ou Excellence 50 $.</small></p></div>
               <div><span><FileCheck2 size={18} /></span><p><strong>3. Nous vérifions</strong><small>Le paiement validé active le compte.</small></p></div>
             </div>
           </aside>
@@ -108,9 +109,12 @@ export function UniversityApplicationPage() {
 }
 
 function PaymentStep({code}) {
-  const [form,setForm]=useState({moyenPaiement:'MOBILE_MONEY',referencePaiement:'',urlPreuve:''});
+  const [plans,setPlans]=useState([]);
+  const [form,setForm]=useState({codePlan:'',typePaiement:'ABONNEMENT',moyenPaiement:'MOBILE_MONEY',referencePaiement:'',urlPreuve:''});
   const [loading,setLoading]=useState(false); const [error,setError]=useState(''); const [sent,setSent]=useState(false);
-  async function submit(event){event.preventDefault();if(!form.urlPreuve){setError('Ajoutez une preuve de paiement.');return;}setLoading(true);setError('');try{await apiRequest('/abonnements/paiements',{method:'POST',body:{codeUtilisateur:code,...form}});setSent(true)}catch(err){setError(err.message)}finally{setLoading(false)}}
+  useEffect(()=>{apiRequest('/abonnements/plans').then(response=>{const items=response.donnees||[];setPlans(items);setForm(current=>({...current,codePlan:items[0]?.code_plan||''}))}).catch(err=>setError(err.message))},[]);
+  const selectedPlan=plans.find(plan=>plan.code_plan===form.codePlan);
+  async function submit(event){event.preventDefault();if(!form.codePlan){setError('Choisissez un pack.');return;}if(!form.urlPreuve){setError('Ajoutez une preuve de paiement.');return;}setLoading(true);setError('');try{await apiRequest('/abonnements/paiements',{method:'POST',body:{codeUtilisateur:code,...form}});setSent(true)}catch(err){setError(err.message)}finally{setLoading(false)}}
   if(sent)return <section className="success-page"><div className="success-card"><div className="success-icon"><Check/></div><span className="eyebrow eyebrow--accent">Paiement transmis</span><h1>Votre activation est en cours.</h1><p>Un administrateur vérifiera la preuve. Vous recevrez ensuite l’accès pour créer la fiche de l’université.</p><div className="request-reference"><span>Compte institutionnel</span><strong>{code}</strong></div><Link className="button button--full" to="/connexion">Essayer la connexion <ArrowRight/></Link></div></section>;
-  return <section className="subscription-checkout"><div className="container checkout-layout"><div className="plan-card"><span className="pill pill--teal"><BadgeCheck/>CampusHub Certifié</span><h1>Activez votre espace institutionnel.</h1><p>Un abonnement simple, renouvelé tous les 30 jours.</p><div className="price"><strong>20 $</strong><span>/ mois</span></div><div className="price-breakdown"><span>Accès complet CampusHub <strong>13 $</strong></span><span>Badge et certification <strong>7 $</strong></span></div><ul><li><Check/>Fiche publique et catalogue complet</li><li><Check/>Validation des étudiants affiliés</li><li><Check/>Publications et statistiques</li><li><Check/>Badge certifié et priorité dans l’annuaire</li><li><Check/>Alertes de renouvellement</li></ul></div><form className="form-card payment-form" onSubmit={submit}><span className="eyebrow eyebrow--accent">Étape 2 sur 2</span><h2>Preuve de paiement</h2><p>Le compte sera activé après contrôle par l’administration.</p>{error&&<div className="alert alert--error">{error}</div>}<label className="form-field"><span>Moyen de paiement</span><select value={form.moyenPaiement} onChange={e=>setForm({...form,moyenPaiement:e.target.value})}><option value="MOBILE_MONEY">Mobile Money</option><option value="CARTE">Carte</option><option value="VIREMENT">Virement</option><option value="ESPECES">Espèces</option><option value="AUTRE">Autre</option></select></label><label className="form-field"><span>Référence de la transaction</span><input required value={form.referencePaiement} onChange={e=>setForm({...form,referencePaiement:e.target.value})} placeholder="Ex. MP240712001"/></label><FileUploadField label="Charger la preuve depuis la machine" value={form.urlPreuve} onUploaded={url=>setForm({...form,urlPreuve:url})} proof/><button className="button button--large button--full" disabled={loading}>{loading?<Spinner/>:<><CreditCard/>Envoyer pour validation</>}</button><div className="request-reference"><span>Référence du compte</span><strong>{code}</strong></div></form></div></section>;
+  return <section className="subscription-checkout"><div className="container checkout-layout checkout-layout--packs"><div><span className="pill pill--teal"><CreditCard/>Packs CampusHub</span><h1>Choisissez le niveau adapté.</h1><p>Le badge certifié à 7 $ est indépendant et pourra être commandé depuis votre espace après activation.</p><PlanSelector plans={plans} selected={form.codePlan} onSelect={codePlan=>setForm(current=>({...current,codePlan}))}/></div><form className="form-card payment-form" onSubmit={submit}><span className="eyebrow eyebrow--accent">Étape 2 sur 2</span><h2>Pack {selectedPlan?.nom||'à choisir'} — {Number(selectedPlan?.prix_total||0)} $</h2><p>Le compte sera activé après contrôle de la preuve par l’administration.</p>{error&&<div className="alert alert--error">{error}</div>}<label className="form-field"><span>Moyen de paiement</span><select value={form.moyenPaiement} onChange={e=>setForm({...form,moyenPaiement:e.target.value})}><option value="MOBILE_MONEY">Mobile Money</option><option value="CARTE">Carte</option><option value="VIREMENT">Virement</option><option value="ESPECES">Espèces</option><option value="AUTRE">Autre</option></select></label><label className="form-field"><span>Référence de la transaction</span><input required value={form.referencePaiement} onChange={e=>setForm({...form,referencePaiement:e.target.value})} placeholder="Ex. MP240712001"/></label><FileUploadField label="Charger la preuve depuis la machine" value={form.urlPreuve} onUploaded={url=>setForm(current=>({...current,urlPreuve:url}))} proof/><button className="button button--large button--full" disabled={loading||!form.codePlan}>{loading?<Spinner/>:<><CreditCard/>Envoyer {Number(selectedPlan?.prix_total||0)} $ pour validation</>}</button><div className="request-reference"><span>Référence du compte</span><strong>{code}</strong></div></form></div></section>;
 }

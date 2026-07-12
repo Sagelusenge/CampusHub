@@ -19,8 +19,31 @@ export async function tableauDeBord() {
       (SELECT COUNT(*) FROM abonnements_universite WHERE statut = 'ACTIF' AND date_fin BETWEEN CURRENT_TIMESTAMP AND DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 7 DAY)) AS abonnements_expirant_bientot,
       (SELECT COUNT(*) FROM suggestions_localisation WHERE statut = 'EN_ATTENTE') AS villes_a_examiner
   `);
+  const [activite] = await baseDeDonnees.query(`
+    SELECT DATE_FORMAT(date_creation, '%Y-%m') AS mois,
+      COUNT(*) AS nouveaux_utilisateurs
+    FROM utilisateurs
+    WHERE date_creation >= DATE_SUB(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'), INTERVAL 5 MONTH)
+    GROUP BY DATE_FORMAT(date_creation, '%Y-%m')
+    ORDER BY mois
+  `);
+  const [paiements] = await baseDeDonnees.query(`
+    SELECT DATE_FORMAT(date_creation, '%Y-%m') AS mois,
+      COALESCE(SUM(CASE WHEN statut = 'VALIDE' THEN montant ELSE 0 END), 0) AS revenus
+    FROM paiements_abonnement
+    WHERE date_creation >= DATE_SUB(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'), INTERVAL 5 MONTH)
+    GROUP BY DATE_FORMAT(date_creation, '%Y-%m')
+    ORDER BY mois
+  `);
   const [sequences] = await baseDeDonnees.query('SELECT nom_sequence, derniere_valeur FROM compteurs_sequences ORDER BY nom_sequence');
-  return { indicateurs: lignes[0], compteurs: sequences };
+  const utilisateursParMois = new Map(activite.map((item) => [item.mois, Number(item.nouveaux_utilisateurs)]));
+  const revenusParMois = new Map(paiements.map((item) => [item.mois, Number(item.revenus)]));
+  const activiteMensuelle = Array.from({ length: 6 }, (_, index) => {
+    const date = new Date(); date.setDate(1); date.setMonth(date.getMonth() - (5 - index));
+    const mois = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    return { mois, nouveauxUtilisateurs: utilisateursParMois.get(mois) || 0, revenus: revenusParMois.get(mois) || 0 };
+  });
+  return { indicateurs: lignes[0], activiteMensuelle, compteurs: sequences };
 }
 
 export async function listerAudit(filtres) {

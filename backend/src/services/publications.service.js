@@ -21,7 +21,16 @@ export async function listerPublications(filtres) {
   if (filtres.etiquette) { conditions.push('JSON_SEARCH(etiquettes, \'one\', ?) IS NOT NULL'); valeurs.push(`%${filtres.etiquette}%`); }
   const where = conditions.join(' AND ');
   const [[lignes], [compte]] = await Promise.all([
-    baseDeDonnees.execute(`SELECT * FROM vue_fil_actualite WHERE ${where} ORDER BY date_publication DESC LIMIT ? OFFSET ?`, [...valeurs, limite, decalage]),
+    baseDeDonnees.execute(
+      `SELECT v.*,
+        (SELECT m.url_media FROM medias_publication m
+         WHERE m.publication_id = v.id ORDER BY m.ordre_affichage, m.id LIMIT 1) AS url_media,
+        (SELECT m.type_media FROM medias_publication m
+         WHERE m.publication_id = v.id ORDER BY m.ordre_affichage, m.id LIMIT 1) AS type_media
+       FROM vue_fil_actualite v WHERE ${where}
+       ORDER BY date_publication DESC LIMIT ? OFFSET ?`,
+      [...valeurs, limite, decalage],
+    ),
     baseDeDonnees.execute(`SELECT COUNT(*) AS total FROM vue_fil_actualite WHERE ${where}`, valeurs),
   ]);
   return { publications: lignes, meta: metaPagination(compte[0].total, page, limite) };
@@ -59,6 +68,18 @@ export async function creerPublication(utilisateur, donnees) {
     if (utilisateur.role === 'UNIVERSITE') {
       await verifierGestionUniversite(utilisateur, universiteId);
     }
+  } else if (utilisateur.role === 'ETUDIANT') {
+    const [profils] = await baseDeDonnees.execute(
+      'SELECT universite_id FROM profils_etudiants WHERE utilisateur_id = ? LIMIT 1',
+      [utilisateur.id],
+    );
+    universiteId = profils[0]?.universite_id ?? null;
+  } else if (utilisateur.role === 'UNIVERSITE') {
+    const [membres] = await baseDeDonnees.execute(
+      'SELECT universite_id FROM membres_universite WHERE utilisateur_id = ? ORDER BY est_proprietaire DESC LIMIT 1',
+      [utilisateur.id],
+    );
+    universiteId = membres[0]?.universite_id ?? null;
   }
   const [resultats] = await baseDeDonnees.query(
     'CALL sp_creer_publication(?, ?, ?, ?, ?, ?, ?)',

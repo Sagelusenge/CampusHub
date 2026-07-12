@@ -8,6 +8,15 @@ export const schemaInscription = z.object({
   pays: z.string().trim().min(2).max(100).optional(),
   ville: z.string().trim().max(100).optional(),
   province: z.string().trim().max(100).optional(),
+  matriculeEtudiant: z.string().trim().min(2).max(80).optional(),
+}).superRefine((donnees, contexte) => {
+  if (donnees.role === 'ETUDIANT' && !donnees.matriculeEtudiant) {
+    contexte.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['matriculeEtudiant'],
+      message: 'Le matricule étudiant est obligatoire.',
+    });
+  }
 });
 
 export const schemaConnexion = z.object({

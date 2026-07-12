@@ -81,6 +81,13 @@ export async function traiterDemandeAffiliation(code, gestionnaireId, donnees) {
           demande.etudiant_id, demande.universite_id, demande.filiere_id,
           demande.matricule_etudiant, 'Étudiant confirmé', JSON.stringify([]), null,
         ]);
+      } else {
+        await connexion.execute(
+          `UPDATE profils_etudiants
+           SET universite_id = ?, filiere_id = ?, matricule_etudiant = ?
+           WHERE id = ?`,
+          [demande.universite_id, demande.filiere_id, demande.matricule_etudiant, profils[0].id],
+        );
       }
     }
     await connexion.execute(
