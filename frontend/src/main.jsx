@@ -7,6 +7,7 @@ import './styles/index.css';
 import './styles/features.css';
 import './styles/packs.css';
 import './styles/social.css';
+import './styles/messages.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

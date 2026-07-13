@@ -36,7 +36,7 @@ export async function audit(requete, reponse) {
 export async function verifierUniversite(requete, reponse) {
   const { code } = requete.validees.params;
   const { statut } = requete.validees.body;
-  const universite = await modifierVerificationUniversite(code, statut);
+  const universite = await modifierVerificationUniversite(code, statut, requete.utilisateur.id);
 
   return envoyerSucces(
     reponse,

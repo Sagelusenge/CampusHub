@@ -196,7 +196,7 @@ export function SocialFeedPage({ embedded = false }) {
         }) : <div className="management-empty app-panel"><Newspaper /><h3>Aucune publication</h3><p>Le fil sera alimenté par les étudiants et les universités.</p></div>}
       </main>
 
-      <aside className="social-rightbar app-panel"><span>À propos du réseau</span><h3>Une communauté académique vérifiée.</h3><p>Les affiliations étudiantes sont confirmées par les universités afin de favoriser des échanges fiables.</p><div><strong>Publiez utile</strong><small>Projets, recherches, stages et annonces académiques.</small></div><div><strong>Restez respectueux</strong><small>Les contenus peuvent être signalés et modérés.</small></div></aside>
+      <aside className="social-rightbar app-panel"><span>À propos du réseau</span><h3>Une communauté académique vérifiée.</h3><p>Les affiliations étudiantes sont confirmées par les universités afin de favoriser des échanges fiables.</p>{estConnecte && utilisateur?.role !== 'ADMINISTRATEUR' && <Link className="button button--full button--small" to={utilisateur?.role === 'UNIVERSITE' ? '/espace-universite/messages' : '/espace-etudiant/messages'}><MessageCircle />Ouvrir mes messages</Link>}<div><strong>Publiez utile</strong><small>Projets, recherches, stages et annonces académiques.</small></div><div><strong>Restez respectueux</strong><small>Les contenus peuvent être signalés et modérés.</small></div></aside>
     </div>
 
     {composer && <div className="modal-backdrop" onMouseDown={() => setComposer(false)}><form className="social-composer" onSubmit={publish} onMouseDown={(event) => event.stopPropagation()}>

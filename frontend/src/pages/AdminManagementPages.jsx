@@ -1,5 +1,6 @@
 import { Building2, Check, Eye, FileClock, RefreshCw, Search, ShieldAlert, UserRoundCheck, Users, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { DashboardPageHeader } from '../components/DashboardShell.jsx';
 import { Spinner } from '../components/Spinner.jsx';
@@ -45,6 +46,7 @@ export function AdminUniversitiesPage() {
   const list = useRemoteList(loader);
   const [filter, setFilter] = useState('TOUTES');
   const [processing, setProcessing] = useState('');
+  const [message, setMessage] = useState('');
   const visible = useMemo(() => filter === 'TOUTES' ? list.data : list.data.filter((row) => row.statut_verification === filter), [list.data, filter]);
 
   async function verifier(item, accepted) {
@@ -53,10 +55,11 @@ export function AdminUniversitiesPage() {
       const status = accepted ? 'VERIFIEE' : 'REJETEE';
       await apiRequest(`/administration/universites/${item.code_universite}/verification`, { method: 'PATCH', token, body: { statut: status } });
       list.setState((current) => ({ ...current, data: current.data.map((row) => row.code_universite === item.code_universite ? { ...row, statut_verification: status } : row) }));
+      setMessage(accepted ? `${item.nom} est maintenant publiée sur l’accueil.` : `${item.nom} a été renvoyée pour correction.`);
     } finally { setProcessing(''); }
   }
 
-  return <ManagementPage title="Universités" description="Contrôlez les fiches avant leur publication dans l’annuaire." icon={Building2} list={{ ...list, data: visible }} extra={<div className="filter-tabs">{['TOUTES','EN_ATTENTE','VERIFIEE','REJETEE'].map((item) => <button className={filter === item ? 'active' : ''} onClick={() => setFilter(item)} key={item}>{item.replace('_',' ')}</button>)}</div>} columns={['Université', 'Type', 'Localisation', 'Filières', 'Statut', 'Actions']} renderRow={(item) => <tr key={item.code_universite}><td><Identity title={item.nom} subtitle={item.code_universite} icon={Building2} /></td><td>{item.type_universite === 'PUBLIQUE' ? 'Publique' : 'Privée'}</td><td>{item.ville}, {item.province}</td><td>{item.nombre_filieres || 0}</td><td><StatusBadge status={item.statut_verification} /></td><td><div className="table-actions"><button className="table-action" title="Consulter"><Eye /></button>{item.statut_verification === 'EN_ATTENTE' && <><button className="table-action table-action--success" disabled={processing === item.code_universite} onClick={() => verifier(item,true)}><Check /></button><button className="table-action table-action--danger" disabled={processing === item.code_universite} onClick={() => verifier(item,false)}><X /></button></>}</div></td></tr>} />;
+  return <ManagementPage title="Universités" description="Contrôlez les fiches avant leur publication dans l’annuaire." icon={Building2} list={{ ...list, data: visible }} message={message} extra={<div className="filter-tabs">{['TOUTES','EN_ATTENTE','VERIFIEE','REJETEE'].map((item) => <button className={filter === item ? 'active' : ''} onClick={() => setFilter(item)} key={item}>{item.replace('_',' ')}</button>)}</div>} columns={['Université', 'Type', 'Localisation', 'Filières', 'Statut', 'Actions']} renderRow={(item) => <tr key={item.code_universite}><td><Identity title={item.nom} subtitle={item.code_universite} icon={Building2} /></td><td>{item.type_universite === 'PUBLIQUE' ? 'Publique' : 'Privée'}</td><td>{item.ville}, {item.province}</td><td>{item.nombre_filieres || 0}</td><td><StatusBadge status={item.statut_verification} /></td><td><div className="table-actions"><Link className="table-action" title="Consulter" to={`/universites/${item.code_universite}`} target="_blank"><Eye /></Link>{item.statut_verification === 'EN_ATTENTE' && <><button className="table-action table-action--success" disabled={processing === item.code_universite} onClick={() => verifier(item,true)}><Check /></button><button className="table-action table-action--danger" disabled={processing === item.code_universite} onClick={() => verifier(item,false)}><X /></button></>}</div></td></tr>} />;
 }
 
 export function AdminUsersPage() {

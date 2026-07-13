@@ -14,6 +14,7 @@ import { InstitutionProgramsPage } from './pages/InstitutionProgramsPage.jsx';
 import { InstitutionPublicationsPage } from './pages/InstitutionPublicationsPage.jsx';
 import { InstitutionResourcePage } from './pages/InstitutionResourcePage.jsx';
 import { LoginPage } from './pages/LoginPage.jsx';
+import { MessagesPage } from './pages/MessagesPage.jsx';
 import { NotFoundPage } from './pages/NotFoundPage.jsx';
 import { NotificationsPage } from './pages/NotificationsPage.jsx';
 import { PortfolioDetailPage } from './pages/PortfolioDetailPage.jsx';
@@ -80,6 +81,7 @@ export function App() {
       <Route path="/espace-universite/infrastructures" element={<InstitutionResourcePage type="infrastructures" />} />
       <Route path="/espace-universite/admissions" element={<InstitutionResourcePage type="admissions" />} />
       <Route path="/espace-universite/publications" element={<InstitutionPublicationsPage />} />
+      <Route path="/espace-universite/messages" element={<MessagesPage />} />
       <Route path="/espace-universite/affiliations" element={<UniversityAffiliationsPage />} />
       <Route path="/espace-universite/abonnement" element={<InstitutionSubscriptionPage />} />
       <Route path="/espace-universite/notifications" element={<NotificationsPage />} />
@@ -91,6 +93,7 @@ export function App() {
       <Route path="/espace-etudiant/affiliation" element={<StudentAffiliationPage />} />
       <Route path="/espace-etudiant/profil" element={<StudentProfilePage />} />
       <Route path="/espace-etudiant/actualites" element={<SocialFeedPage embedded />} />
+      <Route path="/espace-etudiant/messages" element={<MessagesPage />} />
       <Route path="/espace-etudiant/notifications" element={<NotificationsPage />} />
       <Route path="/espace-etudiant/parametres" element={<SettingsPage />} />
     </Route>

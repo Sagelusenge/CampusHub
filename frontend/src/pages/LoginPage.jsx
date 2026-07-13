@@ -32,7 +32,7 @@ export function LoginPage() {
   }
 
   return (
-    <PageShell>
+    <PageShell footer={false}>
       <section className="auth-page">
         <div className="auth-visual">
           <div className="auth-visual__content">

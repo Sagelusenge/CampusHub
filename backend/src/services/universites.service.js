@@ -138,6 +138,13 @@ export async function creerUniversite(donnees, utilisateur) {
          WHERE utilisateur_id = ? AND statut = 'ACTIF' AND universite_id IS NULL`,
         [universite.id, utilisateur.id],
       );
+      await connexion.execute(
+        `INSERT INTO notifications
+          (id, code_notification, destinataire_id, acteur_id, type_notification, titre, message, url_action)
+         SELECT 0, '', id, ?, 'SYSTEME', 'Nouvelle fiche universitaire', ?, '/administration/universites'
+         FROM utilisateurs WHERE role = 'ADMINISTRATEUR' AND statut_compte = 'ACTIF'`,
+        [utilisateur.id, `${donnees.nom} attend votre validation avant publication.`],
+      );
     }
     await connexion.commit();
     return universite;

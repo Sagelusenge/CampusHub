@@ -1,14 +1,112 @@
-import { FileText, Plus, Send, Trash2, X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { apiRequest } from '../api/client.js';
+import { FileText, ImagePlus, Plus, Send, Trash2, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { apiRequest, uploadFile } from '../api/client.js';
 import { DashboardPageHeader } from '../components/DashboardShell.jsx';
 import { Spinner } from '../components/Spinner.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useInstitution } from '../context/InstitutionContext.jsx';
 
-export function InstitutionPublicationsPage(){const {token}=useAuth();const {universite}=useInstitution();const [items,setItems]=useState([]);const [loading,setLoading]=useState(true);const [modal,setModal]=useState(false);const [saving,setSaving]=useState(false);const [error,setError]=useState('');const [form,setForm]=useState({titre:'',contenu:'',type:'ANNONCE',etiquettes:'',publier:true});const load=useCallback(async()=>{if(!universite){setLoading(false);return;}setLoading(true);try{setItems((await apiRequest(`/publications?universite=${universite.code_universite}&page=1&limite=50`)).donnees||[])}catch(err){setError(err.message)}finally{setLoading(false)}},[universite]);useEffect(()=>{
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  load();
-},[load]);async function submit(e){e.preventDefault();setSaving(true);try{await apiRequest('/publications',{method:'POST',token,body:{codeUniversite:universite.code_universite,titre:form.titre||null,contenu:form.contenu,type:form.type,etiquettes:form.etiquettes.split(',').map(x=>x.trim()).filter(Boolean),publier:form.publier}});setModal(false);setForm({titre:'',contenu:'',type:'ANNONCE',etiquettes:'',publier:true});await load()}catch(err){setError(err.message)}finally{setSaving(false)}}async function remove(code){if(!window.confirm('Supprimer cette publication ?'))return;try{await apiRequest(`/publications/${code}`,{method:'DELETE',token});setItems(v=>v.filter(x=>x.code_publication!==code))}catch(err){setError(err.message)}}if(!universite)return <div className="no-university"><FileText/><h2>Créez d’abord votre fiche universitaire</h2></div>;return <div><DashboardPageHeader title="Publications" description="Partagez vos annonces, recherches et actualités académiques." actions={<button className="button" onClick={()=>setModal(true)}><Plus/>Nouvelle publication</button>}/>{error&&<div className="alert alert--error">{error}</div>}<section className="publication-manager">{loading?<div className="content-loading"><Spinner/>Chargement…</div>:items.length?items.map(item=><article className="managed-publication" key={item.code_publication}><div className="managed-publication__meta"><span className="role-chip">{item.type_publication||item.type}</span><StatusBadge status={item.statut_publication||item.statut}/></div><h3>{item.titre||'Publication sans titre'}</h3><p>{item.contenu}</p><small>{item.code_publication} • {new Date(item.date_creation).toLocaleDateString('fr-FR')}</small><button onClick={()=>remove(item.code_publication)}><Trash2/></button></article>):<div className="management-empty app-panel"><FileText/><h3>Aucune publication</h3><p>Publiez votre première annonce institutionnelle.</p></div>}</section>{modal&&<div className="modal-backdrop" onMouseDown={()=>setModal(false)}><form className="resource-modal resource-modal--large" onSubmit={submit} onMouseDown={e=>e.stopPropagation()}><div className="resource-modal__heading"><div><span className="eyebrow">Communication</span><h2>Nouvelle publication</h2></div><button type="button" onClick={()=>setModal(false)}><X/></button></div><div className="form-grid"><Field label="Titre" wide><input value={form.titre} onChange={e=>setForm({...form,titre:e.target.value})}/></Field><Field label="Type"><select value={form.type} onChange={e=>setForm({...form,type:e.target.value})}>{['PROJET','ARTICLE','RECHERCHE','ANNONCE','STAGE','AUTRE'].map(x=><option key={x}>{x}</option>)}</select></Field><Field label="Étiquettes"><input value={form.etiquettes} onChange={e=>setForm({...form,etiquettes:e.target.value})} placeholder="admission, rentrée…"/></Field><Field label="Contenu" wide><textarea required rows="7" value={form.contenu} onChange={e=>setForm({...form,contenu:e.target.value})}/></Field><label className="switch-field form-field--wide"><input type="checkbox" checked={form.publier} onChange={e=>setForm({...form,publier:e.target.checked})}/><span/><div><strong>Publier immédiatement</strong></div></label></div><button className="button button--full" disabled={saving}>{saving?<Spinner/>:<><Send/>Enregistrer</>}</button></form></div>}</div>}
-function Field({label,wide,children}){return <label className={`editor-field ${wide?'form-field--wide':''}`}><span>{label}</span>{children}</label>}
+const initialForm = { titre: '', contenu: '', type: 'ANNONCE', etiquettes: '', publier: true };
+
+export function InstitutionPublicationsPage() {
+  const { token } = useAuth();
+  const { universite } = useInstitution();
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [form, setForm] = useState(initialForm);
+  const [image, setImage] = useState(null);
+  const preview = useMemo(() => image ? URL.createObjectURL(image) : null, [image]);
+
+  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
+
+  const load = useCallback(async () => {
+    if (!universite) { setLoading(false); return; }
+    setLoading(true);
+    try {
+      const response = await apiRequest(`/publications?universite=${universite.code_universite}&page=1&limite=50`);
+      setItems(response.donnees || []);
+      setError('');
+    } catch (err) { setError(err.message); }
+    finally { setLoading(false); }
+  }, [universite]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+  }, [load]);
+
+  async function submit(event) {
+    event.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      const response = await apiRequest('/publications', {
+        method: 'POST', token,
+        body: {
+          codeUniversite: universite.code_universite,
+          titre: form.titre || null,
+          contenu: form.contenu,
+          type: form.type,
+          etiquettes: form.etiquettes.split(',').map((value) => value.trim()).filter(Boolean),
+          publier: form.publier,
+        },
+      });
+      if (image) {
+        const uploaded = await uploadFile('/televersements/images', image, token);
+        await apiRequest(`/publications/${response.donnees.code_publication}/medias`, {
+          method: 'POST', token,
+          body: {
+            type: 'IMAGE', url: uploaded.donnees.url,
+            typeMime: uploaded.donnees.typeMime,
+            tailleOctets: uploaded.donnees.tailleOctets,
+            ordre: 0,
+          },
+        });
+      }
+      setModal(false); setForm(initialForm); setImage(null); await load();
+    } catch (err) { setError(err.message); }
+    finally { setSaving(false); }
+  }
+
+  async function remove(code) {
+    if (!window.confirm('Supprimer cette publication ?')) return;
+    try {
+      await apiRequest(`/publications/${code}`, { method: 'DELETE', token });
+      setItems((current) => current.filter((item) => item.code_publication !== code));
+    } catch (err) { setError(err.message); }
+  }
+
+  if (!universite) return <div className="no-university"><FileText /><h2>Créez d’abord votre fiche universitaire</h2></div>;
+  return <div>
+    <DashboardPageHeader title="Publications" description="Partagez vos annonces, recherches, photos et actualités académiques." actions={<button className="button" onClick={() => setModal(true)}><Plus />Nouvelle publication</button>} />
+    {error && <div className="alert alert--error">{error}</div>}
+    <section className="publication-manager">
+      {loading ? <div className="content-loading"><Spinner />Chargement…</div> : items.length ? items.map((item) => <article className="managed-publication" key={item.code_publication}>
+        {item.url_media && <img className="managed-publication__image" src={item.url_media} alt={item.titre || 'Publication universitaire'} />}
+        <div className="managed-publication__content"><div className="managed-publication__meta"><span className="role-chip">{item.type_publication || item.type}</span><StatusBadge status={item.statut_publication || item.statut} /></div><h3>{item.titre || 'Publication sans titre'}</h3><p>{item.contenu}</p><small>{item.code_publication} • {new Date(item.date_publication || item.date_creation).toLocaleDateString('fr-FR')}</small></div>
+        <button onClick={() => remove(item.code_publication)} aria-label="Supprimer"><Trash2 /></button>
+      </article>) : <div className="management-empty app-panel"><FileText /><h3>Aucune publication</h3><p>Publiez votre première annonce institutionnelle.</p></div>}
+    </section>
+
+    {modal && <div className="modal-backdrop" onMouseDown={() => setModal(false)}><form className="resource-modal resource-modal--large" onSubmit={submit} onMouseDown={(event) => event.stopPropagation()}>
+      <div className="resource-modal__heading"><div><span className="eyebrow">Communication</span><h2>Nouvelle publication</h2></div><button type="button" onClick={() => setModal(false)}><X /></button></div>
+      <div className="form-grid">
+        <Field label="Titre" wide><input value={form.titre} onChange={(event) => setForm({ ...form, titre: event.target.value })} /></Field>
+        <Field label="Type"><select value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })}>{['PROJET', 'ARTICLE', 'RECHERCHE', 'ANNONCE', 'STAGE', 'AUTRE'].map((type) => <option key={type}>{type}</option>)}</select></Field>
+        <Field label="Étiquettes"><input value={form.etiquettes} onChange={(event) => setForm({ ...form, etiquettes: event.target.value })} placeholder="admission, rentrée…" /></Field>
+        <Field label="Contenu" wide><textarea required rows="6" value={form.contenu} onChange={(event) => setForm({ ...form, contenu: event.target.value })} /></Field>
+        <label className="publication-image-picker form-field--wide"><span>Photo de la publication</span><div className="publication-image-picker__box">{preview ? <img src={preview} alt="Aperçu" /> : <><ImagePlus /><strong>Choisir une photo</strong><small>JPG, PNG ou WebP — 5 Mo maximum</small></>}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => setImage(event.target.files?.[0] || null)} /></div>{image && <button type="button" onClick={() => setImage(null)}><X />Retirer la photo</button>}</label>
+        <label className="switch-field form-field--wide"><input type="checkbox" checked={form.publier} onChange={(event) => setForm({ ...form, publier: event.target.checked })} /><span /><div><strong>Publier immédiatement</strong></div></label>
+      </div>
+      <button className="button button--full" disabled={saving}>{saving ? <Spinner /> : <><Send />Enregistrer la publication</>}</button>
+    </form></div>}
+  </div>;
+}
+
+function Field({ label, wide, children }) {
+  return <label className={`editor-field ${wide ? 'form-field--wide' : ''}`}><span>{label}</span>{children}</label>;
+}

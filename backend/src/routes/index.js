@@ -14,6 +14,7 @@ import { routeAbonnements } from './abonnements.routes.js';
 import { routeAffiliations } from './affiliations.routes.js';
 import { routeLocalisations } from './localisations.routes.js';
 import { routeTeleversements } from './televersements.routes.js';
+import { routeMessagerie } from './messagerie.routes.js';
 
 export const routesApi = Router();
 
@@ -23,6 +24,7 @@ routesApi.use('/abonnements', routeAbonnements);
 routesApi.use('/affiliations', routeAffiliations);
 routesApi.use('/localisations', routeLocalisations);
 routesApi.use('/televersements', routeTeleversements);
+routesApi.use('/messagerie', routeMessagerie);
 routesApi.use('/universites', routeUniversites);
 routesApi.use('/utilisateurs', routeUtilisateurs);
 routesApi.use('/profils', routeProfils);

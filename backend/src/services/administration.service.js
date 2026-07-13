@@ -63,14 +63,31 @@ export async function listerAudit(filtres) {
   return { entrees: lignes, meta: metaPagination(compte[0].total, page, limite) };
 }
 
-export async function verifierUniversite(code, statut) {
-  const [resultat] = await baseDeDonnees.execute(
-    'UPDATE universites SET statut_verification = ? WHERE code_universite = ?',
-    [statut, code.toUpperCase()],
-  );
-  if (!resultat.affectedRows) throw new ErreurApi(404, 'Université introuvable.');
-  const [lignes] = await baseDeDonnees.execute(
-    'SELECT code_universite, nom, statut_verification FROM universites WHERE code_universite = ?', [code.toUpperCase()],
-  );
-  return lignes[0];
+export async function verifierUniversite(code, statut, administrateurId) {
+  const connexion = await baseDeDonnees.getConnection();
+  try {
+    await connexion.beginTransaction();
+    const [universites] = await connexion.execute(
+      'SELECT id, code_universite, nom FROM universites WHERE code_universite = ? FOR UPDATE',
+      [code.toUpperCase()],
+    );
+    if (!universites[0]) throw new ErreurApi(404, 'Université introuvable.');
+    const universite = universites[0];
+    await connexion.execute('UPDATE universites SET statut_verification = ? WHERE id = ?', [statut, universite.id]);
+    await connexion.execute(
+      `INSERT INTO notifications
+        (id, code_notification, destinataire_id, acteur_id, type_notification, titre, message, url_action)
+       SELECT 0, '', m.utilisateur_id, ?, 'SYSTEME', ?, ?, '/espace-universite'
+       FROM membres_universite m WHERE m.universite_id = ? AND m.est_proprietaire = 1`,
+      [administrateurId,
+        statut === 'VERIFIEE' ? 'Fiche universitaire publiée' : 'Fiche universitaire rejetée',
+        statut === 'VERIFIEE' ? `${universite.nom} apparaît maintenant sur l’accueil CampusHub.` : `${universite.nom} doit être corrigée avant publication.`,
+        universite.id],
+    );
+    await connexion.commit();
+    return { ...universite, statut_verification: statut };
+  } catch (erreur) {
+    await connexion.rollback();
+    throw erreur;
+  } finally { connexion.release(); }
 }
