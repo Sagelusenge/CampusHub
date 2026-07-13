@@ -16,12 +16,12 @@ export function Footer() {
         <div>
           <h3>Explorer</h3>
           <Link to="/universites">Universités</Link>
-          <Link to="/portfolios">Projets étudiants</Link>
+          <Link to="/reseau">Réseau CampusHub</Link>
           <Link to="/partenariat">Partenariat universitaire</Link>
         </div>
         <div>
           <h3>CampusHub</h3>
-          <a href="mailto:contact@campushub.cd"><Mail size={15} /> contact@campushub.cd</a>
+          <Link to="/contact"><Mail size={15} /> Contacter l’administration</Link>
           <span>Processus de vérification</span>
           <span>Confidentialité</span>
         </div>

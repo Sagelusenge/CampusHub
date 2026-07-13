@@ -1,6 +1,6 @@
 import {
   Bookmark, Building2, Camera, Heart, ImagePlus, MessageCircle, MoreHorizontal,
-  Newspaper, Send, Share2, Sparkles, X,
+  Newspaper, Search, Send, Share2, Sparkles, UserCheck, UserPlus, X,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -40,12 +40,18 @@ export function SocialFeedPage({ embedded = false }) {
   const [openComments, setOpenComments] = useState(null);
   const [details, setDetails] = useState({});
   const [comment, setComment] = useState('');
+  const [search, setSearch] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState(null);
+  const [following, setFollowing] = useState(new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const query = filter === 'TOUT' ? '' : `&type=${filter}`;
-      const response = await apiRequest(`/publications?page=1&limite=30${query}`);
+      const response = filter === 'TOUT' && token
+        ? await apiRequest('/recherche/recommandations', { token })
+        : await apiRequest(`/publications?page=1&limite=30${query}`);
       setItems(response.donnees || []);
       setError('');
     } catch (err) {
@@ -53,7 +59,7 @@ export function SocialFeedPage({ embedded = false }) {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [filter, token]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -64,7 +70,28 @@ export function SocialFeedPage({ embedded = false }) {
     apiRequest('/interactions/favoris', { token }).then((response) => {
       setFavorites(new Set((response.donnees || []).map((item) => item.code_publication)));
     }).catch(() => null);
+    apiRequest('/interactions/universites-suivies', { token }).then((response) => {
+      setFollowing(new Set((response.donnees || []).map((item) => item.code_universite)));
+    }).catch(() => null);
   }, [token]);
+
+  async function runSearch(event) {
+    event.preventDefault();
+    if (search.trim().length < 2) { setSearchResults(null); await load(); return; }
+    setSearching(true); setError('');
+    try {
+      const response = await apiRequest(`/recherche/globale?q=${encodeURIComponent(search.trim())}`, { token });
+      setSearchResults(response.donnees); setItems(response.donnees.publications || []);
+    } catch (err) { setError(err.message); } finally { setSearching(false); }
+  }
+
+  async function toggleFollow(code) {
+    const active = following.has(code);
+    try {
+      await apiRequest(`/interactions/universites/${code}/suivre`, { method: active ? 'DELETE' : 'POST', token });
+      setFollowing((current) => { const next = new Set(current); if (active) next.delete(code); else next.add(code); return next; });
+    } catch (err) { setError(err.message); }
+  }
 
   const preview = useMemo(() => image ? URL.createObjectURL(image) : null, [image]);
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
@@ -153,7 +180,7 @@ export function SocialFeedPage({ embedded = false }) {
   }
 
   async function share(item) {
-    const url = `${window.location.origin}/actualites#${item.code_publication}`;
+    const url = `${window.location.origin}/reseau#${item.code_publication}`;
     await navigator.clipboard?.writeText(url);
   }
 
@@ -170,6 +197,8 @@ export function SocialFeedPage({ embedded = false }) {
       </aside>
 
       <main className="social-feed">
+        <form className="social-smart-search app-panel" onSubmit={runSearch}><Search /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher une publication, une université ou un étudiant…" /><button disabled={searching}>{searching ? <Spinner /> : 'Rechercher'}</button></form>
+        {searchResults && <div className="social-search-results app-panel"><header><div><strong>{searchResults.total} résultat(s)</strong><small>Termes reconnus : {(searchResults.termesReconnus || []).join(', ') || search}</small></div><button onClick={() => { setSearch(''); setSearchResults(null); load(); }}><X /></button></header>{searchResults.universites?.length > 0 && <div><span>Universités</span>{searchResults.universites.slice(0, 4).map((entry) => <Link key={entry.code_universite} to={`/universites/${entry.code_universite}`}><Building2 /><div><strong>{entry.nom}</strong><small>{entry.ville || entry.province}</small></div></Link>)}</div>}{searchResults.profils?.length > 0 && <div><span>Étudiants</span>{searchResults.profils.slice(0, 4).map((entry) => <Link key={entry.code_profil} to={`/portfolios/${entry.code_profil}`}><span className="social-mini-avatar">{initials(entry.nom_affichage)}</span><div><strong>{entry.nom_affichage}</strong><small>{entry.titre_profil || entry.nom_universite}</small></div></Link>)}</div>}</div>}
         {estConnecte && <button className="social-composer-trigger app-panel" onClick={() => setComposer(true)}>
           <span>{initials(utilisateur?.nom_affichage)}</span><div>Partagez une idée, un projet ou une actualité…</div><ImagePlus />
         </button>}
@@ -178,7 +207,7 @@ export function SocialFeedPage({ embedded = false }) {
           const comments = details[item.code_publication]?.commentaires || [];
           const commentsOpen = openComments === item.code_publication;
           return <article className="social-post app-panel" key={item.code_publication} id={item.code_publication}>
-            <header><span className="social-avatar">{initials(item.nom_auteur)}</span><div><strong>{item.nom_auteur}</strong><small>{item.nom_universite || 'Communauté CampusHub'} · {formatDate(item.date_publication)}</small></div><button aria-label="Options"><MoreHorizontal /></button></header>
+            <header><span className="social-avatar">{initials(item.nom_auteur)}</span><div><strong>{item.nom_auteur}</strong><small>{item.nom_universite || 'Communauté CampusHub'} · {formatDate(item.date_publication)}</small></div>{item.code_universite ? <button className="social-follow" onClick={() => toggleFollow(item.code_universite)}>{following.has(item.code_universite) ? <UserCheck /> : <UserPlus />}<span>{following.has(item.code_universite) ? 'Suivie' : 'Suivre'}</span></button> : <button aria-label="Options"><MoreHorizontal /></button>}</header>
             <div className="social-post__body"><span className="social-post__type">{item.type_publication}</span>{item.titre && <h2>{item.titre}</h2>}<p>{item.contenu}</p>{Array.isArray(item.etiquettes) && <div className="social-tags">{item.etiquettes.map((tag) => <span key={tag}>#{tag}</span>)}</div>}</div>
             {item.url_media && <img className="social-post__media" src={publicationImage(item.url_media)} alt={item.titre || 'Média de la publication'} />}
             <div className="social-post__counts"><span>{item.nombre_jaime || 0} appréciation(s)</span><span>{item.nombre_commentaires || 0} commentaire(s)</span></div>
@@ -196,7 +225,7 @@ export function SocialFeedPage({ embedded = false }) {
         }) : <div className="management-empty app-panel"><Newspaper /><h3>Aucune publication</h3><p>Le fil sera alimenté par les étudiants et les universités.</p></div>}
       </main>
 
-      <aside className="social-rightbar app-panel"><span>À propos du réseau</span><h3>Une communauté académique vérifiée.</h3><p>Les affiliations étudiantes sont confirmées par les universités afin de favoriser des échanges fiables.</p>{estConnecte && utilisateur?.role !== 'ADMINISTRATEUR' && <Link className="button button--full button--small" to={utilisateur?.role === 'UNIVERSITE' ? '/espace-universite/messages' : '/espace-etudiant/messages'}><MessageCircle />Ouvrir mes messages</Link>}<div><strong>Publiez utile</strong><small>Projets, recherches, stages et annonces académiques.</small></div><div><strong>Restez respectueux</strong><small>Les contenus peuvent être signalés et modérés.</small></div></aside>
+      <aside className="social-rightbar app-panel"><span>À propos du réseau</span><h3>Une communauté académique vérifiée.</h3><p>Les affiliations étudiantes sont confirmées par les universités afin de favoriser des échanges fiables.</p>{['ETUDIANT', 'UNIVERSITE'].includes(utilisateur?.role) && <Link className="button button--full button--small" to={utilisateur?.role === 'UNIVERSITE' ? '/espace-universite/messages' : '/espace-etudiant/messages'}><MessageCircle />Ouvrir mes messages</Link>}<div><strong>Publiez utile</strong><small>Projets, recherches, stages et annonces académiques.</small></div><div><strong>Restez respectueux</strong><small>Les contenus peuvent être signalés et modérés.</small></div></aside>
     </div>
 
     {composer && <div className="modal-backdrop" onMouseDown={() => setComposer(false)}><form className="social-composer" onSubmit={publish} onMouseDown={(event) => event.stopPropagation()}>

@@ -22,7 +22,8 @@ export function LoginPage() {
       const session = await connexion(form.email, form.motDePasse);
       const destination = location.state?.from?.pathname
         || (session.utilisateur.role === 'ADMINISTRATEUR' ? '/administration'
-          : session.utilisateur.role === 'ETUDIANT' ? '/espace-etudiant' : '/espace-universite');
+          : session.utilisateur.role === 'ETUDIANT' ? '/espace-etudiant'
+            : session.utilisateur.role === 'UNIVERSITE' ? '/espace-universite' : '/reseau');
       navigate(destination, { replace: true });
     } catch (err) {
       setError(err.message);
@@ -69,6 +70,7 @@ export function LoginPage() {
             <div className="form-divider"><span>Nouvel établissement ?</span></div>
             <Link className="button button--outline button--full" to="/partenariat">Envoyer une demande</Link>
             <Link className="auth-secondary-link" to="/inscription-etudiant">Je suis étudiant — créer un compte</Link>
+            <Link className="auth-secondary-link" to="/inscription-visiteur">Je suis visiteur — rejoindre le réseau</Link>
           </form>
         </div>
       </section>

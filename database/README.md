@@ -14,7 +14,8 @@
 5. Exécuter `07_abonnements_affiliations_localisations.sql` pour les abonnements, affiliations et villes proposées.
 6. Exécuter `08_packs_et_certification.sql` pour les trois packs et le badge séparé.
 7. Exécuter `09_messagerie_privee.sql` pour les conversations et messages privés.
-8. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
+8. Exécuter `10_recherche_et_contact.sql` pour la recherche personnalisée et les contacts.
+9. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
 
 ## Création depuis le client MySQL
 
@@ -29,6 +30,7 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/05_donnees
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/07_abonnements_affiliations_localisations.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/08_packs_et_certification.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/09_messagerie_privee.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/10_recherche_et_contact.sql;
 ```
 
 ## Organisation fonctionnelle
@@ -42,6 +44,8 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/09_message
 - Affiliations : `demandes_affiliation_etudiante`, `suggestions_localisation`.
 - Certification : `certifications_universite` (badge indépendant de l'abonnement).
 - Messagerie : `conversations`, `participants_conversation`, `messages_prives`.
+- Recherche personnalisée : `recherches_utilisateurs`.
+- Contact public : `demandes_contact`.
 
 Les fichiers médias ne sont pas enregistrés directement dans MySQL. La table `medias_publication` conserve leur URL et leurs informations techniques.
 
@@ -57,7 +61,7 @@ La table `compteurs_sequences` garantit que deux insertions simultanées ne reç
 
 ## Automatismes disponibles
 
-- 32 triggers : numérotation, validation, notifications et audit.
+- 34 triggers : numérotation, validation, notifications et audit.
 - 14 procédures : inscription, catalogue, publication, recherche, comparaison et modération.
 - 8 vues : universités, filières, profils, fil d'actualité, statistiques, signalements, notifications et abonnements.
 

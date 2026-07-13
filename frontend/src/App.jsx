@@ -5,8 +5,10 @@ import { InstitutionProvider } from './context/InstitutionContext.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.jsx';
 import { AdminLocationsPage } from './pages/AdminLocationsPage.jsx';
+import { AdminContactsPage } from './pages/AdminContactsPage.jsx';
 import { AdminAuditPage, AdminModerationPage, AdminRequestsPage, AdminUniversitiesPage, AdminUsersPage } from './pages/AdminManagementPages.jsx';
 import { ComparePage } from './pages/ComparePage.jsx';
+import { ContactPage } from './pages/ContactPage.jsx';
 import { HomePage } from './pages/HomePage.jsx';
 import { InstitutionDashboardPage } from './pages/InstitutionDashboardPage.jsx';
 import { InstitutionProfilePage } from './pages/InstitutionProfilePage.jsx';
@@ -28,15 +30,18 @@ import { UniversitiesPage } from './pages/UniversitiesPage.jsx';
 import { UniversityApplicationPage } from './pages/UniversityApplicationPage.jsx';
 import { UniversityAffiliationsPage } from './pages/UniversityAffiliationsPage.jsx';
 import { UniversityDetailPage } from './pages/UniversityDetailPage.jsx';
+import { VisitorRegistrationPage } from './pages/VisitorRegistrationPage.jsx';
 
 const protectAdmin = <ProtectedRoute roles={['ADMINISTRATEUR']}><DashboardShell role="admin" /></ProtectedRoute>;
 const protectInstitution = <ProtectedRoute roles={['UNIVERSITE']}><InstitutionProvider><DashboardShell role="institution" /></InstitutionProvider></ProtectedRoute>;
 const protectStudent = <ProtectedRoute roles={['ETUDIANT']}><DashboardShell role="student" /></ProtectedRoute>;
+const protectNetwork = <ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><SocialFeedPage /></ProtectedRoute>;
 
 function destinationFor(role) {
   if (role === 'ADMINISTRATEUR') return '/administration';
   if (role === 'ETUDIANT') return '/espace-etudiant';
   if (role === 'UNIVERSITE') return '/espace-universite';
+  if (role === 'VISITEUR') return '/reseau';
   return null;
 }
 
@@ -54,10 +59,13 @@ export function App() {
     <Route path="/comparaison" element={<ComparePage />} />
     <Route path="/portfolios" element={<PortfoliosPage />} />
     <Route path="/portfolios/:code" element={<PortfolioDetailPage />} />
-    <Route path="/actualites" element={<SocialFeedPage />} />
+    <Route path="/reseau" element={protectNetwork} />
+    <Route path="/actualites" element={<Navigate to="/reseau" replace />} />
+    <Route path="/contact" element={<ContactPage />} />
     <Route path="/connexion" element={<ConnectedHome><LoginPage /></ConnectedHome>} />
     <Route path="/partenariat" element={<UniversityApplicationPage />} />
     <Route path="/inscription-etudiant" element={<StudentRegistrationPage />} />
+    <Route path="/inscription-visiteur" element={<VisitorRegistrationPage />} />
 
     <Route element={protectAdmin}>
       <Route path="/administration" element={<AdminDashboardPage />} />
@@ -68,6 +76,8 @@ export function App() {
       <Route path="/administration/audit" element={<AdminAuditPage />} />
       <Route path="/administration/abonnements" element={<AdminSubscriptionsPage />} />
       <Route path="/administration/localisations" element={<AdminLocationsPage />} />
+      <Route path="/administration/contacts" element={<AdminContactsPage />} />
+      <Route path="/administration/reseau" element={<SocialFeedPage embedded />} />
       <Route path="/administration/notifications" element={<NotificationsPage />} />
       <Route path="/administration/parametres" element={<SettingsPage />} />
     </Route>
@@ -81,6 +91,7 @@ export function App() {
       <Route path="/espace-universite/infrastructures" element={<InstitutionResourcePage type="infrastructures" />} />
       <Route path="/espace-universite/admissions" element={<InstitutionResourcePage type="admissions" />} />
       <Route path="/espace-universite/publications" element={<InstitutionPublicationsPage />} />
+      <Route path="/espace-universite/reseau" element={<SocialFeedPage embedded />} />
       <Route path="/espace-universite/messages" element={<MessagesPage />} />
       <Route path="/espace-universite/affiliations" element={<UniversityAffiliationsPage />} />
       <Route path="/espace-universite/abonnement" element={<InstitutionSubscriptionPage />} />
@@ -92,7 +103,8 @@ export function App() {
       <Route path="/espace-etudiant" element={<StudentDashboardPage />} />
       <Route path="/espace-etudiant/affiliation" element={<StudentAffiliationPage />} />
       <Route path="/espace-etudiant/profil" element={<StudentProfilePage />} />
-      <Route path="/espace-etudiant/actualites" element={<SocialFeedPage embedded />} />
+      <Route path="/espace-etudiant/reseau" element={<SocialFeedPage embedded />} />
+      <Route path="/espace-etudiant/actualites" element={<Navigate to="/espace-etudiant/reseau" replace />} />
       <Route path="/espace-etudiant/messages" element={<MessagesPage />} />
       <Route path="/espace-etudiant/notifications" element={<NotificationsPage />} />
       <Route path="/espace-etudiant/parametres" element={<SettingsPage />} />

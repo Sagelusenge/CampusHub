@@ -8,6 +8,7 @@ import './styles/features.css';
 import './styles/packs.css';
 import './styles/social.css';
 import './styles/messages.css';
+import './styles/public-redesign.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

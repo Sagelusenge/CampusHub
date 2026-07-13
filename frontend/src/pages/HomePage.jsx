@@ -1,191 +1,49 @@
-import {
-  ArrowRight,
-  BadgeCheck,
-  BookOpenCheck,
-  Building2,
-  GraduationCap,
-  Lightbulb,
-  MapPin,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  Users,
-} from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, BadgeCheck, Building2, GraduationCap, Network, SearchCheck, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { apiRequest } from '../api/client.js';
 import { PageShell } from '../components/PageShell.jsx';
 import { Reveal } from '../components/Reveal.jsx';
-import { Spinner } from '../components/Spinner.jsx';
-import { UniversityCard } from '../components/UniversityCard.jsx';
 
-const projectImages = {
-  main: '/images/projet-agritech.webp',
-  solar: '/images/campus-technologie.webp',
-};
+const objectifs = [
+  { icon: SearchCheck, titre: 'Mieux orienter', texte: 'Comparer des universités vérifiées, leurs filières, leurs campus et leurs conditions d’admission.' },
+  { icon: ShieldCheck, titre: 'Créer la confiance', texte: 'Chaque université et chaque affiliation étudiante passent par une validation claire.' },
+  { icon: Network, titre: 'Relier les talents', texte: 'Un réseau académique pour découvrir des projets, échanger et suivre les établissements.' },
+];
 
 export function HomePage() {
-  const [universites, setUniversites] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState('');
-  const [ville, setVille] = useState('');
-  const [type, setType] = useState('');
-  const [apiMessage, setApiMessage] = useState('');
-
-  useEffect(() => {
-    apiRequest('/universites')
-      .then((response) => {
-        const verified = (response.donnees || []).filter((item) => item.statut_verification === 'VERIFIEE');
-        setUniversites(verified);
-      })
-      .catch(() => setApiMessage('Les universités seront disponibles dès le rétablissement du serveur.'))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const resultats = useMemo(() => universites.filter((item) => {
-    const texte = `${item.nom} ${item.sigle || ''}`.toLowerCase();
-    return (!query || texte.includes(query.toLowerCase()))
-      && (!ville || item.ville === ville)
-      && (!type || item.type_universite === type);
-  }), [universites, query, ville, type]);
-
-  const villes = [...new Set(universites.map((item) => item.ville).filter(Boolean))];
-
-  return (
-    <PageShell>
-      <section className="hero" id="recherche">
-        <div className="hero-backdrop" />
-        <div className="hero-orb hero-orb--one" />
-        <div className="hero-orb hero-orb--two" />
-        <div className="container hero-content">
-          <div className="hero-copy">
-            <span className="pill pill--light"><Sparkles size={15} /> L’éducation pour tous</span>
-            <h1>Trouvez l’université qui donnera vie à votre <em>avenir.</em></h1>
-            <p>Explorez des établissements congolais vérifiés, comparez leurs filières et découvrez les projets de leurs étudiants.</p>
-          </div>
-
-          <div className="search-panel">
-            <label className="search-field">
-              <Search size={20} />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nom ou sigle de l’université" />
-            </label>
-            <label>
-              <span>Ville</span>
-              <select value={ville} onChange={(event) => setVille(event.target.value)}>
-                <option value="">Toutes les villes</option>
-                {villes.map((item) => <option key={item}>{item}</option>)}
-              </select>
-            </label>
-            <label>
-              <span>Type</span>
-              <select value={type} onChange={(event) => setType(event.target.value)}>
-                <option value="">Public et privé</option>
-                <option value="PUBLIQUE">Publique</option>
-                <option value="PRIVEE">Privée</option>
-              </select>
-            </label>
-            <a className="button search-submit" href="#universites">Explorer <ArrowRight size={18} /></a>
-          </div>
-
-          <div className="hero-proof">
-            <span><ShieldCheck /> Institutions vérifiées</span>
-            <span><Users /> Talents étudiants</span>
-            <span><BookOpenCheck /> Filières détaillées</span>
-          </div>
+  return <PageShell>
+    <section className="mission-hero">
+      <div className="mission-hero__image" />
+      <div className="container mission-hero__content">
+        <span className="pill pill--light"><Sparkles /> L’écosystème universitaire connecté</span>
+        <h1>Orienter, vérifier et connecter la communauté universitaire.</h1>
+        <p>CampusHub rapproche étudiants, visiteurs et universités autour d’informations fiables et d’un réseau académique vivant.</p>
+        <div className="mission-hero__actions">
+          <Link className="button button--teal button--large" to="/universites">Découvrir les universités <ArrowRight /></Link>
+          <Link className="button button--light button--large" to="/inscription-visiteur">Rejoindre la communauté</Link>
         </div>
-      </section>
+        <div className="mission-hero__proof"><span><BadgeCheck /> Établissements vérifiés</span><span><Users /> Quatre parcours adaptés</span><span><ShieldCheck /> Communauté modérée</span></div>
+      </div>
+    </section>
 
-      <section className="section" id="universites">
-        <div className="container">
-          <Reveal className="section-heading">
-            <div>
-              <span className="eyebrow eyebrow--accent">Orientation de confiance</span>
-              <h2>Universités vérifiées <BadgeCheck className="heading-icon" /></h2>
-              <p>Seuls les établissements examinés par l’administration CampusHub sont affichés ici.</p>
-            </div>
-            <span className="result-count">{resultats.length} établissement{resultats.length > 1 ? 's' : ''}</span>
-          </Reveal>
+    <section className="section mission-section">
+      <div className="container">
+        <Reveal className="section-heading"><div><span className="eyebrow eyebrow--accent">Notre raison d’être</span><h2>Une passerelle fiable vers l’enseignement supérieur.</h2><p>L’accueil présente la mission de CampusHub. Le catalogue, le réseau et les espaces de gestion restent clairement séparés.</p></div></Reveal>
+        <div className="mission-objectives">{objectifs.map(({ icon: Icon, titre, texte }, index) => <Reveal key={titre} delay={index * 80}><article><span><Icon /></span><h3>{titre}</h3><p>{texte}</p></article></Reveal>)}</div>
+      </div>
+    </section>
 
-          {loading ? (
-            <div className="loading-state"><Spinner /> Chargement des universités…</div>
-          ) : resultats.length ? (
-            <div className="university-grid">
-              {resultats.slice(0, 3).map((university, index) => (
-                <Reveal key={university.code_universite} delay={index * 90}>
-                  <UniversityCard university={university} index={index} />
-                </Reveal>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <Building2 size={30} />
-              <h3>Aucune université ne correspond à cette recherche</h3>
-              <p>{apiMessage || 'Modifiez les filtres ou revenez prochainement.'}</p>
-            </div>
-          )}
+    <section className="section section--soft">
+      <div className="container actor-section">
+        <Reveal className="actor-section__copy"><span className="eyebrow eyebrow--accent">Un parcours pour chacun</span><h2>Quatre acteurs, une seule communauté.</h2><p>Le visiteur rejoint directement le réseau. L’étudiant, l’université et l’administration disposent chacun d’un espace de travail, avec un accès commun aux actualités.</p><Link className="text-link" to="/connexion">J’ai déjà un compte <ArrowRight /></Link></Reveal>
+        <div className="actor-grid">
+          <Reveal delay={60}><article><Users /><strong>Visiteur</strong><p>Consulte, commente, suit les universités et reçoit un fil personnalisé.</p></article></Reveal>
+          <Reveal delay={120}><article><GraduationCap /><strong>Étudiant</strong><p>Gère son profil, son affiliation et participe au réseau.</p></article></Reveal>
+          <Reveal delay={180}><article><Building2 /><strong>Université</strong><p>Présente son offre, publie et confirme ses étudiants.</p></article></Reveal>
+          <Reveal delay={240}><article><ShieldCheck /><strong>Administration</strong><p>Vérifie, modère et accompagne toute la plateforme.</p></article></Reveal>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section className="section section--soft" id="projets">
-        <div className="container">
-          <Reveal className="section-heading">
-            <div>
-              <span className="eyebrow eyebrow--accent">Talents en mouvement</span>
-              <h2>Projets étudiants à découvrir</h2>
-              <p>Des idées conçues sur nos campus pour répondre aux défis de la région.</p>
-            </div>
-            <Link className="text-link" to="/portfolios">Voir tous les portfolios <ArrowRight size={17} /></Link>
-          </Reveal>
-
-          <div className="projects-grid">
-            <Reveal className="project-card project-card--main">
-              <img src={projectImages.main} alt="Étudiants travaillant sur un projet numérique" />
-              <div className="project-overlay">
-                <span className="pill"><Lightbulb size={14} /> Innovation locale</span>
-                <h3>AgriTech Goma : prévoir les récoltes avec l’IA</h3>
-                <p>Une solution étudiante qui aide les agriculteurs du Nord-Kivu à prendre de meilleures décisions.</p>
-                <span className="project-author">JD — Jean-Pierre & équipe</span>
-              </div>
-            </Reveal>
-            <Reveal className="project-card project-card--wide" delay={100}>
-              <img src={projectImages.solar} alt="Panneaux solaires sur un campus" />
-              <div className="project-overlay">
-                <span className="pill pill--teal">Énergie</span>
-                <h3>Cartographie du potentiel solaire</h3>
-                <p>Recherche appliquée pour des campus plus autonomes.</p>
-              </div>
-            </Reveal>
-            <Reveal className="project-mini" delay={180}>
-              <div className="project-mini__icon"><GraduationCap /></div>
-              <span className="eyebrow">Droit & société</span>
-              <h3>Lex Congo numérique</h3>
-              <p>Le droit congolais expliqué et rendu accessible aux étudiants.</p>
-              <button className="text-link">Lire le portfolio <ArrowRight size={16} /></button>
-            </Reveal>
-            <Reveal className="project-mini" delay={240}>
-              <div className="project-mini__icon project-mini__icon--teal"><MapPin /></div>
-              <span className="eyebrow">Santé connectée</span>
-              <h3>Mama Health</h3>
-              <p>Un suivi mobile simple pour accompagner les futures mères.</p>
-              <button className="text-link">Lire le portfolio <ArrowRight size={16} /></button>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <Reveal className="container cta-card">
-          <div>
-            <span className="pill pill--light">Rejoignez l’écosystème</span>
-            <h2>Votre établissement mérite d’être découvert.</h2>
-            <p>Envoyez votre demande. Notre équipe vérifie votre identité avant toute publication.</p>
-          </div>
-          <div className="cta-actions">
-            <Link className="button button--light" to="/inscription-etudiant"><GraduationCap size={18} /> S’inscrire comme étudiant</Link>
-            <Link className="button button--teal" to="/partenariat"><Building2 size={18} /> Demande de partenariat</Link>
-          </div>
-        </Reveal>
-      </section>
-    </PageShell>
-  );
+    <section className="section"><Reveal className="container cta-card"><div><span className="pill pill--light">CampusHub</span><h2>Commencez par explorer les universités.</h2><p>Consultez les établissements validés ou écrivez directement à notre administration.</p></div><div className="cta-actions"><Link className="button button--light" to="/universites">Voir les universités</Link><Link className="button button--teal" to="/contact">Nous contacter</Link></div></Reveal></section>
+  </PageShell>;
 }
