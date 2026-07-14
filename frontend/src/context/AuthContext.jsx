@@ -42,12 +42,22 @@ export function AuthProvider({ children }) {
     setSession(null);
   }
 
+  function mettreAJourUtilisateur(utilisateur) {
+    setSession((sessionActuelle) => {
+      if (!sessionActuelle) return sessionActuelle;
+      const nouvelleSession = { ...sessionActuelle, utilisateur };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nouvelleSession));
+      return nouvelleSession;
+    });
+  }
+
   const value = {
     session,
     utilisateur: session?.utilisateur || null,
     token: session?.jetonAcces || null,
     connexion,
     deconnexion,
+    mettreAJourUtilisateur,
     estConnecte: Boolean(session?.jetonAcces),
   };
 

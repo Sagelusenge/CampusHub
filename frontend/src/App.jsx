@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { DashboardShell } from './components/DashboardShell.jsx';
+import { PageShell } from './components/PageShell.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import { InstitutionProvider } from './context/InstitutionContext.jsx';
 import { useAuth } from './context/AuthContext.jsx';
@@ -66,6 +67,7 @@ export function App() {
     <Route path="/partenariat" element={<UniversityApplicationPage />} />
     <Route path="/inscription-etudiant" element={<StudentRegistrationPage />} />
     <Route path="/inscription-visiteur" element={<VisitorRegistrationPage />} />
+    <Route path="/parametres" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><PageShell><section className="public-settings-page"><div className="container"><SettingsPage /></div></section></PageShell></ProtectedRoute>} />
 
     <Route element={protectAdmin}>
       <Route path="/administration" element={<AdminDashboardPage />} />

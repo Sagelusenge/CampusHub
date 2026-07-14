@@ -169,7 +169,7 @@ export function DashboardShell({ role }) {
           </div>
           <div className="app-topbar__actions">
             <NavLink className="topbar-icon" to={role === 'admin' ? '/administration/notifications' : role === 'student' ? '/espace-etudiant/notifications' : '/espace-universite/notifications'} aria-label={`${unread} notification(s) non lue(s)`}><Bell />{unread > 0 && <span title={`${unread} non lue(s)`} />}</NavLink>
-            <div className="topbar-profile"><div><strong>{displayName}</strong><small>{role === 'admin' ? 'Administrateur' : role === 'student' ? 'Étudiant' : 'Gestionnaire'}</small></div><span>{initials}</span></div>
+            <NavLink className="topbar-profile" to={role === 'admin' ? '/administration/parametres' : role === 'student' ? '/espace-etudiant/parametres' : '/espace-universite/parametres'} title="Modifier mon profil"><div><strong>{displayName}</strong><small>{role === 'admin' ? 'Administrateur' : role === 'student' ? 'Étudiant' : 'Gestionnaire'}</small></div><span>{utilisateur?.url_photo_profil ? <img src={utilisateur.url_photo_profil} alt={`Photo de ${displayName}`} /> : initials}</span></NavLink>
           </div>
         </header>
         <main className="app-content"><Outlet /></main>
