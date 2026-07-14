@@ -43,7 +43,7 @@ export async function obtenirPublication(code) {
     baseDeDonnees.execute('SELECT code_utilisateur, nom_affichage, url_photo_profil FROM utilisateurs WHERE id = ?', [publication.auteur_id]),
     baseDeDonnees.execute('SELECT * FROM medias_publication WHERE publication_id = ? ORDER BY ordre_affichage', [publication.id]),
     baseDeDonnees.execute(
-      `SELECT c.code_commentaire, c.contenu, c.code_commentaire AS code, c.commentaire_parent_id,
+      `SELECT c.id AS id_commentaire, c.code_commentaire, c.contenu, c.code_commentaire AS code, c.commentaire_parent_id,
         c.date_creation, c.date_modification, u.code_utilisateur AS code_auteur,
         u.nom_affichage AS nom_auteur, u.url_photo_profil
        FROM commentaires c JOIN utilisateurs u ON u.id = c.auteur_id
@@ -151,7 +151,10 @@ export async function ajouterCommentaire(codePublication, donnees, utilisateur) 
       `INSERT INTO commentaires (code_commentaire, publication_id, auteur_id, commentaire_parent_id, contenu)
        VALUES ('', ?, ?, ?, ?)`, [publication.id, utilisateur.id, parentId, donnees.contenu],
     );
-    const [lignes] = await connexion.query('SELECT * FROM commentaires WHERE id = @campushub_dernier_id');
+    const [lignes] = await connexion.execute(
+      'SELECT * FROM commentaires WHERE publication_id = ? AND auteur_id = ? ORDER BY id DESC LIMIT 1',
+      [publication.id, utilisateur.id],
+    );
     return lignes[0];
   } finally { connexion.release(); }
 }

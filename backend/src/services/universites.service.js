@@ -34,10 +34,35 @@ export async function rechercherUniversites(filtres) {
      WHERE statut = 'ACTIF' AND date_fin > CURRENT_TIMESTAMP`,
   );
   const idsCertifies = new Set(certifiees.map((item) => Number(item.universite_id)));
-  return resultats[0].map((universite) => ({
+  let etablissements = resultats[0];
+  const idsInitiaux = etablissements.map((item) => item.id);
+  if (idsInitiaux.length) {
+    const marqueurs = idsInitiaux.map(() => '?').join(',');
+    const [metadonnees] = await baseDeDonnees.execute(
+      `SELECT id, categorie_etablissement, pays, latitude, longitude, url_logo, url_couverture,
+        (SELECT COUNT(*) FROM campus c WHERE c.universite_id = universites.id) AS nombre_campus
+       FROM universites WHERE id IN (${marqueurs})`, idsInitiaux,
+    );
+    const parId = new Map(metadonnees.map((item) => [Number(item.id), item]));
+    etablissements = etablissements.map((item) => ({ ...item, ...parId.get(Number(item.id)) }));
+  }
+  if (filtres.categorie) etablissements = etablissements.filter((item) => item.categorie_etablissement === filtres.categorie);
+  const ids = etablissements.map((item) => item.id);
+  let campus = [];
+  if (ids.length) {
+    const marqueurs = ids.map(() => '?').join(',');
+    [campus] = await baseDeDonnees.execute(
+      `SELECT code_campus, universite_id, nom, adresse, ville, province, latitude, longitude, est_principal
+       FROM campus WHERE universite_id IN (${marqueurs}) ORDER BY est_principal DESC, nom`, ids,
+    );
+  }
+  const rechercheCampus = filtres.campus?.toLowerCase();
+  return etablissements.map((universite) => ({
     ...universite,
     est_certifiee: idsCertifies.has(Number(universite.id)),
-  }));
+    campus: campus.filter((item) => Number(item.universite_id) === Number(universite.id)),
+  })).filter((item) => !rechercheCampus || item.campus.some((site) =>
+    `${site.code_campus} ${site.nom} ${site.ville} ${site.province}`.toLowerCase().includes(rechercheCampus)));
 }
 
 export async function obtenirUniversiteParCode(code) {
@@ -58,9 +83,12 @@ export async function obtenirUniversiteParCode(code) {
   const universite = universites[0];
   if (!universite) throw new ErreurApi(404, 'Université introuvable.');
 
-  const [filieres, services, infrastructures, conditions] = await Promise.all([
+  const [filieres, services, infrastructures, conditions, campus] = await Promise.all([
     baseDeDonnees.execute(
-      'SELECT * FROM vue_catalogue_filieres WHERE universite_id = ? AND est_active = 1 ORDER BY nom_filiere',
+      `SELECT v.*,
+        (SELECT GROUP_CONCAT(c.code_campus ORDER BY c.nom SEPARATOR ',')
+         FROM campus_filieres cf JOIN campus c ON c.id = cf.campus_id WHERE cf.filiere_id = v.id) AS codes_campus
+       FROM vue_catalogue_filieres v WHERE v.universite_id = ? AND v.est_active = 1 ORDER BY v.nom_filiere`,
       [universite.id],
     ),
     baseDeDonnees.execute(
@@ -75,6 +103,10 @@ export async function obtenirUniversiteParCode(code) {
       'SELECT code_condition, titre, description, niveau_diplome FROM conditions_admission WHERE universite_id = ? ORDER BY niveau_diplome, titre',
       [universite.id],
     ),
+    baseDeDonnees.execute(
+      'SELECT code_campus, nom, adresse, ville, province, latitude, longitude, est_principal FROM campus WHERE universite_id = ? ORDER BY est_principal DESC, nom',
+      [universite.id],
+    ),
   ]);
 
   return {
@@ -83,6 +115,7 @@ export async function obtenirUniversiteParCode(code) {
     services: services[0],
     infrastructures: infrastructures[0],
     conditionsAdmission: conditions[0],
+    campus: campus[0],
   };
 }
 
@@ -123,8 +156,8 @@ export async function creerUniversite(donnees, utilisateur) {
     );
     const universite = resultats[0][0];
     await connexion.execute(
-      `UPDATE universites SET pays = COALESCE(?, pays), url_logo = ?, url_couverture = ? WHERE id = ?`,
-      [donnees.pays ?? null, donnees.urlLogo ?? null, donnees.urlCouverture ?? null, universite.id],
+      `UPDATE universites SET pays = COALESCE(?, pays), categorie_etablissement = ?, url_logo = ?, url_couverture = ? WHERE id = ?`,
+      [donnees.pays ?? null, donnees.categorie, donnees.urlLogo ?? null, donnees.urlCouverture ?? null, universite.id],
     );
     if (utilisateur.role === 'UNIVERSITE') {
       await connexion.execute(
@@ -147,7 +180,7 @@ export async function creerUniversite(donnees, utilisateur) {
       );
     }
     await connexion.commit();
-    return universite;
+    return { ...universite, categorie_etablissement: donnees.categorie };
   } catch (erreur) {
     await connexion.rollback();
     throw erreur;
@@ -160,7 +193,7 @@ export async function modifierUniversite(code, donnees, utilisateur) {
   const universite = await trouverUniversiteParCode(code);
   await verifierGestionUniversite(utilisateur, universite.id);
   const { clause, valeurs } = construireMiseAJour(donnees, {
-    nom: 'nom', sigle: 'sigle', description: 'description', urlLogo: 'url_logo',
+    nom: 'nom', sigle: 'sigle', categorie: 'categorie_etablissement', description: 'description', urlLogo: 'url_logo',
     urlCouverture: 'url_couverture', siteWeb: 'site_web', email: 'email', telephone: 'telephone',
     anneeFondation: 'annee_fondation', adresse: 'adresse', pays: 'pays', ville: 'ville', province: 'province',
     inscriptionsOuvertes: 'inscriptions_ouvertes', dateDebutInscription: 'date_debut_inscription',

@@ -33,7 +33,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 const adminNavigation = [
   { to: '/administration', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/administration/demandes', label: 'Demandes', icon: ClipboardCheck },
-  { to: '/administration/universites', label: 'Universités', icon: Building2 },
+  { to: '/administration/universites', label: 'Établissements', icon: Building2 },
   { to: '/administration/utilisateurs', label: 'Utilisateurs', icon: Users },
   { to: '/administration/moderation', label: 'Modération', icon: ShieldCheck },
   { to: '/administration/audit', label: 'Journal d’audit', icon: FileClock },
@@ -74,7 +74,7 @@ const studentNavigation = [
 const titles = {
   '/administration': 'Tableau de bord',
   '/administration/demandes': 'Demandes institutionnelles',
-  '/administration/universites': 'Universités',
+  '/administration/universites': 'Établissements',
   '/administration/utilisateurs': 'Utilisateurs',
   '/administration/moderation': 'Modération',
   '/administration/audit': 'Journal d’audit',

@@ -80,7 +80,12 @@ export const supprimerFaculte = (code, utilisateur) => supprimerRessource('facul
 
 export async function listerFilieres(codeFaculte) {
   const faculte = await trouverRessource('facultes', 'code_faculte', codeFaculte);
-  const [lignes] = await baseDeDonnees.execute('SELECT * FROM filieres WHERE faculte_id = ? ORDER BY nom', [faculte.id]);
+  const [lignes] = await baseDeDonnees.execute(
+    `SELECT f.*,
+      (SELECT GROUP_CONCAT(c.code_campus ORDER BY c.nom SEPARATOR ',') FROM campus_filieres cf
+       JOIN campus c ON c.id = cf.campus_id WHERE cf.filiere_id = f.id) AS codes_campus
+     FROM filieres f WHERE f.faculte_id = ? ORDER BY f.nom`, [faculte.id],
+  );
   return lignes;
 }
 export async function creerFiliere(codeFaculte, donnees, utilisateur) {

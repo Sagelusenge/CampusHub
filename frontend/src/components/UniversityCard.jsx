@@ -9,6 +9,10 @@ const images = [
 ];
 
 export function UniversityCard({ university, index = 0 }) {
+  const category = { UNIVERSITE: 'Université', INSTITUT_SUPERIEUR: 'Institut supérieur', ECOLE_SECONDAIRE: 'École secondaire' }[university.categorie_etablissement] || 'Université';
+  const publicType = university.type_universite === 'PUBLIQUE'
+    ? (university.categorie_etablissement === 'ECOLE_SECONDAIRE' ? 'publique' : 'public')
+    : (university.categorie_etablissement === 'ECOLE_SECONDAIRE' ? 'privée' : 'privé');
   return (
     <article className="university-card">
       <div className="university-card__image">
@@ -18,7 +22,7 @@ export function UniversityCard({ university, index = 0 }) {
       <div className="university-card__body">
         <div className="university-card__title">
           <div>
-            <span className="eyebrow">{university.type_universite === 'PUBLIQUE' ? 'Université publique' : 'Université privée'}</span>
+            <span className="eyebrow">{category} {publicType}</span>
             <h3>{university.nom}</h3>
           </div>
           <StatusBadge status={university.statut_verification} />

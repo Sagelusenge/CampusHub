@@ -6,6 +6,8 @@ export const schemaRechercheUniversites = z.object({
   ville: texteOptionnel(100),
   province: texteOptionnel(100),
   type: z.enum(['PUBLIQUE', 'PRIVEE']).optional(),
+  categorie: z.enum(['UNIVERSITE', 'INSTITUT_SUPERIEUR', 'ECOLE_SECONDAIRE']).optional(),
+  campus: texteOptionnel(150),
   filiere: texteOptionnel(180),
   fraisMaximum: z.coerce.number().nonnegative().optional(),
   service: texteOptionnel(140),
@@ -20,6 +22,7 @@ export const schemaCreationUniversite = z.object({
   sigle: texteOptionnel(20),
   slug: z.string().trim().min(3).max(190).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
   type: z.enum(['PUBLIQUE', 'PRIVEE']),
+  categorie: z.enum(['UNIVERSITE', 'INSTITUT_SUPERIEUR', 'ECOLE_SECONDAIRE']).default('UNIVERSITE'),
   description: texteOptionnel(5000),
   urlLogo: z.string().url().max(500).optional(),
   urlCouverture: z.string().url().max(500).optional(),
@@ -32,6 +35,7 @@ export const schemaCreationUniversite = z.object({
 
 export const schemaModificationUniversite = z.object({
   nom: z.string().trim().min(3).max(180).optional(),
+  categorie: z.enum(['UNIVERSITE', 'INSTITUT_SUPERIEUR', 'ECOLE_SECONDAIRE']).optional(),
   sigle: z.string().trim().max(20).nullable().optional(),
   description: z.string().trim().max(5000).nullable().optional(),
   urlLogo: z.string().url().max(500).nullable().optional(),

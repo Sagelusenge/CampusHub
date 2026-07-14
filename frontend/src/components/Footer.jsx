@@ -10,12 +10,12 @@ export function Footer() {
             <span className="brand-mark"><Building2 size={19} /></span>
             <span>Campus<span>Hub</span></span>
           </Link>
-          <p>Le point de rencontre entre les universités vérifiées et les talents de demain.</p>
+          <p>Le point de rencontre entre les établissements vérifiés et les talents de demain.</p>
           <div className="footer-contact"><MapPin size={16} /> Goma, République démocratique du Congo</div>
         </div>
         <div>
           <h3>Explorer</h3>
-          <Link to="/universites">Universités</Link>
+          <Link to="/universites">Établissements</Link>
           <Link to="/reseau">Réseau CampusHub</Link>
           <Link to="/partenariat">Partenariat universitaire</Link>
         </div>

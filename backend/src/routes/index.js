@@ -17,6 +17,7 @@ import { routeTeleversements } from './televersements.routes.js';
 import { routeMessagerie } from './messagerie.routes.js';
 import { routeRecherche } from './recherche.routes.js';
 import { routeContact } from './contact.routes.js';
+import { routeStories } from './stories.routes.js';
 
 export const routesApi = Router();
 
@@ -29,6 +30,7 @@ routesApi.use('/televersements', routeTeleversements);
 routesApi.use('/messagerie', routeMessagerie);
 routesApi.use('/recherche', routeRecherche);
 routesApi.use('/contact', routeContact);
+routesApi.use('/stories', routeStories);
 routesApi.use('/universites', routeUniversites);
 routesApi.use('/utilisateurs', routeUtilisateurs);
 routesApi.use('/profils', routeProfils);

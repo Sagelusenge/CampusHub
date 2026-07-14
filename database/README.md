@@ -31,6 +31,7 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/07_abonnem
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/08_packs_et_certification.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/09_messagerie_privee.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/10_recherche_et_contact.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/11_etablissements_cartes_et_stories.sql;
 ```
 
 ## Organisation fonctionnelle
@@ -46,6 +47,7 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/10_recherc
 - Messagerie : `conversations`, `participants_conversation`, `messages_prives`.
 - Recherche personnalisée : `recherches_utilisateurs`.
 - Contact public : `demandes_contact`.
+- Réseau éphémère : `stories`, `vues_stories`.
 
 Les fichiers médias ne sont pas enregistrés directement dans MySQL. La table `medias_publication` conserve leur URL et leurs informations techniques.
 
@@ -61,7 +63,7 @@ La table `compteurs_sequences` garantit que deux insertions simultanées ne reç
 
 ## Automatismes disponibles
 
-- 34 triggers : numérotation, validation, notifications et audit.
+- 35 triggers : numérotation, validation, notifications et audit.
 - 14 procédures : inscription, catalogue, publication, recherche, comparaison et modération.
 - 8 vues : universités, filières, profils, fil d'actualité, statistiques, signalements, notifications et abonnements.
 

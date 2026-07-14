@@ -48,6 +48,7 @@ export function AdminUniversitiesPage() {
   const [processing, setProcessing] = useState('');
   const [message, setMessage] = useState('');
   const visible = useMemo(() => filter === 'TOUTES' ? list.data : list.data.filter((row) => row.statut_verification === filter), [list.data, filter]);
+  const categoryLabel = (item) => ({ UNIVERSITE: 'Université', INSTITUT_SUPERIEUR: 'Institut supérieur', ECOLE_SECONDAIRE: 'École secondaire' }[item.categorie_etablissement] || 'Université');
 
   async function verifier(item, accepted) {
     setProcessing(item.code_universite);
@@ -55,11 +56,11 @@ export function AdminUniversitiesPage() {
       const status = accepted ? 'VERIFIEE' : 'REJETEE';
       await apiRequest(`/administration/universites/${item.code_universite}/verification`, { method: 'PATCH', token, body: { statut: status } });
       list.setState((current) => ({ ...current, data: current.data.map((row) => row.code_universite === item.code_universite ? { ...row, statut_verification: status } : row) }));
-      setMessage(accepted ? `${item.nom} est maintenant publiée sur l’accueil.` : `${item.nom} a été renvoyée pour correction.`);
+      setMessage(accepted ? `${item.nom} est maintenant publié dans l’annuaire.` : `${item.nom} a été renvoyé pour correction.`);
     } finally { setProcessing(''); }
   }
 
-  return <ManagementPage title="Universités" description="Contrôlez les fiches avant leur publication dans l’annuaire." icon={Building2} list={{ ...list, data: visible }} message={message} extra={<div className="filter-tabs">{['TOUTES','EN_ATTENTE','VERIFIEE','REJETEE'].map((item) => <button className={filter === item ? 'active' : ''} onClick={() => setFilter(item)} key={item}>{item.replace('_',' ')}</button>)}</div>} columns={['Université', 'Type', 'Localisation', 'Filières', 'Statut', 'Actions']} renderRow={(item) => <tr key={item.code_universite}><td><Identity title={item.nom} subtitle={item.code_universite} icon={Building2} /></td><td>{item.type_universite === 'PUBLIQUE' ? 'Publique' : 'Privée'}</td><td>{item.ville}, {item.province}</td><td>{item.nombre_filieres || 0}</td><td><StatusBadge status={item.statut_verification} /></td><td><div className="table-actions"><Link className="table-action" title="Consulter" to={`/universites/${item.code_universite}`} target="_blank"><Eye /></Link>{item.statut_verification === 'EN_ATTENTE' && <><button className="table-action table-action--success" disabled={processing === item.code_universite} onClick={() => verifier(item,true)}><Check /></button><button className="table-action table-action--danger" disabled={processing === item.code_universite} onClick={() => verifier(item,false)}><X /></button></>}</div></td></tr>} />;
+  return <ManagementPage title="Établissements" description="Contrôlez les fiches avant leur publication dans l’annuaire." icon={Building2} list={{ ...list, data: visible }} message={message} extra={<div className="filter-tabs">{['TOUTES','EN_ATTENTE','VERIFIEE','REJETEE'].map((item) => <button className={filter === item ? 'active' : ''} onClick={() => setFilter(item)} key={item}>{item.replace('_',' ')}</button>)}</div>} columns={['Établissement', 'Catégorie', 'Localisation', 'Filières', 'Statut', 'Actions']} renderRow={(item) => <tr key={item.code_universite}><td><Identity title={item.nom} subtitle={`${item.code_universite} • ${item.type_universite === 'PUBLIQUE' ? 'Public' : 'Privé'}`} icon={Building2} /></td><td>{categoryLabel(item)}</td><td>{item.ville}, {item.province}</td><td>{item.nombre_filieres || 0}</td><td><StatusBadge status={item.statut_verification} /></td><td><div className="table-actions"><Link className="table-action" title="Consulter" to={`/universites/${item.code_universite}`} target="_blank"><Eye /></Link>{item.statut_verification === 'EN_ATTENTE' && <><button className="table-action table-action--success" disabled={processing === item.code_universite} onClick={() => verifier(item,true)}><Check /></button><button className="table-action table-action--danger" disabled={processing === item.code_universite} onClick={() => verifier(item,false)}><X /></button></>}</div></td></tr>} />;
 }
 
 export function AdminUsersPage() {
