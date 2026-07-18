@@ -4,7 +4,42 @@ import {
   deconnecterSession,
   inscrireUtilisateur,
 } from '../services/auth.service.js';
+import { environnement } from '../config/environnement.js';
+import { ErreurApi } from '../utils/erreur-api.js';
 import { envoyerSucces } from '../utils/reponse-api.js';
+
+const NOM_COOKIE_ACTUALISATION = 'campushub_refresh';
+const optionsCookie = {
+  httpOnly: true,
+  secure: environnement.NODE_ENV === 'production',
+  sameSite: 'lax',
+  path: '/api/v1/auth',
+};
+
+function lireCookieActualisation(requete) {
+  const entete = requete.headers.cookie;
+  if (!entete) return null;
+  const prefixe = `${NOM_COOKIE_ACTUALISATION}=`;
+  const cookie = entete.split(';').map((partie) => partie.trim())
+    .find((partie) => partie.startsWith(prefixe));
+  return cookie ? decodeURIComponent(cookie.slice(prefixe.length)) : null;
+}
+
+function definirCookieActualisation(reponse, jeton) {
+  reponse.cookie(NOM_COOKIE_ACTUALISATION, jeton, {
+    ...optionsCookie,
+    maxAge: environnement.REFRESH_TOKEN_DAYS * 86_400_000,
+  });
+}
+
+function supprimerCookieActualisation(reponse) {
+  reponse.clearCookie(NOM_COOKIE_ACTUALISATION, optionsCookie);
+}
+
+function sansJetonActualisation(session) {
+  const { jetonActualisation: _jetonActualisation, ...donneesPubliques } = session;
+  return donneesPubliques;
+}
 
 // POST /api/v1/auth/inscription
 export async function inscription(requete, reponse) {
@@ -26,10 +61,11 @@ export async function inscription(requete, reponse) {
 export async function connexion(requete, reponse) {
   const { email, motDePasse } = requete.validees.body;
   const session = await connecterUtilisateur(email, motDePasse);
+  definirCookieActualisation(reponse, session.jetonActualisation);
 
   return envoyerSucces(
     reponse,
-    session,
+    sansJetonActualisation(session),
     200,
     undefined,
     'Connexion réussie.',
@@ -38,12 +74,21 @@ export async function connexion(requete, reponse) {
 
 // POST /api/v1/auth/actualiser
 export async function actualiser(requete, reponse) {
-  const { jetonActualisation } = requete.validees.body;
-  const nouveauxJetons = await actualiserSession(jetonActualisation);
+  const jetonActualisation = lireCookieActualisation(requete);
+  if (!jetonActualisation) throw new ErreurApi(401, 'La session ne peut pas être actualisée.');
+
+  let nouveauxJetons;
+  try {
+    nouveauxJetons = await actualiserSession(jetonActualisation);
+  } catch (erreur) {
+    supprimerCookieActualisation(reponse);
+    throw erreur;
+  }
+  definirCookieActualisation(reponse, nouveauxJetons.jetonActualisation);
 
   return envoyerSucces(
     reponse,
-    nouveauxJetons,
+    sansJetonActualisation(nouveauxJetons),
     200,
     undefined,
     'Session actualisée.',
@@ -52,8 +97,11 @@ export async function actualiser(requete, reponse) {
 
 // POST /api/v1/auth/deconnexion
 export async function deconnexion(requete, reponse) {
-  const { jetonActualisation } = requete.validees.body;
-  const resultat = await deconnecterSession(jetonActualisation);
+  const jetonActualisation = lireCookieActualisation(requete);
+  const resultat = jetonActualisation
+    ? await deconnecterSession(jetonActualisation)
+    : { sessionRevoquee: false };
+  supprimerCookieActualisation(reponse);
 
   return envoyerSucces(
     reponse,

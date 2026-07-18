@@ -107,3 +107,7 @@ Toutes ces routes sont authentifiées et séparées par rôle. Créez un compte 
 Les choix techniques, le scénario vidéo, les évaluations et la liste de contrôle de soumission se trouvent dans [BUILD_WEEK.md](BUILD_WEEK.md). Le projet est publié sous licence MIT.
 
 Documentation détaillée : [backend](backend/README.md) · [base de données](database/README.md) · [API](backend/docs/API.md).
+
+## Déploiement AWS
+
+Le dossier [`deploy/aws-lightsail`](deploy/aws-lightsail/README.md) contient un déploiement de démonstration reproductible : instance Lightsail, MySQL 8.4, volumes persistants, HTTPS automatique, comptes de test et commande de suppression après le concours.

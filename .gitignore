@@ -11,6 +11,7 @@ logs/
 coverage/
 dist/
 backend/uploads/
+deploy/aws-lightsail/.env.runtime
 
 # Éditeurs et système
 .vscode/

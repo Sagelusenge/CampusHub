@@ -13,6 +13,7 @@ export async function apiRequest(path, options = {}) {
   const { token, body, headers, ...requestOptions } = options;
   const response = await fetch(`${API_URL}${path}`, {
     ...requestOptions,
+    credentials: 'include',
     headers: {
       Accept: 'application/json',
       ...(body ? { 'Content-Type': 'application/json' } : {}),
@@ -33,7 +34,7 @@ export async function apiRequest(path, options = {}) {
 export async function uploadFile(path, file, token) {
   const body = new FormData(); body.append('fichier', file);
   const response = await fetch(`${API_URL}${path}`, {
-    method: 'POST', body,
+    method: 'POST', body, credentials: 'include',
     headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
   });
   const payload = await response.json().catch(() => null);

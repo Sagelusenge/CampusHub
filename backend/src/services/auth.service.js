@@ -117,6 +117,7 @@ export async function actualiserSession(jetonActuel) {
     const nouveauJeton = await creerJetonActualisation(utilisateur.id, connexion);
     await connexion.commit();
     return {
+      utilisateur: sansMotDePasse(utilisateur),
       jetonAcces: creerJeton(utilisateur),
       jetonActualisation: nouveauJeton,
     };

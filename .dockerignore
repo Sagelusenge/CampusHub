@@ -1,0 +1,7 @@
+.git
+.uix
+**/node_modules
+**/dist
+**/.env*
+backend/uploads
+*.log

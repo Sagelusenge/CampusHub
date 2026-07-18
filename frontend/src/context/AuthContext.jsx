@@ -1,20 +1,31 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { apiRequest } from '../api/client.js';
 
-const STORAGE_KEY = 'campushub_session';
 const AuthContext = createContext(null);
 
-function lireSession() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null;
-  } catch {
-    localStorage.removeItem(STORAGE_KEY);
-    return null;
-  }
-}
-
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(lireSession);
+  const [session, setSession] = useState(null);
+  const [initialisationTerminee, setInitialisationTerminee] = useState(false);
+
+  useEffect(() => {
+    let actif = true;
+    // Supprime une éventuelle session héritée de l’ancienne version qui stockait les jetons côté navigateur.
+    globalThis.localStorage?.removeItem('campushub_session');
+    apiRequest('/auth/actualiser', { method: 'POST' })
+      .then((response) => {
+        if (actif) setSession({
+          utilisateur: response.donnees.utilisateur,
+          jetonAcces: response.donnees.jetonAcces,
+        });
+      })
+      .catch(() => {
+        if (actif) setSession(null);
+      })
+      .finally(() => {
+        if (actif) setInitialisationTerminee(true);
+      });
+    return () => { actif = false; };
+  }, []);
 
   async function connexion(email, motDePasse) {
     const response = await apiRequest('/auth/connexion', {
@@ -24,30 +35,23 @@ export function AuthProvider({ children }) {
     const nouvelleSession = {
       utilisateur: response.donnees.utilisateur,
       jetonAcces: response.donnees.jetonAcces,
-      jetonActualisation: response.donnees.jetonActualisation,
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(nouvelleSession));
     setSession(nouvelleSession);
     return nouvelleSession;
   }
 
   async function deconnexion() {
-    if (session?.jetonActualisation) {
-      await apiRequest('/auth/deconnexion', {
-        method: 'POST',
-        body: { jetonActualisation: session.jetonActualisation },
-      }).catch(() => null);
+    try {
+      await apiRequest('/auth/deconnexion', { method: 'POST' });
+    } finally {
+      setSession(null);
     }
-    localStorage.removeItem(STORAGE_KEY);
-    setSession(null);
   }
 
   function mettreAJourUtilisateur(utilisateur) {
     setSession((sessionActuelle) => {
       if (!sessionActuelle) return sessionActuelle;
-      const nouvelleSession = { ...sessionActuelle, utilisateur };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(nouvelleSession));
-      return nouvelleSession;
+      return { ...sessionActuelle, utilisateur };
     });
   }
 
@@ -59,6 +63,7 @@ export function AuthProvider({ children }) {
     deconnexion,
     mettreAJourUtilisateur,
     estConnecte: Boolean(session?.jetonAcces),
+    initialisationTerminee,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -5,7 +5,6 @@ import { valider } from '../middlewares/validation.middleware.js';
 import {
   schemaConnexion,
   schemaInscription,
-  schemaJetonActualisation,
 } from '../schemas/auth.schema.js';
 import { gestionnaireAsync } from '../utils/gestionnaire-async.js';
 
@@ -16,9 +15,13 @@ const limiteAuthentification = rateLimit({
   limit: 20,
   message: { succes: false, erreur: { message: 'Trop de tentatives. Réessayez plus tard.' } },
 });
+const limiteSession = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 120,
+  message: { succes: false, erreur: { message: 'Trop d’actualisations de session. Réessayez plus tard.' } },
+});
 
-routeAuthentification.use(limiteAuthentification);
-routeAuthentification.post('/inscription', valider(schemaInscription), gestionnaireAsync(inscription));
-routeAuthentification.post('/connexion', valider(schemaConnexion), gestionnaireAsync(connexion));
-routeAuthentification.post('/actualiser', valider(schemaJetonActualisation), gestionnaireAsync(actualiser));
-routeAuthentification.post('/deconnexion', valider(schemaJetonActualisation), gestionnaireAsync(deconnexion));
+routeAuthentification.post('/inscription', limiteAuthentification, valider(schemaInscription), gestionnaireAsync(inscription));
+routeAuthentification.post('/connexion', limiteAuthentification, valider(schemaConnexion), gestionnaireAsync(connexion));
+routeAuthentification.post('/actualiser', limiteSession, gestionnaireAsync(actualiser));
+routeAuthentification.post('/deconnexion', limiteSession, gestionnaireAsync(deconnexion));

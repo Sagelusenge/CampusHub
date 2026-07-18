@@ -1,0 +1,72 @@
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: campushub
+      MYSQL_USER: campushub
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD}
+      MYSQL_INITDB_SKIP_TZINFO: "1"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../../database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api/v1
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      FRONTEND_URL: https://${CAMPUSHUB_DOMAIN}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: campushub
+      DB_PASSWORD: ${MYSQL_APP_PASSWORD}
+      DB_NAME: campushub
+      DB_CONNECTION_LIMIT: 10
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 1d
+      REFRESH_TOKEN_DAYS: 30
+      BCRYPT_ROUNDS: 12
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: gpt-5.6-luna
+    volumes:
+      - uploads_data:/app/backend/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    environment:
+      CAMPUSHUB_DOMAIN: ${CAMPUSHUB_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  mysql_data:
+  uploads_data:
+  caddy_data:
+  caddy_config:

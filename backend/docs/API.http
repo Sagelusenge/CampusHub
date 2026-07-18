@@ -56,24 +56,13 @@ Content-Type: application/json
 
 ### Les requêtes protégées utilisent automatiquement la réponse de connexion.
 @jetonAcces = {{connexion.response.body.$.donnees.jetonAcces}}
-@jetonActualisation = {{connexion.response.body.$.donnees.jetonActualisation}}
 
-### Actualiser les jetons
+### Actualiser la session — le cookie HttpOnly reçu à la connexion est renvoyé automatiquement.
 # @name actualisation
 POST {{baseUrl}}/auth/actualiser
-Content-Type: application/json
 
-{
-  "jetonActualisation": "{{jetonActualisation}}"
-}
-
-### Déconnexion
+### Déconnexion — révoque et supprime le cookie HttpOnly.
 POST {{baseUrl}}/auth/deconnexion
-Content-Type: application/json
-
-{
-  "jetonActualisation": "{{actualisation.response.body.$.donnees.jetonActualisation}}"
-}
 
 ### ============================================================
 ### UTILISATEURS

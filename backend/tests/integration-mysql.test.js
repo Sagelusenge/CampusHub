@@ -52,6 +52,23 @@ test('parcours CampusHub AI complet avec MySQL', { skip: !actif, timeout: 60000 
   const etudiant = await connecter(emails[1]);
   const admin = await connecter(emails[2]);
 
+  const navigateurEtudiant = request.agent(app);
+  const connexionCookie = await navigateurEtudiant.post('/api/v1/auth/connexion').send({
+    email: emails[1], motDePasse: 'MotDePasseTest123!',
+  });
+  assert.equal(connexionCookie.status, 200);
+  assert.equal(connexionCookie.body.donnees.jetonActualisation, undefined);
+  assert.match(connexionCookie.headers['set-cookie']?.[0] || '', /campushub_refresh=.*HttpOnly.*SameSite=Lax/i);
+  const actualisationCookie = await navigateurEtudiant.post('/api/v1/auth/actualiser');
+  assert.equal(actualisationCookie.status, 200);
+  assert.ok(actualisationCookie.body.donnees.jetonAcces);
+  assert.equal(actualisationCookie.body.donnees.jetonActualisation, undefined);
+  const deconnexionCookie = await navigateurEtudiant.post('/api/v1/auth/deconnexion');
+  assert.equal(deconnexionCookie.status, 200);
+  assert.match(deconnexionCookie.headers['set-cookie']?.[0] || '', /campushub_refresh=;/i);
+  const sessionFermee = await navigateurEtudiant.post('/api/v1/auth/actualiser');
+  assert.equal(sessionFermee.status, 401);
+
   const plans = await appeler('get', '/api/v1/abonnements/plans');
   const paiement = await appeler('post', '/api/v1/abonnements/paiements', null, {
     codeUtilisateur: institution.utilisateur.code_utilisateur,

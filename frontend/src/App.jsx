@@ -49,8 +49,9 @@ function destinationFor(role) {
 }
 
 function ConnectedHome({ children }) {
-  const { estConnecte, utilisateur } = useAuth();
+  const { estConnecte, utilisateur, initialisationTerminee } = useAuth();
   const destination = destinationFor(utilisateur?.role);
+  if (!initialisationTerminee) return null;
   return estConnecte && destination ? <Navigate to={destination} replace /> : children;
 }
 

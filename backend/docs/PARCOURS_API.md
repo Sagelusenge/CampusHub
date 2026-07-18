@@ -88,8 +88,7 @@ POST /auth/connexion
       "code_utilisateur": "ADM00012026",
       "role": "ADMINISTRATEUR"
     },
-    "jetonAcces": "<jeton_admin>",
-    "jetonActualisation": "<jeton_actualisation_admin>"
+    "jetonAcces": "<jeton_admin>"
   }
 }
 ```
@@ -553,7 +552,7 @@ POST /auth/connexion
 }
 ```
 
-Conserver `donnees.jetonAcces` sous le nom `<jeton_etudiant>` et `donnees.jetonActualisation` sous le nom `<jeton_actualisation_etudiant>`.
+Conserver `donnees.jetonAcces` sous le nom `<jeton_etudiant>`. Le jeton d’actualisation est placé automatiquement dans un cookie `HttpOnly` et n’est jamais exposé dans le JSON.
 
 ## 20. Créer le profil de l’étudiant
 
@@ -819,15 +818,7 @@ Authorization: Bearer <jeton_admin>
 POST /auth/actualiser
 ```
 
-**Body :**
-
-```json
-{
-  "jetonActualisation": "<jeton_actualisation_etudiant>"
-}
-```
-
-La réponse contient un nouveau `jetonAcces` et un nouveau `jetonActualisation`. L’ancien jeton d’actualisation ne doit plus être réutilisé.
+**Body :** aucun. Le client doit autoriser l’envoi des cookies. La réponse contient un nouveau `jetonAcces` et le backend effectue automatiquement la rotation du cookie `HttpOnly`.
 
 ## 30. Déconnecter l’étudiant
 
@@ -837,13 +828,7 @@ La réponse contient un nouveau `jetonAcces` et un nouveau `jetonActualisation`.
 POST /auth/deconnexion
 ```
 
-**Body :**
-
-```json
-{
-  "jetonActualisation": "<nouveau_jeton_actualisation_etudiant>"
-}
-```
+**Body :** aucun. Le backend révoque la session et supprime le cookie `HttpOnly`.
 
 **Réponse attendue :**
 

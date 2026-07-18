@@ -2,7 +2,9 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { rateLimit } from 'express-rate-limit';
 import { environnement } from './config/environnement.js';
 import { dossierTeleversements } from './config/televersement.js';
@@ -10,6 +12,10 @@ import { gestionnaireErreurs, routeIntrouvable } from './middlewares/erreurs.mid
 import { routesApi } from './routes/index.js';
 
 export const app = express();
+const racineProjet = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const dossierFrontend = path.join(racineProjet, 'frontend', 'dist');
+
+if (environnement.NODE_ENV === 'production') app.set('trust proxy', 1);
 
 const originesFrontend = environnement.NODE_ENV === 'production'
   ? [environnement.FRONTEND_URL]
@@ -28,10 +34,20 @@ app.use('/uploads', express.static(path.resolve(dossierTeleversements), { maxAge
 app.use(morgan(environnement.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, limit: 300 }));
 
-app.get('/', (_requete, reponse) => {
-  reponse.json({ succes: true, donnees: { nom: 'API CampusHub', version: 'v1' } });
-});
+if (environnement.NODE_ENV === 'production' && existsSync(dossierFrontend)) {
+  app.use(express.static(dossierFrontend, { index: 'index.html', maxAge: '1h' }));
+} else {
+  app.get('/', (_requete, reponse) => {
+    reponse.json({ succes: true, donnees: { nom: 'API CampusHub', version: 'v1' } });
+  });
+}
 
 app.use('/api/v1', routesApi);
+if (environnement.NODE_ENV === 'production' && existsSync(dossierFrontend)) {
+  app.use((requete, reponse, suivant) => {
+    if (requete.method !== 'GET' || !requete.accepts('html')) return suivant();
+    return reponse.sendFile(path.join(dossierFrontend, 'index.html'));
+  });
+}
 app.use(routeIntrouvable);
 app.use(gestionnaireErreurs);
