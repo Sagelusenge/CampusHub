@@ -32,7 +32,7 @@ export async function listerOffresPubliques(filtres) {
   ajouterFiltres(conditions, valeurs, filtres);
   const where = conditions.join(' AND ');
   const [[lignes], [compte]] = await Promise.all([
-    baseDeDonnees.execute(
+    baseDeDonnees.query(
       `SELECT * FROM vue_offres_etablissements WHERE ${where}
        ORDER BY date_publication DESC, date_creation DESC LIMIT ? OFFSET ?`,
       [...valeurs, limite, decalage],
@@ -66,7 +66,7 @@ export async function listerMesOffres(utilisateur, filtres) {
   ajouterFiltres(conditions, valeurs, filtres);
   const where = conditions.join(' AND ');
   const [[lignes], [compte]] = await Promise.all([
-    baseDeDonnees.execute(
+    baseDeDonnees.query(
       `SELECT * FROM vue_offres_etablissements WHERE ${where}
        ORDER BY date_creation DESC LIMIT ? OFFSET ?`, [...valeurs, limite, decalage],
     ),
