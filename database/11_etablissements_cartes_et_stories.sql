@@ -2,10 +2,18 @@
 -- À exécuter après 10_recherche_et_contact.sql.
 USE campushub;
 
-ALTER TABLE universites
-  ADD COLUMN IF NOT EXISTS categorie_etablissement
-    ENUM('UNIVERSITE', 'INSTITUT_SUPERIEUR', 'ECOLE_SECONDAIRE')
-    NOT NULL DEFAULT 'UNIVERSITE' AFTER type_universite;
+-- MySQL 8.4 ne prend pas en charge `ADD COLUMN IF NOT EXISTS`.
+SET @ddl_ajouter_categorie = IF(
+  (SELECT COUNT(*) FROM information_schema.columns
+   WHERE table_schema = DATABASE()
+     AND table_name = 'universites'
+     AND column_name = 'categorie_etablissement') = 0,
+  'ALTER TABLE universites ADD COLUMN categorie_etablissement ENUM(''UNIVERSITE'', ''INSTITUT_SUPERIEUR'', ''ECOLE_SECONDAIRE'') NOT NULL DEFAULT ''UNIVERSITE'' AFTER type_universite',
+  'SELECT 1'
+);
+PREPARE stmt_ajouter_categorie FROM @ddl_ajouter_categorie;
+EXECUTE stmt_ajouter_categorie;
+DEALLOCATE PREPARE stmt_ajouter_categorie;
 
 -- Classe automatiquement les établissements existants dont le nom est explicite.
 UPDATE universites SET categorie_etablissement = 'INSTITUT_SUPERIEUR'

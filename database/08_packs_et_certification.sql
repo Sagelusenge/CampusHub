@@ -2,8 +2,18 @@
 -- À exécuter après 07_abonnements_affiliations_localisations.sql.
 USE campushub;
 
-ALTER TABLE paiements_abonnement
-  ADD COLUMN IF NOT EXISTS type_paiement ENUM('ABONNEMENT', 'CERTIFICATION') NOT NULL DEFAULT 'ABONNEMENT' AFTER plan_id;
+-- MySQL 8.4 ne prend pas en charge `ADD COLUMN IF NOT EXISTS`.
+SET @ddl_ajouter_type_paiement = IF(
+  (SELECT COUNT(*) FROM information_schema.columns
+   WHERE table_schema = DATABASE()
+     AND table_name = 'paiements_abonnement'
+     AND column_name = 'type_paiement') = 0,
+  'ALTER TABLE paiements_abonnement ADD COLUMN type_paiement ENUM(''ABONNEMENT'', ''CERTIFICATION'') NOT NULL DEFAULT ''ABONNEMENT'' AFTER plan_id',
+  'SELECT 1'
+);
+PREPARE stmt_ajouter_type_paiement FROM @ddl_ajouter_type_paiement;
+EXECUTE stmt_ajouter_type_paiement;
+DEALLOCATE PREPARE stmt_ajouter_type_paiement;
 
 ALTER TABLE abonnements_universite
   ALTER COLUMN certification_incluse SET DEFAULT 0;

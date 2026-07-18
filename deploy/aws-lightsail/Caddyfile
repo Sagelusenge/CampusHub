@@ -1,5 +1,25 @@
 {$CAMPUSHUB_DOMAIN} {
   encode zstd gzip
+
+  @fichiersSensibles path \
+    /.env* \
+    /.git/* \
+    /.ssh/* \
+    /.svn/* \
+    /wp-* \
+    /phpinfo.php \
+    /actuator/* \
+    /*.sql \
+    /*.key \
+    /*.pem \
+    /*.log \
+    /*.yml \
+    /*.yaml \
+    /*.zip \
+    /*.tar.gz \
+    /docker-compose.*
+  respond @fichiersSensibles 404
+
   reverse_proxy app:4000
 
   header {

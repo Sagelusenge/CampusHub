@@ -2,7 +2,19 @@
 -- À exécuter après les scripts 01 à 06.
 USE campushub;
 
-ALTER TABLE utilisateurs ADD COLUMN IF NOT EXISTS pays VARCHAR(100) NULL AFTER biographie;
+-- MySQL 8.4 ne prend pas en charge `ADD COLUMN IF NOT EXISTS`.
+-- Cette forme dynamique conserve l'idempotence du script.
+SET @ddl_ajouter_pays = IF(
+  (SELECT COUNT(*) FROM information_schema.columns
+   WHERE table_schema = DATABASE()
+     AND table_name = 'utilisateurs'
+     AND column_name = 'pays') = 0,
+  'ALTER TABLE utilisateurs ADD COLUMN pays VARCHAR(100) NULL AFTER biographie',
+  'SELECT 1'
+);
+PREPARE stmt_ajouter_pays FROM @ddl_ajouter_pays;
+EXECUTE stmt_ajouter_pays;
+DEALLOCATE PREPARE stmt_ajouter_pays;
 ALTER TABLE notifications MODIFY COLUMN type_notification
   ENUM('ABONNEMENT', 'AFFILIATION', 'JAIME', 'COMMENTAIRE', 'ANNONCE', 'MODERATION', 'SYSTEME') NOT NULL;
 
