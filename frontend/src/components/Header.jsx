@@ -17,7 +17,7 @@ export function Header() {
   return <header className="site-header"><div className="container header-inner">
     <Link className="brand" to="/" aria-label="Accueil CampusHub"><span className="brand-mark"><Building2 size={20} strokeWidth={2.4} /></span><span>Campus<span>Hub</span></span></Link>
     <nav className={`main-nav ${menuOpen ? 'main-nav--open' : ''}`} aria-label="Navigation principale">
-      <NavLink to="/" end onClick={() => setMenuOpen(false)}>Accueil</NavLink><NavLink to="/universites" onClick={() => setMenuOpen(false)}>Établissements</NavLink><NavLink to="/reseau" onClick={() => setMenuOpen(false)}>Réseau</NavLink><NavLink to="/contact" onClick={() => setMenuOpen(false)}>Contact</NavLink>
+      <NavLink to="/" end onClick={() => setMenuOpen(false)}>Accueil</NavLink><NavLink to="/universites" onClick={() => setMenuOpen(false)}>Établissements</NavLink><NavLink to="/orientation" onClick={() => setMenuOpen(false)}>CampusHub AI</NavLink><NavLink to="/reseau" onClick={() => setMenuOpen(false)}>Réseau</NavLink><NavLink to="/contact" onClick={() => setMenuOpen(false)}>Contact</NavLink>
       {!estConnecte && <NavLink className="nav-mobile-action" to="/inscription-visiteur" onClick={() => setMenuOpen(false)}>Créer un compte</NavLink>}
     </nav>
     <div className="header-actions"><button className="icon-button header-search" aria-label="Rechercher" onClick={() => navigate('/reseau')}><Search size={19} /></button>

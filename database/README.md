@@ -32,7 +32,11 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/08_packs_e
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/09_messagerie_privee.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/10_recherche_et_contact.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/11_etablissements_cartes_et_stories.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/12_campushub_ai_orientation.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/13_donnees_demo_campushub_ai.sql;
 ```
+
+Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquement des établissements fictifs clairement nommés « Démonstration » pour tester le conseiller sans faire passer ces données pour des institutions réelles.
 
 ## Organisation fonctionnelle
 
@@ -48,6 +52,7 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/11_etablis
 - Recherche personnalisée : `recherches_utilisateurs`.
 - Contact public : `demandes_contact`.
 - Réseau éphémère : `stories`, `vues_stories`.
+- Orientation IA : `dossiers_orientation` et `vue_impact_orientation_ia`.
 
 Les fichiers médias ne sont pas enregistrés directement dans MySQL. La table `medias_publication` conserve leur URL et leurs informations techniques.
 

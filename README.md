@@ -1,31 +1,45 @@
 # CampusHub
 
-Plateforme universitaire d'orientation, de découverte et de valorisation des talents étudiants.
+CampusHub est une plateforme d’orientation et de vie académique pensée pour la RDC. Elle relie étudiants, visiteurs, établissements et administrateurs autour d’un catalogue vérifié, d’un réseau social universitaire et d’un conseiller d’orientation assisté par GPT‑5.6.
 
-## Organisation actuelle
+## CampusHub AI
+
+Le conseiller transforme un objectif d’études en recommandations traçables :
+
+- GPT‑5.6 raisonne sur le projet, le budget, le niveau et la mobilité de l’étudiant ;
+- les outils du modèle interrogent exclusivement les formations vérifiées dans MySQL ;
+- les frais, campus et conditions ne sont jamais inventés par le modèle ;
+- une photo de bulletin peut être analysée par la vision de GPT‑5.6, puis confirmée par l’utilisateur ;
+- chaque réponse et ses sources sont sauvegardées dans un dossier d’orientation ;
+- sans clé OpenAI, un mode démonstration MySQL reste utilisable et est clairement signalé.
+
+```mermaid
+flowchart LR
+  E["Projet de l’étudiant"] --> API["API Express"]
+  API --> GPT["GPT‑5.6 Responses API"]
+  GPT --> OUTILS["Outils CampusHub"]
+  OUTILS --> DB["Catalogue MySQL vérifié"]
+  DB --> GPT
+  GPT --> D["Plan expliqué et sauvegardé"]
+```
+
+## Architecture
 
 ```text
 CampusHub/
-├── backend/    # API REST Express.js
-├── database/   # Structure MySQL, triggers, procédures et vues
-└── frontend/   # Interface React/Vite responsive
+├── backend/    # API REST Express, OpenAI SDK, JWT, Zod et évaluations
+├── database/   # MySQL, triggers, procédures, vues et données de démonstration
+└── frontend/   # React/Vite, espaces par rôle et interface CampusHub AI
 ```
 
-## Base de données
+Le backend suit le chemin `route → middleware → controller → service → MySQL/OpenAI` pour rester simple à lire et à déboguer.
 
-Les scripts MySQL sont numérotés dans leur ordre d'exécution. Consultez le [guide de la base](database/README.md) avant leur première utilisation.
+## Installation locale
 
-## Backend
+Prérequis : Node.js 20+, MySQL 8+ et une clé API OpenAI pour le mode GPT‑5.6.
 
-Le backend utilise Express, MySQL2, JWT et Zod. Son organisation suit le chemin :
-
-```text
-route → middleware → controller → service → MySQL
-```
-
-Consultez le [guide du backend](backend/README.md) pour l'installation, la configuration et les premières routes.
-
-## Démarrage rapide du backend
+1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `13`. Le script `13` contient uniquement des établissements fictifs explicitement marqués comme démonstration.
+2. Configurer et lancer l’API :
 
 ```powershell
 cd backend
@@ -34,9 +48,19 @@ npm install
 npm run dev
 ```
 
-L'API est ensuite disponible par défaut sur `http://localhost:4000/api/v1`.
+3. Dans `backend/.env`, renseigner au minimum MySQL et OpenAI :
 
-## Démarrage rapide du frontend
+```dotenv
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=votre_mot_de_passe
+DB_NAME=campushub
+OPENAI_API_KEY=votre_cle_api
+OPENAI_MODEL=gpt-5.6
+```
+
+4. Lancer l’interface :
 
 ```powershell
 cd frontend
@@ -45,18 +69,37 @@ npm install
 npm run dev
 ```
 
-L’interface est ensuite disponible sur `http://127.0.0.1:5173`.
+Frontend : `http://127.0.0.1:5173` — API : `http://localhost:4000/api/v1`.
 
-## Parcours métier ajoutés
+## Démonstration et vérification
 
-- localisation guidée `pays → province/État → ville`, avec la RDC par défaut ;
-- signalement au manager lorsqu’une ville manque dans la liste ;
-- inscription étudiant, demande d’affiliation et confirmation par l’université ;
-- trois packs institutionnels mensuels : Essentiel 20 USD, Professionnel 35 USD et Excellence 50 USD ;
-- badge CampusHub certifié commandable séparément à 7 USD pour 30 jours ;
-- activation après validation du paiement, badge certifié et compte à rebours ;
-- téléversement local des images et preuves dans `backend/uploads` ;
-- slug/identifiant URL universitaire généré automatiquement à partir du nom ;
-- indicateur rouge affiché sur la cloche uniquement en présence de notifications non lues.
+```powershell
+cd backend
+npm run db:demo-ai
+npm run eval:orientation
+npm run check
+npm test
 
-Le parcours API correspondant est décrit dans [PARCOURS_ABONNEMENT_AFFILIATION.md](backend/docs/PARCOURS_ABONNEMENT_AFFILIATION.md).
+cd ../frontend
+npm run lint
+npm run build
+```
+
+L’évaluation couvre cinq cas : informatique, santé, gestion, ville imposée et domaine absent. Elle vérifie également qu’aucun établissement non validé ne remonte dans les résultats.
+
+Routes principales du conseiller :
+
+| Méthode | Route | Usage |
+|---|---|---|
+| GET | `/api/v1/orientation/configuration` | Mode GPT‑5.6 ou démonstration |
+| POST | `/api/v1/orientation/recommandations` | Créer et sauvegarder un plan |
+| POST | `/api/v1/orientation/analyser-bulletin` | Analyser une image avec GPT‑5.6 |
+| GET | `/api/v1/orientation/dossiers` | Retrouver son historique |
+
+Toutes ces routes sont authentifiées. Créez un compte visiteur ou étudiant depuis l’interface pour essayer le parcours.
+
+## OpenAI Build Week
+
+Les choix techniques, le scénario vidéo, les évaluations et la liste de contrôle de soumission se trouvent dans [BUILD_WEEK.md](BUILD_WEEK.md). Le projet est publié sous licence MIT.
+
+Documentation détaillée : [backend](backend/README.md) · [base de données](database/README.md) · [API](backend/docs/API.md).

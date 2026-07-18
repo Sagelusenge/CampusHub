@@ -28,3 +28,9 @@ test('la fiche institutionnelle personnelle exige une connexion', async () => {
   const reponse = await request(app).get('/api/v1/universites/moi').expect(401);
   assert.equal(reponse.body.succes, false);
 });
+
+test('le conseiller CampusHub AI protège les dossiers personnels', async () => {
+  const reponse = await request(app).get('/api/v1/orientation/configuration').expect(401);
+  assert.equal(reponse.body.succes, false);
+  assert.match(reponse.body.erreur.message, /authentification/i);
+});

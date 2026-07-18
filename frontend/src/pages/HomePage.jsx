@@ -1,4 +1,4 @@
-import { ArrowRight, BadgeCheck, Building2, GraduationCap, Network, SearchCheck, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, BadgeCheck, Bot, BrainCircuit, Building2, CheckCircle2, GraduationCap, Network, SearchCheck, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageShell } from '../components/PageShell.jsx';
 import { Reveal } from '../components/Reveal.jsx';
@@ -29,6 +29,24 @@ export function HomePage() {
       <div className="container">
         <Reveal className="section-heading"><div><span className="eyebrow eyebrow--accent">Notre raison d’être</span><h2>Une passerelle fiable vers l’enseignement supérieur.</h2><p>L’accueil présente la mission de CampusHub. Le catalogue, le réseau et les espaces de gestion restent clairement séparés.</p></div></Reveal>
         <div className="mission-objectives">{objectifs.map(({ icon: Icon, titre, texte }, index) => <Reveal key={titre} delay={index * 80}><article><span><Icon /></span><h3>{titre}</h3><p>{texte}</p></article></Reveal>)}</div>
+      </div>
+    </section>
+
+    <section className="section ai-home-section">
+      <div className="container ai-home-card">
+        <Reveal className="ai-home-card__copy">
+          <span className="pill pill--light"><Sparkles /> Nouveau • GPT‑5.6</span>
+          <h2>Votre projet d’études devient un plan concret.</h2>
+          <p>CampusHub AI croise votre objectif, votre budget et votre mobilité avec les formations vérifiées de la plateforme. Il peut aussi lire une photo de bulletin, avec votre confirmation.</p>
+          <div className="ai-home-card__proof"><span><CheckCircle2 />Aucune formation inventée</span><span><CheckCircle2 />Recommandations expliquées</span><span><CheckCircle2 />Dossier sauvegardé</span></div>
+          <Link className="button button--teal button--large" to="/orientation">Essayer CampusHub AI <ArrowRight /></Link>
+        </Reveal>
+        <Reveal className="ai-home-card__visual" delay={120}>
+          <span className="ai-home-card__brain"><BrainCircuit /></span>
+          <div><Bot /><span><small>CampusHub AI</small><strong>3 formations compatibles trouvées</strong></span></div>
+          <div><GraduationCap /><span><small>Option recommandée</small><strong>Génie logiciel et intelligence artificielle</strong></span><b>92%</b></div>
+          <div><ShieldCheck /><span><small>Source des informations</small><strong>Catalogue CampusHub vérifié</strong></span></div>
+        </Reveal>
       </div>
     </section>
 

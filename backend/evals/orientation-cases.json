@@ -1,0 +1,31 @@
+[
+  {
+    "nom": "informatique accessible à Goma",
+    "filtres": { "domaine": "Informatique", "budget_max": 500, "niveau": "LICENCE", "ville": "Goma" },
+    "minimum": 1,
+    "termesAttendus": ["informatique", "logiciel", "cybersécurité"]
+  },
+  {
+    "nom": "santé en Sud-Kivu",
+    "filtres": { "domaine": "Santé", "budget_max": 450, "niveau": "LICENCE", "province": "Sud-Kivu" },
+    "minimum": 1,
+    "termesAttendus": ["santé"]
+  },
+  {
+    "nom": "gestion à petit budget",
+    "filtres": { "domaine": "Gestion", "budget_max": 350, "niveau": "LICENCE" },
+    "minimum": 1,
+    "termesAttendus": ["gestion"]
+  },
+  {
+    "nom": "mobilité limitée à Bukavu",
+    "filtres": { "niveau": "LICENCE", "ville": "Bukavu" },
+    "minimum": 2,
+    "villeAttendue": "Bukavu"
+  },
+  {
+    "nom": "aucune invention pour un domaine absent",
+    "filtres": { "domaine": "Astronautique interplanétaire", "niveau": "DOCTORAT" },
+    "maximum": 0
+  }
+]

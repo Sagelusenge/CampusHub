@@ -1,0 +1,20 @@
+.ai-home-section { padding-top: 28px; }
+.ai-home-card { position: relative; overflow: hidden; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 55px; padding: 58px; border-radius: 26px; color: #fff; background: radial-gradient(circle at 92% 5%, rgba(107,224,210,.25), transparent 33%), linear-gradient(135deg,#061f51,#0b4778); box-shadow: 0 25px 60px rgba(6,31,81,.2); }
+.ai-home-card__copy h2 { max-width: 650px; margin: 20px 0 14px; font-size: clamp(35px,4.5vw,58px); line-height: 1.04; letter-spacing: -.05em; }
+.ai-home-card__copy > p { max-width: 650px; color: #d2ddec; line-height: 1.7; }
+.ai-home-card__proof { margin: 23px 0 28px; display: flex; flex-wrap: wrap; gap: 14px; color: #d9e6f3; font-size: 11px; }
+.ai-home-card__proof span { display: flex; align-items: center; gap: 6px; }
+.ai-home-card__proof svg { width: 16px; color: #72e1d2; }
+.ai-home-card__visual { position: relative; min-height: 345px; padding: 78px 22px 22px; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,.17); border-radius: 21px; background: rgba(255,255,255,.09); backdrop-filter: blur(15px); }
+.ai-home-card__visual > div { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 13px; background: rgba(4,26,68,.48); }
+.ai-home-card__visual > div > svg { width: 22px; color: #72e1d2; }
+.ai-home-card__visual > div > span { display: flex; flex: 1; flex-direction: column; }
+.ai-home-card__visual small { color: #9fb5ce; font-size: 9px; }
+.ai-home-card__visual strong { font-size: 12px; }
+.ai-home-card__visual b { padding: 7px 9px; border-radius: 9px; color: #062c5e; background: #75dfd1; }
+.ai-home-card__brain { position: absolute; top: 18px; right: 20px; width: 50px; height: 50px; display: grid; place-items: center; border-radius: 15px; color: #062c5e; background: #75dfd1; }
+.ai-home-card__brain svg { width: 28px; }
+
+@media (max-width: 800px) {
+  .ai-home-card { grid-template-columns: 1fr; padding: 38px 25px; }
+}

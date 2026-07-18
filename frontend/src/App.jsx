@@ -20,6 +20,7 @@ import { LoginPage } from './pages/LoginPage.jsx';
 import { MessagesPage } from './pages/MessagesPage.jsx';
 import { NotFoundPage } from './pages/NotFoundPage.jsx';
 import { NotificationsPage } from './pages/NotificationsPage.jsx';
+import { OrientationAIPage } from './pages/OrientationAIPage.jsx';
 import { PortfolioDetailPage } from './pages/PortfolioDetailPage.jsx';
 import { PortfoliosPage } from './pages/PortfoliosPage.jsx';
 import { SettingsPage } from './pages/SettingsPage.jsx';
@@ -67,6 +68,7 @@ export function App() {
     <Route path="/partenariat" element={<UniversityApplicationPage />} />
     <Route path="/inscription-etudiant" element={<StudentRegistrationPage />} />
     <Route path="/inscription-visiteur" element={<VisitorRegistrationPage />} />
+    <Route path="/orientation" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><PageShell><OrientationAIPage /></PageShell></ProtectedRoute>} />
     <Route path="/parametres" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><PageShell><section className="public-settings-page"><div className="container"><SettingsPage /></div></section></PageShell></ProtectedRoute>} />
 
     <Route element={protectAdmin}>
@@ -80,6 +82,7 @@ export function App() {
       <Route path="/administration/localisations" element={<AdminLocationsPage />} />
       <Route path="/administration/contacts" element={<AdminContactsPage />} />
       <Route path="/administration/reseau" element={<SocialFeedPage embedded />} />
+      <Route path="/administration/orientation" element={<OrientationAIPage embedded />} />
       <Route path="/administration/notifications" element={<NotificationsPage />} />
       <Route path="/administration/parametres" element={<SettingsPage />} />
     </Route>
@@ -94,6 +97,7 @@ export function App() {
       <Route path="/espace-universite/admissions" element={<InstitutionResourcePage type="admissions" />} />
       <Route path="/espace-universite/publications" element={<InstitutionPublicationsPage />} />
       <Route path="/espace-universite/reseau" element={<SocialFeedPage embedded />} />
+      <Route path="/espace-universite/orientation" element={<OrientationAIPage embedded />} />
       <Route path="/espace-universite/messages" element={<MessagesPage />} />
       <Route path="/espace-universite/affiliations" element={<UniversityAffiliationsPage />} />
       <Route path="/espace-universite/abonnement" element={<InstitutionSubscriptionPage />} />
@@ -106,6 +110,7 @@ export function App() {
       <Route path="/espace-etudiant/affiliation" element={<StudentAffiliationPage />} />
       <Route path="/espace-etudiant/profil" element={<StudentProfilePage />} />
       <Route path="/espace-etudiant/reseau" element={<SocialFeedPage embedded />} />
+      <Route path="/espace-etudiant/orientation" element={<OrientationAIPage embedded />} />
       <Route path="/espace-etudiant/actualites" element={<Navigate to="/espace-etudiant/reseau" replace />} />
       <Route path="/espace-etudiant/messages" element={<MessagesPage />} />
       <Route path="/espace-etudiant/notifications" element={<NotificationsPage />} />
