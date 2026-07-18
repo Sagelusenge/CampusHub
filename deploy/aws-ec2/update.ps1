@@ -55,7 +55,8 @@ PREVIOUS="${REMOTE_DIRECTORY}-previous"
 COMPOSE_DIR="${REMOTE_DIRECTORY}/deploy/aws-lightsail"
 BACKUP_DIR="${REMOTE_DIRECTORY}-backups"
 
-mkdir -p "$BACKUP_DIR"
+sudo mkdir -p "$BACKUP_DIR"
+sudo chown ubuntu:ubuntu "$BACKUP_DIR"
 if [ -f "$COMPOSE_DIR/.env.runtime" ]; then
   cd "$COMPOSE_DIR"
   MYSQL_APP_PASSWORD=$(grep '^MYSQL_APP_PASSWORD=' .env.runtime | cut -d= -f2-)
@@ -67,9 +68,10 @@ if [ -f "$COMPOSE_DIR/.env.runtime" ]; then
     -printf '%T@ %p\n' | sort -nr | tail -n +8 | cut -d' ' -f2- | xargs -r rm -f
 fi
 
-rm -rf "$NEXT" "$PREVIOUS"
-mkdir -p "$NEXT"
-tar -xf "$ARCHIVE" -C "$NEXT"
+sudo rm -rf "$NEXT" "$PREVIOUS"
+sudo mkdir -p "$NEXT"
+sudo tar -xf "$ARCHIVE" -C "$NEXT"
+sudo chown -R ubuntu:ubuntu "$NEXT"
 if [ -f "$COMPOSE_DIR/.env.runtime" ]; then
   cp "$COMPOSE_DIR/.env.runtime" "$NEXT/deploy/aws-lightsail/.env.runtime"
 else
@@ -80,8 +82,8 @@ fi
 cd "$NEXT/deploy/aws-lightsail"
 sudo docker compose -p aws-lightsail --env-file .env.runtime build app
 
-mv "$REMOTE_DIRECTORY" "$PREVIOUS"
-mv "$NEXT" "$REMOTE_DIRECTORY"
+sudo mv "$REMOTE_DIRECTORY" "$PREVIOUS"
+sudo mv "$NEXT" "$REMOTE_DIRECTORY"
 cd "$REMOTE_DIRECTORY/deploy/aws-lightsail"
 sudo docker compose -p aws-lightsail --env-file .env.runtime \
   up -d --remove-orphans --force-recreate app caddy
@@ -89,7 +91,8 @@ sudo docker compose -p aws-lightsail --env-file .env.runtime \
 DOMAIN=$(grep '^CAMPUSHUB_DOMAIN=' .env.runtime | cut -d= -f2-)
 for attempt in $(seq 1 30); do
   if curl -fsS "https://${DOMAIN}/api/v1/sante" >/dev/null; then
-    rm -rf "$PREVIOUS" "$ARCHIVE"
+    sudo rm -rf "$PREVIOUS"
+    rm -f "$ARCHIVE"
     sudo docker image prune -f >/dev/null
     echo "CampusHub déployé avec succès : https://${DOMAIN}"
     exit 0
