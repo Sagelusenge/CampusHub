@@ -156,8 +156,9 @@ async function conseillerAvecGPT(utilisateur, donnees) {
     input: `${profil}\n\nQuestion de l'étudiant : ${donnees.message || donnees.objectif}`,
     tools: outils,
     tool_choice: 'required',
-    reasoning: { effort: 'medium' },
+    reasoning: { effort: 'low' },
     text: { verbosity: 'medium' },
+    max_output_tokens: 1000,
     safety_identifier: crypto.createHash('sha256').update(`campushub:${utilisateur.id}`).digest('hex'),
   });
   let candidats = [];
@@ -177,8 +178,9 @@ async function conseillerAvecGPT(utilisateur, donnees) {
       instructions,
       input: sorties,
       tools: outils,
-      reasoning: { effort: 'medium' },
+      reasoning: { effort: 'low' },
       text: { verbosity: 'medium' },
+      max_output_tokens: 1000,
       safety_identifier: crypto.createHash('sha256').update(`campushub:${utilisateur.id}`).digest('hex'),
     });
   }
@@ -255,7 +257,8 @@ export async function analyserBulletin(urlImage) {
     model: modele,
     instructions: 'Extrais uniquement les informations lisibles du bulletin. N’invente aucune note. Retourne exclusivement un objet JSON avec les clés matieres (tableau de {nom,note,max}), moyenne_estimee, niveau_detecte, points_forts (tableau), champs_incertains (tableau), avertissement.',
     input: [{ role: 'user', content: [{ type: 'input_text', text: 'Analyse ce bulletin scolaire pour préparer une orientation. Les résultats seront confirmés par l’étudiant.' }, { type: 'input_image', image_url: `data:${typeMime};base64,${contenu}`, detail: 'original' }] }],
-    reasoning: { effort: 'medium' },
+    reasoning: { effort: 'low' },
+    max_output_tokens: 700,
   });
   return { disponible: true, modeExecution: 'GPT_5_6', modele, analyse: extraireJson(reponse.output_text) };
 }

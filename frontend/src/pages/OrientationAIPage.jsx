@@ -104,7 +104,7 @@ export function OrientationAIPage({ embedded = false }) {
       <div className="ai-status-strip">
         <span className={configuration?.disponible ? 'ai-status-dot ai-status-dot--live' : 'ai-status-dot'} />
         <div><strong>{configuration?.disponible ? 'GPT‑5.6 connecté' : 'Mode démonstration vérifiable'}</strong><small>{configuration?.message || 'Vérification de la configuration…'}</small></div>
-        <span className="ai-model-chip"><Sparkles />{configuration?.modele || 'gpt-5.6'}</span>
+        <span className="ai-model-chip"><Sparkles />{configuration?.modele || 'gpt-5.6-luna'}</span>
       </div>
       {error && <div className="alert alert--error">{error}</div>}
 

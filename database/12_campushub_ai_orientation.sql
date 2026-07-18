@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS dossiers_orientation (
   analyse_bulletin JSON NULL,
   recommandations JSON NULL,
   reponse_ia MEDIUMTEXT NULL,
-  modele_ia VARCHAR(80) NOT NULL DEFAULT 'gpt-5.6',
+  modele_ia VARCHAR(80) NOT NULL DEFAULT 'gpt-5.6-luna',
   mode_execution ENUM('GPT_5_6', 'DEMONSTRATION') NOT NULL DEFAULT 'GPT_5_6',
   statut ENUM('EN_COURS', 'TERMINE', 'ARCHIVE') NOT NULL DEFAULT 'TERMINE',
   date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

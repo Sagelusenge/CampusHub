@@ -11,7 +11,8 @@
     "test": "cross-env NODE_ENV=test node --test",
     "check": "node scripts/verifier-syntaxe.js",
     "eval:orientation": "node scripts/evaluer-orientation.js",
-    "db:demo-ai": "node scripts/appliquer-sql.js ../database/13_donnees_demo_campushub_ai.sql"
+    "db:demo-ai": "node scripts/appliquer-sql.js ../database/13_donnees_demo_campushub_ai.sql",
+    "db:copilote": "node scripts/appliquer-sql.js ../database/14_copilote_institutionnel.sql"
   },
   "engines": {
     "node": ">=20.0.0"

@@ -16,11 +16,28 @@ if (!fichier) {
     user: environnement.DB_USER,
     password: environnement.DB_PASSWORD,
     database: environnement.DB_NAME,
-    multipleStatements: true,
     charset: 'utf8mb4',
   });
   try {
-    await connexion.query(sql);
+    let delimiteur = ';';
+    let tampon = '';
+    const instructions = [];
+    for (const ligne of sql.split(/\r?\n/)) {
+      const directive = ligne.trim().match(/^DELIMITER\s+(.+)$/i);
+      if (directive) {
+        delimiteur = directive[1];
+        continue;
+      }
+      tampon += `${ligne}\n`;
+      if (ligne.trimEnd().endsWith(delimiteur)) {
+        const fin = tampon.lastIndexOf(delimiteur);
+        const instruction = tampon.slice(0, fin).trim();
+        if (instruction) instructions.push(instruction);
+        tampon = '';
+      }
+    }
+    if (tampon.trim()) instructions.push(tampon.trim());
+    for (const instruction of instructions) await connexion.query(instruction);
     console.log(`Script appliqué : ${path.basename(chemin)}`);
   } finally {
     await connexion.end();

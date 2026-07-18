@@ -12,6 +12,7 @@ import './styles/public-redesign.css';
 import './styles/social-enhanced.css';
 import './styles/ai-orientation.css';
 import './styles/home-ai.css';
+import './styles/institution-copilot.css';
 import './styles/campus.css';
 
 createRoot(document.getElementById('root')).render(

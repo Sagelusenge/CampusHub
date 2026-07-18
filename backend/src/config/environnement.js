@@ -18,7 +18,7 @@ const schemaEnvironnement = z.object({
   REFRESH_TOKEN_DAYS: z.coerce.number().int().min(1).max(365).default(30),
   BCRYPT_ROUNDS: z.coerce.number().int().min(10).max(14).default(12),
   OPENAI_API_KEY: z.string().default(''),
-  OPENAI_MODEL: z.string().min(1).default('gpt-5.6'),
+  OPENAI_MODEL: z.string().min(1).default('gpt-5.6-luna'),
 });
 
 const resultat = schemaEnvironnement.safeParse(process.env);

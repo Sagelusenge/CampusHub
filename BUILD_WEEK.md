@@ -12,6 +12,7 @@
 - dossiers d’orientation persistants avec codes automatiques `ORI…` ;
 - mode de démonstration explicite lorsque la clé OpenAI est absente ;
 - interface responsive disponible pour les quatre rôles ;
+- séparation des usages : orientation pour étudiants/visiteurs et copilote de contenu pour les établissements ;
 - données fictives reproductibles et cinq scénarios d’évaluation automatisés.
 
 Le dépôt contient aussi un socle CampusHub antérieur — catalogue, comptes, réseau social et administration. L’historique Git permet aux juges de distinguer ce socle de la fonctionnalité CampusHub AI ajoutée pendant l’événement.
@@ -19,6 +20,8 @@ Le dépôt contient aussi un socle CampusHub antérieur — catalogue, comptes, 
 ## Utilisation de GPT‑5.6
 
 Le modèle ne reçoit pas un catalogue copié dans le prompt. Il appelle des outils stricts :
+
+Le déploiement utilise `gpt-5.6-luna`, le membre GPT‑5.6 conçu pour les charges sensibles au coût. Le raisonnement est limité à `low` et les sorties sont plafonnées afin de conserver une démonstration accessible avec un petit crédit API.
 
 1. `rechercher_formations` applique les contraintes de domaine, budget, niveau et localisation ;
 2. `obtenir_conditions_admission` récupère les conditions officielles enregistrées ;

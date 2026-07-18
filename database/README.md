@@ -34,6 +34,7 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/10_recherc
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/11_etablissements_cartes_et_stories.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/12_campushub_ai_orientation.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/13_donnees_demo_campushub_ai.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/14_copilote_institutionnel.sql;
 ```
 
 Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquement des établissements fictifs clairement nommés « Démonstration » pour tester le conseiller sans faire passer ces données pour des institutions réelles.
@@ -53,6 +54,7 @@ Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquemen
 - Contact public : `demandes_contact`.
 - Réseau éphémère : `stories`, `vues_stories`.
 - Orientation IA : `dossiers_orientation` et `vue_impact_orientation_ia`.
+- Copilote institutionnel : `generations_copilote_institution` et `vue_usage_copilote_institution`.
 
 Les fichiers médias ne sont pas enregistrés directement dans MySQL. La table `medias_publication` conserve leur URL et leurs informations techniques.
 

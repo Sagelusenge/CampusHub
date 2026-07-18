@@ -42,7 +42,6 @@ const adminNavigation = [
   { to: '/administration/localisations', label: 'Villes proposées', icon: MapPin },
   { to: '/administration/contacts', label: 'Messages de contact', icon: Mail },
   { to: '/administration/reseau', label: 'Réseau CampusHub', icon: Newspaper },
-  { to: '/administration/orientation', label: 'CampusHub AI', icon: Bot },
   { to: '/administration/notifications', label: 'Notifications', icon: Bell },
 ];
 
@@ -58,7 +57,7 @@ const institutionNavigation = [
   ] },
   { to: '/espace-universite/publications', label: 'Publications', icon: FileText },
   { to: '/espace-universite/reseau', label: 'Réseau CampusHub', icon: Newspaper },
-  { to: '/espace-universite/orientation', label: 'CampusHub AI', icon: Bot },
+  { to: '/espace-universite/copilote', label: 'Copilote établissement', icon: Bot },
   { to: '/espace-universite/messages', label: 'Messages', icon: MessageCircle },
   { to: '/espace-universite/affiliations', label: 'Demandes étudiantes', icon: ClipboardCheck },
   { to: '/espace-universite/abonnement', label: 'Abonnement', icon: CreditCard },
@@ -86,7 +85,6 @@ const titles = {
   '/administration/localisations': 'Villes proposées',
   '/administration/contacts': 'Messages de contact',
   '/administration/reseau': 'Réseau CampusHub',
-  '/administration/orientation': 'CampusHub AI',
   '/administration/notifications': 'Notifications',
   '/espace-universite': 'Tableau de bord',
   '/espace-universite/fiche': 'Fiche publique',
@@ -97,7 +95,7 @@ const titles = {
   '/espace-universite/admissions': 'Conditions d’admission',
   '/espace-universite/publications': 'Publications',
   '/espace-universite/reseau': 'Réseau CampusHub',
-  '/espace-universite/orientation': 'CampusHub AI',
+  '/espace-universite/copilote': 'Copilote établissement',
   '/espace-universite/messages': 'Messages',
   '/espace-universite/affiliations': 'Demandes étudiantes',
   '/espace-universite/abonnement': 'Abonnement',

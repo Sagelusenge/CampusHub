@@ -1,6 +1,6 @@
 # CampusHub
 
-CampusHub est une plateforme d’orientation et de vie académique pensée pour la RDC. Elle relie étudiants, visiteurs, établissements et administrateurs autour d’un catalogue vérifié, d’un réseau social universitaire et d’un conseiller d’orientation assisté par GPT‑5.6.
+CampusHub est une plateforme d’orientation et de vie académique pensée pour la RDC. Elle relie étudiants, visiteurs, établissements et administrateurs autour d’un catalogue vérifié, d’un réseau social universitaire, d’un conseiller d’orientation et d’un copilote institutionnel assistés par GPT‑5.6.
 
 ## CampusHub AI
 
@@ -12,6 +12,8 @@ Le conseiller transforme un objectif d’études en recommandations traçables :
 - une photo de bulletin peut être analysée par la vision de GPT‑5.6, puis confirmée par l’utilisateur ;
 - chaque réponse et ses sources sont sauvegardées dans un dossier d’orientation ;
 - sans clé OpenAI, un mode démonstration MySQL reste utilisable et est clairement signalé.
+
+Le conseiller d’orientation est réservé aux visiteurs inscrits et aux étudiants. Les universités disposent d’un copilote différent qui prépare des brouillons de publications, présente les filières, clarifie les admissions et audite la qualité de leur fiche. Il ne publie jamais automatiquement.
 
 ```mermaid
 flowchart LR
@@ -38,7 +40,7 @@ Le backend suit le chemin `route → middleware → controller → service → M
 
 Prérequis : Node.js 20+, MySQL 8+ et une clé API OpenAI pour le mode GPT‑5.6.
 
-1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `13`. Le script `13` contient uniquement des établissements fictifs explicitement marqués comme démonstration.
+1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `14`. Le script `13` contient uniquement des établissements fictifs explicitement marqués comme démonstration.
 2. Configurer et lancer l’API :
 
 ```powershell
@@ -57,7 +59,7 @@ DB_USER=root
 DB_PASSWORD=votre_mot_de_passe
 DB_NAME=campushub
 OPENAI_API_KEY=votre_cle_api
-OPENAI_MODEL=gpt-5.6
+OPENAI_MODEL=gpt-5.6-luna
 ```
 
 4. Lancer l’interface :
@@ -95,8 +97,10 @@ Routes principales du conseiller :
 | POST | `/api/v1/orientation/recommandations` | Créer et sauvegarder un plan |
 | POST | `/api/v1/orientation/analyser-bulletin` | Analyser une image avec GPT‑5.6 |
 | GET | `/api/v1/orientation/dossiers` | Retrouver son historique |
+| POST | `/api/v1/copilote-institution/generer` | Créer un brouillon institutionnel |
+| GET | `/api/v1/copilote-institution/historique` | Retrouver les brouillons de l’université |
 
-Toutes ces routes sont authentifiées. Créez un compte visiteur ou étudiant depuis l’interface pour essayer le parcours.
+Toutes ces routes sont authentifiées et séparées par rôle. Créez un compte visiteur ou étudiant pour essayer l’orientation, ou un compte université pour utiliser le copilote établissement.
 
 ## OpenAI Build Week
 

@@ -77,6 +77,21 @@ test('parcours CampusHub AI complet avec MySQL', { skip: !actif, timeout: 60000 
     dureeAnnees: 3, fraisMinimum: 400, fraisMaximum: 650, devise: 'USD', estActive: true,
   });
 
+  const contexteCopilote = await appeler('get', '/api/v1/copilote-institution/contexte', institution.jetonAcces);
+  assert.equal(contexteCopilote.universite.code_universite, universite.code_universite);
+  const brouillon = await appeler('post', '/api/v1/copilote-institution/generer', institution.jetonAcces, {
+    type: 'PRESENTATION_FILIERE',
+    demande: 'Préparez une présentation claire de cette filière pour de futurs étudiants.',
+    ton: 'ACCUEILLANT', publicCible: 'futurs étudiants', codeFiliere: filiere.code_filiere,
+  });
+  assert.match(brouillon.code_generation, /^COP/);
+  assert.match(brouillon.resultat, /Génie logiciel/i);
+  const orientationInterdite = await request(app)
+    .get('/api/v1/orientation/configuration')
+    .set('Authorization', `Bearer ${institution.jetonAcces}`)
+    .expect(403);
+  assert.equal(orientationInterdite.body.succes, false);
+
   const affiliation = await appeler('post', '/api/v1/affiliations', etudiant.jetonAcces, {
     codeUniversite: universite.code_universite, codeFiliere: filiere.code_filiere,
     matriculeEtudiant: 'AI-INT-001', message: 'Demande de test du parcours CampusHub AI.',

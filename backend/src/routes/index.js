@@ -19,6 +19,7 @@ import { routeRecherche } from './recherche.routes.js';
 import { routeContact } from './contact.routes.js';
 import { routeStories } from './stories.routes.js';
 import { routeOrientation } from './orientation.routes.js';
+import { routeCopiloteInstitution } from './copilote-institution.routes.js';
 
 export const routesApi = Router();
 
@@ -33,6 +34,7 @@ routesApi.use('/recherche', routeRecherche);
 routesApi.use('/contact', routeContact);
 routesApi.use('/stories', routeStories);
 routesApi.use('/orientation', routeOrientation);
+routesApi.use('/copilote-institution', routeCopiloteInstitution);
 routesApi.use('/universites', routeUniversites);
 routesApi.use('/utilisateurs', routeUtilisateurs);
 routesApi.use('/profils', routeProfils);

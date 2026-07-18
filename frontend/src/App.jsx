@@ -12,6 +12,7 @@ import { ComparePage } from './pages/ComparePage.jsx';
 import { ContactPage } from './pages/ContactPage.jsx';
 import { HomePage } from './pages/HomePage.jsx';
 import { InstitutionDashboardPage } from './pages/InstitutionDashboardPage.jsx';
+import { InstitutionCopilotPage } from './pages/InstitutionCopilotPage.jsx';
 import { InstitutionProfilePage } from './pages/InstitutionProfilePage.jsx';
 import { InstitutionProgramsPage } from './pages/InstitutionProgramsPage.jsx';
 import { InstitutionPublicationsPage } from './pages/InstitutionPublicationsPage.jsx';
@@ -68,7 +69,7 @@ export function App() {
     <Route path="/partenariat" element={<UniversityApplicationPage />} />
     <Route path="/inscription-etudiant" element={<StudentRegistrationPage />} />
     <Route path="/inscription-visiteur" element={<VisitorRegistrationPage />} />
-    <Route path="/orientation" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><PageShell><OrientationAIPage /></PageShell></ProtectedRoute>} />
+    <Route path="/orientation" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT']}><PageShell><OrientationAIPage /></PageShell></ProtectedRoute>} />
     <Route path="/parametres" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><PageShell><section className="public-settings-page"><div className="container"><SettingsPage /></div></section></PageShell></ProtectedRoute>} />
 
     <Route element={protectAdmin}>
@@ -82,7 +83,6 @@ export function App() {
       <Route path="/administration/localisations" element={<AdminLocationsPage />} />
       <Route path="/administration/contacts" element={<AdminContactsPage />} />
       <Route path="/administration/reseau" element={<SocialFeedPage embedded />} />
-      <Route path="/administration/orientation" element={<OrientationAIPage embedded />} />
       <Route path="/administration/notifications" element={<NotificationsPage />} />
       <Route path="/administration/parametres" element={<SettingsPage />} />
     </Route>
@@ -97,7 +97,7 @@ export function App() {
       <Route path="/espace-universite/admissions" element={<InstitutionResourcePage type="admissions" />} />
       <Route path="/espace-universite/publications" element={<InstitutionPublicationsPage />} />
       <Route path="/espace-universite/reseau" element={<SocialFeedPage embedded />} />
-      <Route path="/espace-universite/orientation" element={<OrientationAIPage embedded />} />
+      <Route path="/espace-universite/copilote" element={<InstitutionCopilotPage />} />
       <Route path="/espace-universite/messages" element={<MessagesPage />} />
       <Route path="/espace-universite/affiliations" element={<UniversityAffiliationsPage />} />
       <Route path="/espace-universite/abonnement" element={<InstitutionSubscriptionPage />} />

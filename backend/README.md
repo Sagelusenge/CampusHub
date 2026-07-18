@@ -55,6 +55,8 @@ Avant le démarrage, exécutez les scripts du dossier `database` et adaptez les 
 | POST | `/api/v1/orientation/recommandations` | Connecté | Créer un dossier d’orientation |
 | POST | `/api/v1/orientation/analyser-bulletin` | Connecté | Analyser une image de bulletin |
 | GET | `/api/v1/orientation/dossiers` | Connecté | Historique personnel |
+| POST | `/api/v1/copilote-institution/generer` | UNIVERSITE | Créer un brouillon institutionnel |
+| GET | `/api/v1/copilote-institution/historique` | UNIVERSITE | Historique des brouillons |
 
 Toutes les réponses utilisent la forme `{ succes, donnees }` ou `{ succes, erreur }`.
 
@@ -76,10 +78,10 @@ Ajoutez ces variables dans `.env` :
 
 ```dotenv
 OPENAI_API_KEY=votre_cle_api
-OPENAI_MODEL=gpt-5.6
+OPENAI_MODEL=gpt-5.6-luna
 ```
 
-Sans clé, l’API ne simule pas un appel OpenAI : elle annonce le mode `DEMONSTRATION` et utilise son moteur MySQL déterministe. L’analyse de bulletin reste désactivée jusqu’à la configuration de la clé.
+`gpt-5.6-luna` conserve les capacités GPT‑5.6, l’entrée image et les appels de fonctions, avec un coût inférieur à l’alias `gpt-5.6` qui cible le modèle Sol. Sans clé, l’API ne simule pas un appel OpenAI : elle annonce le mode `DEMONSTRATION` et utilise son moteur MySQL déterministe. L’analyse de bulletin reste désactivée jusqu’à la configuration de la clé.
 
 ### Responsabilité d'un controller
 
