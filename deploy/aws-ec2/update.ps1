@@ -60,10 +60,16 @@ sudo chown ubuntu:ubuntu "$BACKUP_DIR"
 if [ -f "$COMPOSE_DIR/.env.runtime" ]; then
   cd "$COMPOSE_DIR"
   MYSQL_ROOT_PASSWORD=$(grep '^MYSQL_ROOT_PASSWORD=' .env.runtime | cut -d= -f2-)
-  sudo docker compose --env-file .env.runtime exec -T mysql \
-    mysqldump --no-tablespaces --single-transaction --routines --triggers \
-    -uroot -p"$MYSQL_ROOT_PASSWORD" campushub \
-    | gzip > "$BACKUP_DIR/campushub-$(date +%Y%m%d-%H%M%S).sql.gz"
+  BACKUP_FINAL="$BACKUP_DIR/campushub-$(date +%Y%m%d-%H%M%S).sql.gz"
+  BACKUP_TEMP="${BACKUP_FINAL}.tmp"
+  if sudo docker compose --env-file .env.runtime exec -T mysql \
+      mysqldump --no-tablespaces --single-transaction --routines --triggers \
+      -uroot -p"$MYSQL_ROOT_PASSWORD" campushub | gzip > "$BACKUP_TEMP"; then
+    mv "$BACKUP_TEMP" "$BACKUP_FINAL"
+  else
+    rm -f "$BACKUP_TEMP"
+    exit 1
+  fi
   find "$BACKUP_DIR" -maxdepth 1 -name 'campushub-*.sql.gz' -type f \
     -printf '%T@ %p\n' | sort -nr | tail -n +8 | cut -d' ' -f2- | xargs -r rm -f
 fi
