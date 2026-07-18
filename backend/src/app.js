@@ -26,6 +26,14 @@ const originesFrontend = environnement.NODE_ENV === 'production'
     ])];
 
 app.disable('x-powered-by');
+app.use('/uploads/documents', express.static(path.join(path.resolve(dossierTeleversements), 'documents'), {
+  maxAge: '7d', index: false,
+  setHeaders(reponse) {
+    reponse.setHeader('Content-Disposition', 'inline');
+    reponse.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    reponse.setHeader('Content-Security-Policy', `frame-ancestors 'self' ${originesFrontend.join(' ')}`);
+  },
+}));
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: originesFrontend, credentials: true }));
 app.use(express.json({ limit: '2mb' }));

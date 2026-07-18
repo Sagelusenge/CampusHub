@@ -1,4 +1,4 @@
-import { ArrowRight, BriefcaseBusiness, CalendarClock, ChevronLeft, ChevronRight, MapPin, Search, School, Users } from 'lucide-react';
+import { ArrowRight, BriefcaseBusiness, CalendarClock, ChevronLeft, ChevronRight, FileText, MapPin, Search, School, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
@@ -53,7 +53,7 @@ function OfferCard({ item }) {
   const school = item.categorie_etablissement === 'ECOLE_SECONDAIRE';
   return <article className="public-offer-card">
     <div className="public-offer-card__image">{item.url_image ? <img src={item.url_image} alt="" /> : <BriefcaseBusiness />}<span>{typeLabels[item.type_offre]}</span>{item.url_logo && <img className="public-offer-card__logo" src={item.url_logo} alt="" />}</div>
-    <div className="public-offer-card__body"><small>{school ? 'École secondaire' : item.categorie_etablissement === 'INSTITUT_SUPERIEUR' ? 'Institut supérieur' : 'Université'}</small><h2>{item.titre}</h2><Link className="offer-institution" to={`/universites/${item.code_universite}`}>{item.nom_etablissement}</Link><p>{item.description}</p><div className="offer-card-meta"><span><MapPin />{item.ville || item.province || 'RDC'}</span><span><Users />{targetLabels[item.public_cible]}</span><span><CalendarClock />{item.date_limite ? `Jusqu’au ${formatDate(item.date_limite)}` : 'Sans date limite'}</span></div><Link className="offer-card-link" to={`/offres/${item.code_offre}`}>Voir l’offre<ArrowRight /></Link></div>
+    <div className="public-offer-card__body"><small>{school ? 'École secondaire' : item.categorie_etablissement === 'INSTITUT_SUPERIEUR' ? 'Institut supérieur' : 'Université'}</small><h2>{item.titre}</h2><Link className="offer-institution" to={`/universites/${item.code_universite}`}>{item.nom_etablissement}</Link><p>{item.description}</p><div className="offer-card-meta"><span><MapPin />{item.ville || item.province || 'RDC'}</span><span><Users />{targetLabels[item.public_cible]}</span><span><CalendarClock />{item.date_limite ? `Jusqu’au ${formatDate(item.date_limite)}` : 'Sans date limite'}</span>{item.url_document && <span><FileText />Document PDF disponible</span>}</div><Link className="offer-card-link" to={`/offres/${item.code_offre}`}>Voir l’offre<ArrowRight /></Link></div>
   </article>;
 }
 

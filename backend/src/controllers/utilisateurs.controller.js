@@ -4,6 +4,8 @@ import {
   modifierMonCompte,
   nePlusSuivreUtilisateur,
   obtenirUtilisateurPublic,
+  obtenirMesStatistiquesSociales,
+  obtenirStatistiquesSocialesPubliques,
   suivreUtilisateur,
 } from '../services/utilisateurs-gestion.service.js';
 import { envoyerSucces } from '../utils/reponse-api.js';
@@ -12,6 +14,16 @@ import { envoyerSucces } from '../utils/reponse-api.js';
 export async function moi(requete, reponse) {
   const utilisateurConnecte = requete.utilisateur;
   return envoyerSucces(reponse, utilisateurConnecte, 200, undefined, 'Compte utilisateur chargé.');
+}
+
+export async function mesStatistiques(requete, reponse) {
+  const statistiques = await obtenirMesStatistiquesSociales(requete.utilisateur.id);
+  return envoyerSucces(reponse, statistiques, 200, undefined, 'Statistiques sociales chargées.');
+}
+
+export async function statistiques(requete, reponse) {
+  const statistiquesUtilisateur = await obtenirStatistiquesSocialesPubliques(requete.validees.params.code);
+  return envoyerSucces(reponse, statistiquesUtilisateur, 200, undefined, 'Statistiques sociales chargées.');
 }
 
 // PATCH /api/v1/utilisateurs/moi

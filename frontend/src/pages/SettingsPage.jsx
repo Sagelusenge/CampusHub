@@ -1,5 +1,5 @@
-import { Check, LockKeyhole, Save, ShieldCheck, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Check, Heart, LockKeyhole, Repeat2, Save, ShieldCheck, Trash2, UserCheck, Users, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { apiRequest } from '../api/client.js';
 import { DashboardPageHeader } from '../components/DashboardShell.jsx';
 import { FileUploadField } from '../components/FileUploadField.jsx';
@@ -18,6 +18,12 @@ export function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [stats, setStats] = useState({ nombre_abonnes: 0, nombre_suivis: 0, nombre_jaime: 0, nombre_republications: 0, abonnes: [], suivis: [] });
+  const [networkList, setNetworkList] = useState(null);
+
+  useEffect(() => {
+    apiRequest('/utilisateurs/moi/statistiques', { token }).then((response) => setStats(response.donnees)).catch(() => null);
+  }, [token]);
 
   async function submit(event) {
     event.preventDefault();
@@ -52,6 +58,10 @@ export function SettingsPage() {
     {message && <div className="alert alert--success"><Check />{message}</div>}
     {error && <div className="alert alert--error">{error}</div>}
     <form className="settings-grid" onSubmit={submit}>
+      <section className="app-panel settings-social-overview">
+        <div><h2>Votre présence sur CampusHub</h2><p>Suivez l’évolution de votre communauté et de vos publications.</p></div>
+        <div className="social-profile-stats"><button type="button" onClick={() => setNetworkList('abonnes')}><Users /><strong>{stats.nombre_abonnes || 0}</strong><span>Followers</span></button><button type="button" onClick={() => setNetworkList('suivis')}><UserCheck /><strong>{stats.nombre_suivis || 0}</strong><span>Following</span></button><article><Heart /><strong>{stats.nombre_jaime || 0}</strong><span>Likes reçus</span></article><article><Repeat2 /><strong>{stats.nombre_republications || 0}</strong><span>Republications</span></article></div>
+      </section>
       <section className="app-panel settings-card settings-card--form">
         <div className="settings-profile-heading">
           <span className="settings-profile-avatar">{form.urlPhotoProfil ? <img src={form.urlPhotoProfil} alt="Aperçu de ma photo de profil" /> : initials}</span>
@@ -72,6 +82,7 @@ export function SettingsPage() {
       <section className="app-panel settings-card"><span><LockKeyhole /></span><div><h2>Sécurité</h2><p>Le mot de passe est chiffré et n’est jamais affiché.</p><small>La modification du mot de passe sera disponible avec le module de récupération sécurisé.</small></div></section>
       <section className="app-panel settings-card"><span><ShieldCheck /></span><div><h2>Statut du compte</h2><p>{utilisateur?.email} • {utilisateur?.code_utilisateur}</p><small>Rôle : {utilisateur?.role} • Vérification : {utilisateur?.statut_verification}</small></div></section>
     </form>
+    {networkList && <div className="modal-backdrop" onMouseDown={() => setNetworkList(null)}><section className="social-list-modal" onMouseDown={(event) => event.stopPropagation()}><header><div><small>Réseau CampusHub</small><h2>{networkList === 'abonnes' ? 'Vos followers' : 'Vos abonnements'}</h2></div><button onClick={() => setNetworkList(null)}><X /></button></header><div>{(stats[networkList] || []).length ? stats[networkList].map((entry) => <article key={entry.code_utilisateur}><span>{entry.url_photo_profil ? <img src={entry.url_photo_profil} alt="" /> : entry.nom_affichage.slice(0, 2).toUpperCase()}</span><div><strong>{entry.nom_affichage}</strong><small>{entry.role} • {entry.code_utilisateur}</small></div></article>) : <p>Aucun profil dans cette liste pour le moment.</p>}</div></section></div>}
   </div>;
 }
 

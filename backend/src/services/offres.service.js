@@ -82,13 +82,14 @@ export async function creerOffre(utilisateur, donnees) {
     `INSERT INTO offres_etablissements
       (id, code_offre, universite_id, auteur_id, titre, type_offre, public_cible,
        description, conditions, modalite, ville, province, url_candidature,
-       email_contact, url_image, date_debut, date_limite, statut)
-     VALUES (0, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       email_contact, url_image, url_document, nom_document, date_debut, date_limite, statut)
+     VALUES (0, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [universite.id, utilisateur.id, donnees.titre, donnees.type, donnees.publicCible,
       donnees.description, donnees.conditions || null, donnees.modalite,
       donnees.ville || universite.ville, donnees.province || universite.province,
       donnees.urlCandidature || null, donnees.emailContact || universite.email || null,
-      donnees.urlImage || null, donnees.dateDebut || null, donnees.dateLimite || null,
+      donnees.urlImage || null, donnees.urlDocument || null, donnees.nomDocument || null,
+      donnees.dateDebut || null, donnees.dateLimite || null,
       donnees.publier ? 'PUBLIEE' : 'BROUILLON'],
   );
   const [lignes] = await baseDeDonnees.execute(
@@ -101,13 +102,14 @@ export async function modifierOffre(code, donnees, utilisateur) {
   const offre = await offreInterne(code);
   await verifierGestionUniversite(utilisateur, offre.universite_id);
   const normalisees = { ...donnees };
-  for (const champ of ['conditions', 'ville', 'province', 'urlCandidature', 'emailContact', 'urlImage', 'dateDebut', 'dateLimite']) {
+  for (const champ of ['conditions', 'ville', 'province', 'urlCandidature', 'emailContact', 'urlImage', 'urlDocument', 'nomDocument', 'dateDebut', 'dateLimite']) {
     if (normalisees[champ] === '') normalisees[champ] = null;
   }
   const { clause, valeurs } = construireMiseAJour(normalisees, {
     titre: 'titre', type: 'type_offre', publicCible: 'public_cible', description: 'description',
     conditions: 'conditions', modalite: 'modalite', ville: 'ville', province: 'province',
     urlCandidature: 'url_candidature', emailContact: 'email_contact', urlImage: 'url_image',
+    urlDocument: 'url_document', nomDocument: 'nom_document',
     dateDebut: 'date_debut', dateLimite: 'date_limite', statut: 'statut',
   });
   await baseDeDonnees.execute(`UPDATE offres_etablissements SET ${clause} WHERE id = ?`, [...valeurs, offre.id]);

@@ -3,7 +3,7 @@
 Cette configuration déploie CampusHub sur une instance Lightsail Linux avec :
 
 - React et Express dans une image Node.js de production ;
-- MySQL 8.4 et initialisation automatique des scripts `database/01` à `17` ;
+- MySQL 8.4 et initialisation automatique des scripts `database/01` à `18` ;
 - volumes persistants pour MySQL et les téléversements ;
 - HTTPS automatique avec Caddy et un domaine `nip.io` lié à l’IP statique ;
 - jeton d’actualisation dans un cookie `HttpOnly`, `Secure` et `SameSite=Lax`.

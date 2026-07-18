@@ -38,6 +38,45 @@ export async function obtenirUtilisateurPublic(code) {
   return lignes[0];
 }
 
+async function statistiquesSociales(utilisateurId) {
+  const [[compteurs], [abonnes], [suivis]] = await Promise.all([
+    baseDeDonnees.execute(
+      `SELECT
+        (SELECT COUNT(*) FROM abonnements_utilisateurs WHERE utilisateur_suivi_id = ?) AS nombre_abonnes,
+        (SELECT COUNT(*) FROM abonnements_utilisateurs WHERE abonne_id = ?) AS nombre_suivis,
+        (SELECT COUNT(*) FROM mentions_jaime j JOIN publications p ON p.id = j.publication_id
+         WHERE p.auteur_id = ?) AS nombre_jaime,
+        (SELECT COUNT(*) FROM publications p WHERE p.auteur_id = ?
+         AND (p.publication_source_id IS NOT NULL OR p.offre_source_id IS NOT NULL)) AS nombre_republications`,
+      [utilisateurId, utilisateurId, utilisateurId, utilisateurId],
+    ),
+    baseDeDonnees.execute(
+      `SELECT u.code_utilisateur, u.nom_affichage, u.url_photo_profil, u.role
+       FROM abonnements_utilisateurs a JOIN utilisateurs u ON u.id = a.abonne_id
+       WHERE a.utilisateur_suivi_id = ? ORDER BY a.date_creation DESC LIMIT 100`, [utilisateurId],
+    ),
+    baseDeDonnees.execute(
+      `SELECT u.code_utilisateur, u.nom_affichage, u.url_photo_profil, u.role
+       FROM abonnements_utilisateurs a JOIN utilisateurs u ON u.id = a.utilisateur_suivi_id
+       WHERE a.abonne_id = ? ORDER BY a.date_creation DESC LIMIT 100`, [utilisateurId],
+    ),
+  ]);
+  return { ...compteurs[0], abonnes, suivis };
+}
+
+export async function obtenirMesStatistiquesSociales(utilisateurId) {
+  return statistiquesSociales(utilisateurId);
+}
+
+export async function obtenirStatistiquesSocialesPubliques(code) {
+  const [lignes] = await baseDeDonnees.execute(
+    "SELECT id FROM utilisateurs WHERE code_utilisateur = ? AND statut_compte = 'ACTIF' LIMIT 1",
+    [code.toUpperCase()],
+  );
+  if (!lignes[0]) throw new ErreurApi(404, 'Utilisateur introuvable.');
+  return statistiquesSociales(lignes[0].id);
+}
+
 export async function modifierMonCompte(id, donnees) {
   const { clause, valeurs } = construireMiseAJour(donnees, {
     nomAffichage: 'nom_affichage', biographie: 'biographie',

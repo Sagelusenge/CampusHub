@@ -1,4 +1,4 @@
-import { BriefcaseBusiness, CalendarClock, Eye, ImagePlus, Plus, Send, Trash2, X } from 'lucide-react';
+import { BriefcaseBusiness, CalendarClock, Download, Eye, FileText, ImagePlus, Plus, Send, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest, uploadFile } from '../api/client.js';
@@ -29,6 +29,7 @@ export function InstitutionOffersPage() {
   const [error, setError] = useState('');
   const [form, setForm] = useState(emptyForm);
   const [image, setImage] = useState(null);
+  const [document, setDocument] = useState(null);
   const preview = useMemo(() => image ? URL.createObjectURL(image) : null, [image]);
   const isSchool = universite?.categorie_etablissement === 'ECOLE_SECONDAIRE';
 
@@ -57,14 +58,16 @@ export function InstitutionOffersPage() {
       ville: universite?.ville || '', province: universite?.province || '',
       emailContact: universite?.email || '',
     });
-    setImage(null); setError(''); setModal(true);
+    setImage(null); setDocument(null); setError(''); setModal(true);
   }
 
   async function submit(event) {
     event.preventDefault(); setSaving(true); setError('');
     try {
       let urlImage = null;
+      let documentTeleverse = null;
       if (image) urlImage = (await uploadFile('/televersements/images', image, token)).donnees.url;
+      if (document) documentTeleverse = (await uploadFile('/televersements/documents', document, token)).donnees;
       await apiRequest('/offres', {
         method: 'POST', token,
         body: {
@@ -76,9 +79,11 @@ export function InstitutionOffersPage() {
           dateDebut: form.dateDebut || null,
           dateLimite: form.dateLimite || null,
           urlImage,
+          urlDocument: documentTeleverse?.url || null,
+          nomDocument: documentTeleverse?.nom || null,
         },
       });
-      setModal(false); setImage(null); await load();
+      setModal(false); setImage(null); setDocument(null); await load();
     } catch (err) { setError(err.message); }
     finally { setSaving(false); }
   }
@@ -109,7 +114,7 @@ export function InstitutionOffersPage() {
       {loading ? <div className="content-loading"><Spinner />Chargement…</div> : items.length ? <div className="managed-offer-grid">
         {items.map((item) => <article className="managed-offer" key={item.code_offre}>
           <div className="managed-offer__visual">{item.url_image ? <img src={item.url_image} alt="" /> : <BriefcaseBusiness />}<span>{typeLabels[item.type_offre]}</span></div>
-          <div className="managed-offer__body"><div><StatusBadge status={item.statut} />{item.est_expiree === 1 && <span className="offer-expired">Expirée</span>}</div><h3>{item.titre}</h3><p>{item.description}</p><small><CalendarClock />{item.date_limite ? `Date limite : ${formatDate(item.date_limite)}` : 'Sans date limite'}</small></div>
+          <div className="managed-offer__body"><div><StatusBadge status={item.statut} />{item.est_expiree === 1 && <span className="offer-expired">Expirée</span>}</div><h3>{item.titre}</h3><p>{item.description}</p><small><CalendarClock />{item.date_limite ? `Date limite : ${formatDate(item.date_limite)}` : 'Sans date limite'}</small>{item.url_document && <a className="managed-offer__document" href={item.url_document} target="_blank" rel="noreferrer"><FileText />{item.nom_document || 'Document PDF'}<Download /></a>}</div>
           <div className="managed-offer__actions">
             {item.statut === 'BROUILLON' && <button onClick={() => changeStatus(item, 'PUBLIEE')}><Send />Publier</button>}
             {item.statut === 'PUBLIEE' && <button onClick={() => changeStatus(item, 'CLOTUREE')}><X />Clôturer</button>}
@@ -136,6 +141,7 @@ export function InstitutionOffersPage() {
         <Field label="Date limite"><input type="date" min={form.dateDebut || undefined} value={form.dateLimite} onChange={(e) => setForm({ ...form, dateLimite: e.target.value })} /></Field>
         <Field label="Lien de candidature" wide><input type="url" value={form.urlCandidature} onChange={(e) => setForm({ ...form, urlCandidature: e.target.value })} placeholder="https://… (facultatif)" /></Field>
         <label className="publication-image-picker form-field--wide"><span>Visuel de l’offre</span><div className="publication-image-picker__box">{preview ? <img src={preview} alt="Aperçu" /> : <><ImagePlus /><strong>Choisir une photo</strong><small>JPG, PNG ou WebP — 5 Mo maximum</small></>}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setImage(e.target.files?.[0] || null)} /></div>{image && <button type="button" onClick={() => setImage(null)}><X />Retirer la photo</button>}</label>
+        <label className="offer-document-picker form-field--wide"><span>Document détaillé de l’offre</span><div><FileText /><section><strong>{document?.name || 'Ajouter un document PDF'}</strong><small>Aperçu de la première page, lecture complète et téléchargement — 20 Mo maximum</small></section><input type="file" accept="application/pdf" onChange={(e) => setDocument(e.target.files?.[0] || null)} /></div>{document && <button type="button" onClick={() => setDocument(null)}><X />Retirer le PDF</button>}</label>
         <label className="switch-field form-field--wide"><input type="checkbox" checked={form.publier} onChange={(e) => setForm({ ...form, publier: e.target.checked })} /><span /><div><strong>Publier immédiatement</strong><small>Sinon, l’offre sera conservée comme brouillon.</small></div></label>
       </div>
       <button className="button button--full" disabled={saving}>{saving ? <Spinner /> : <><Send />Enregistrer l’offre</>}</button>

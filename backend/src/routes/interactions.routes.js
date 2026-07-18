@@ -8,6 +8,8 @@ import { gestionnaireAsync as ga } from '../utils/gestionnaire-async.js';
 export const routeInteractions = Router();
 routeInteractions.use(authentifier);
 routeInteractions.post('/publications/:code/jaime', valider(schemaCode, 'params'), ga(c.basculerJaime));
+routeInteractions.post('/publications/:code/reposter', valider(schemaCode, 'params'), ga(c.reposterPublication));
+routeInteractions.post('/offres/:code/reposter', valider(schemaCode, 'params'), ga(c.reposterOffre));
 routeInteractions.get('/favoris', ga(c.listerFavoris));
 routeInteractions.post('/publications/:code/favori', valider(schemaCode, 'params'), ga(c.ajouterFavori));
 routeInteractions.delete('/publications/:code/favori', valider(schemaCode, 'params'), ga(c.retirerFavori));

@@ -92,9 +92,11 @@ sudo mv "$REMOTE_DIRECTORY" "$PREVIOUS"
 sudo mv "$NEXT" "$REMOTE_DIRECTORY"
 cd "$REMOTE_DIRECTORY/deploy/aws-lightsail"
 MYSQL_ROOT_PASSWORD=$(grep '^MYSQL_ROOT_PASSWORD=' .env.runtime | cut -d= -f2-)
-sudo docker compose -p aws-lightsail --env-file .env.runtime exec -T mysql \
-  mysql -uroot -p"$MYSQL_ROOT_PASSWORD" campushub \
-  < "$REMOTE_DIRECTORY/database/17_offres_etablissements.sql"
+for migration in 17_offres_etablissements.sql 18_documents_offres_et_republications.sql; do
+  sudo docker compose -p aws-lightsail --env-file .env.runtime exec -T mysql \
+    mysql -uroot -p"$MYSQL_ROOT_PASSWORD" campushub \
+    < "$REMOTE_DIRECTORY/database/$migration"
+done
 sudo docker compose -p aws-lightsail --env-file .env.runtime \
   up -d --remove-orphans --force-recreate app caddy
 

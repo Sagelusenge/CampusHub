@@ -6,6 +6,8 @@ import {
   nePlusSuivreUniversite as retirerAbonnementUniversite,
   retirerFavori as supprimerFavori,
   suivreUniversite as ajouterAbonnementUniversite,
+  reposterOffre as republierOffre,
+  reposterPublication as republierPublication,
 } from '../services/interactions.service.js';
 import { envoyerSucces } from '../utils/reponse-api.js';
 
@@ -64,4 +66,14 @@ export async function nePlusSuivreUniversite(requete, reponse) {
 export async function listerUniversitesSuivies(requete, reponse) {
   const universites = await obtenirUniversitesSuivies(requete.utilisateur.id);
   return envoyerSucces(reponse, universites, 200, undefined, 'Universités suivies chargées.');
+}
+
+export async function reposterPublication(requete, reponse) {
+  const publication = await republierPublication(requete.utilisateur, requete.validees.params.code);
+  return envoyerSucces(reponse, publication, 201, undefined, 'Publication republiée dans votre fil.');
+}
+
+export async function reposterOffre(requete, reponse) {
+  const publication = await republierOffre(requete.utilisateur, requete.validees.params.code);
+  return envoyerSucces(reponse, publication, 201, undefined, 'Offre republiée dans votre fil.');
 }

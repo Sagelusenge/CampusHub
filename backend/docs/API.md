@@ -109,11 +109,15 @@ Les universités, instituts supérieurs et écoles secondaires utilisent les mê
 | PATCH | `/offres/:code` | Gestionnaire/Admin | Modifier, publier ou clôturer une offre |
 | DELETE | `/offres/:code` | Gestionnaire/Admin | Retirer une offre du catalogue |
 
+Une offre peut contenir un document PDF téléversé par `/televersements/documents`. La fiche publique affiche uniquement sa première page avant l’ouverture du lecteur complet.
+
 ## Interactions
 
 | Méthode | Route | Action |
 |---|---|---|
 | POST | `/interactions/publications/:code/jaime` | Ajouter ou retirer J'aime |
+| POST | `/interactions/publications/:code/reposter` | Republier une publication et ses médias |
+| POST | `/interactions/offres/:code/reposter` | Republier une offre dans le fil social |
 | GET | `/interactions/favoris` | Lire ses favoris |
 | POST/DELETE | `/interactions/publications/:code/favori` | Ajouter ou retirer un favori |
 | GET | `/interactions/universites-suivies` | Lire ses abonnements universitaires |

@@ -7,6 +7,7 @@ const racineBackend = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
 export const dossierTeleversements = path.join(racineBackend, 'uploads');
 mkdirSync(path.join(dossierTeleversements, 'images'), { recursive: true });
 mkdirSync(path.join(dossierTeleversements, 'preuves'), { recursive: true });
+mkdirSync(path.join(dossierTeleversements, 'documents'), { recursive: true });
 
 function stockage(sousDossier) {
   return multer.diskStorage({
@@ -27,4 +28,8 @@ export const televerserImage = multer({
 export const televerserPreuve = multer({
   storage: stockage('preuves'), limits: { fileSize: 8 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => cb(null, imagesAcceptees.has(file.mimetype) || file.mimetype === 'application/pdf'),
+});
+export const televerserDocument = multer({
+  storage: stockage('documents'), limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => cb(null, file.mimetype === 'application/pdf'),
 });

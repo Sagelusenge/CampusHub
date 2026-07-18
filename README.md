@@ -40,7 +40,7 @@ Le backend suit le chemin `route → middleware → controller → service → M
 
 Prérequis : Node.js 20+, MySQL 8+ et une clé API OpenAI pour le mode GPT‑5.6.
 
-1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `17`. Les scripts de démonstration contiennent uniquement des établissements fictifs explicitement nommés comme tels.
+1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `18`. Les scripts de démonstration contiennent uniquement des établissements fictifs explicitement nommés comme tels.
 2. Configurer et lancer l’API :
 
 ```powershell

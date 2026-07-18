@@ -8,3 +8,4 @@ function reponseFichier(requete, reponse, type) {
 }
 export function image(requete, reponse) { return reponseFichier(requete, reponse, 'images'); }
 export function preuve(requete, reponse) { return reponseFichier(requete, reponse, 'preuves'); }
+export function document(requete, reponse) { return reponseFichier(requete, reponse, 'documents'); }
