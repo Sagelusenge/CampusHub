@@ -32,7 +32,7 @@ export function UniversityCard({ university, index = 0 }) {
           <span><BookOpen size={16} /> {university.nombre_filieres || 0} filières</span>
           <span><Users size={16} /> {university.nombre_etudiants || 0} étudiants</span>
         </div>
-        <Link className="button button--outline button--full" to={`/universites/${university.code_universite}`}>Explorer le campus <ArrowUpRight size={17} /></Link>
+        <Link className="button button--outline button--full" to={`/universites/${university.code_universite}`}>Voir la fiche <ArrowUpRight size={17} /></Link>
       </div>
     </article>
   );

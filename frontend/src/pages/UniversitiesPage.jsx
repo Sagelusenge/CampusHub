@@ -1,5 +1,5 @@
 import {
-  ArrowRight, Building2, ChevronLeft, ChevronRight, GitCompareArrows,
+  Building2, ChevronLeft, ChevronRight, GitCompareArrows,
   GraduationCap, MapPin, Search, SlidersHorizontal,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -104,7 +104,7 @@ export function UniversitiesPage() {
       <div className="directory-category-summary"><span><Building2 />Universités</span><span><GraduationCap />Instituts supérieurs</span><span><MapPin />Écoles secondaires</span></div>
       {error && <div className="alert alert--error">{error}</div>}
       {loading ? <div className="content-loading"><Spinner />Chargement…</div> : items.length ? <>
-        <div className="university-grid directory-grid">{items.map((item, index) => <div key={item.code_universite}><UniversityCard university={item} index={(page - 1) * 10 + index} /><Link className="card-overlay-link" to={`/universites/${item.code_universite}`}>Voir la fiche <ArrowRight /></Link></div>)}</div>
+        <div className="university-grid directory-grid">{items.map((item, index) => <div key={item.code_universite}><UniversityCard university={item} index={(page - 1) * 10 + index} /></div>)}</div>
         <nav className="directory-pagination" aria-label="Pagination des établissements">
           <button type="button" disabled={!pagination.aPagePrecedente} onClick={() => changerPage(page - 1)}><ChevronLeft />Précédent</button>
           <span>Page <strong>{pagination.page}</strong> sur <strong>{pagination.totalPages}</strong></span>

@@ -5,13 +5,14 @@
 /* Annuaire paginé et page de contact centrée. */
 .contact-hero{text-align:center}.contact-hero p{margin-inline:auto}.contact-layout{max-width:1100px;margin-inline:auto}
 .directory-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.directory-grid .university-card{display:flex;flex-direction:column}
 .directory-grid .university-card__image{height:145px}
-.directory-grid .university-card__body{padding:15px}
+.directory-grid .university-card__body{padding:15px;display:flex;flex:1;flex-direction:column}
 .directory-grid .university-card__title{align-items:flex-start;flex-direction:column;gap:8px}
 .directory-grid .university-card__title h3{font-size:15px;line-height:1.28}
 .directory-grid .university-card__stats{align-items:flex-start;flex-direction:column;gap:6px}
 .directory-grid .official-badge{font-size:7px}
-.directory-grid .card-overlay-link{width:calc(100% - 28px);margin-inline:14px}
+.directory-grid .university-card__body>.button{margin-top:auto}
 .directory-pagination{margin-top:34px;display:flex;align-items:center;justify-content:center;gap:18px}
 .directory-pagination button{height:42px;padding:0 15px;display:inline-flex;align-items:center;gap:7px;border:1px solid #ccd8e6;border-radius:10px;color:#123a64;background:#fff;font-size:10px;font-weight:800;transition:.2s}
 .directory-pagination button:hover:not(:disabled){border-color:#0a8579;color:#08766b;transform:translateY(-1px)}
