@@ -16,6 +16,7 @@ export function Footer() {
         <div>
           <h3>Explorer</h3>
           <Link to="/universites">Établissements</Link>
+          <Link to="/offres">Offres et opportunités</Link>
           <Link to="/reseau">Réseau CampusHub</Link>
           <Link to="/partenariat">Partenariat universitaire</Link>
         </div>

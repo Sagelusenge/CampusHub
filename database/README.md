@@ -15,7 +15,8 @@
 6. Exécuter `08_packs_et_certification.sql` pour les trois packs et le badge séparé.
 7. Exécuter `09_messagerie_privee.sql` pour les conversations et messages privés.
 8. Exécuter `10_recherche_et_contact.sql` pour la recherche personnalisée et les contacts.
-9. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
+9. Exécuter ensuite les scripts `11` à `17` dans l’ordre pour les cartes, stories, outils IA, comptes de démonstration et offres d’établissement.
+10. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
 
 ## Création depuis le client MySQL
 
@@ -35,6 +36,9 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/11_etablis
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/12_campushub_ai_orientation.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/13_donnees_demo_campushub_ai.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/14_copilote_institutionnel.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/15_etablissements_et_comptes_demo.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/16_etudiants_demo.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/17_offres_etablissements.sql;
 ```
 
 Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquement des établissements fictifs clairement nommés « Démonstration » pour tester le conseiller sans faire passer ces données pour des institutions réelles.
@@ -55,6 +59,7 @@ Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquemen
 - Réseau éphémère : `stories`, `vues_stories`.
 - Orientation IA : `dossiers_orientation` et `vue_impact_orientation_ia`.
 - Copilote institutionnel : `generations_copilote_institution` et `vue_usage_copilote_institution`.
+- Offres d’établissement : `offres_etablissements` et `vue_offres_etablissements`.
 
 Les fichiers médias ne sont pas enregistrés directement dans MySQL. La table `medias_publication` conserve leur URL et leurs informations techniques.
 
@@ -65,6 +70,7 @@ Les clés internes numériques et les codes lisibles sont attribués par des tri
 - `ISIG00012026` pour la première université ISIG créée en 2026 ;
 - `ETU00012026` pour le premier étudiant créé en 2026 ;
 - `PUB00012026` pour la première publication créée en 2026.
+- `OFF000012026` pour la première offre créée en 2026.
 
 La table `compteurs_sequences` garantit que deux insertions simultanées ne reçoivent jamais le même numéro. Il ne faut pas modifier manuellement cette table.
 

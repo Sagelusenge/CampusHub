@@ -34,6 +34,9 @@ import { UniversityApplicationPage } from './pages/UniversityApplicationPage.jsx
 import { UniversityAffiliationsPage } from './pages/UniversityAffiliationsPage.jsx';
 import { UniversityDetailPage } from './pages/UniversityDetailPage.jsx';
 import { VisitorRegistrationPage } from './pages/VisitorRegistrationPage.jsx';
+import { InstitutionOffersPage } from './pages/InstitutionOffersPage.jsx';
+import { OffersPage } from './pages/OffersPage.jsx';
+import { OfferDetailPage } from './pages/OfferDetailPage.jsx';
 
 const protectAdmin = <ProtectedRoute roles={['ADMINISTRATEUR']}><DashboardShell role="admin" /></ProtectedRoute>;
 const protectInstitution = <ProtectedRoute roles={['UNIVERSITE']}><InstitutionProvider><DashboardShell role="institution" /></InstitutionProvider></ProtectedRoute>;
@@ -66,6 +69,8 @@ export function App() {
     <Route path="/reseau" element={protectNetwork} />
     <Route path="/actualites" element={<Navigate to="/reseau" replace />} />
     <Route path="/contact" element={<ContactPage />} />
+    <Route path="/offres" element={<OffersPage />} />
+    <Route path="/offres/:code" element={<OfferDetailPage />} />
     <Route path="/connexion" element={<ConnectedHome><LoginPage /></ConnectedHome>} />
     <Route path="/partenariat" element={<UniversityApplicationPage />} />
     <Route path="/inscription-etudiant" element={<StudentRegistrationPage />} />
@@ -97,6 +102,7 @@ export function App() {
       <Route path="/espace-universite/infrastructures" element={<InstitutionResourcePage type="infrastructures" />} />
       <Route path="/espace-universite/admissions" element={<InstitutionResourcePage type="admissions" />} />
       <Route path="/espace-universite/publications" element={<InstitutionPublicationsPage />} />
+      <Route path="/espace-universite/offres" element={<InstitutionOffersPage />} />
       <Route path="/espace-universite/reseau" element={<SocialFeedPage embedded />} />
       <Route path="/espace-universite/copilote" element={<InstitutionCopilotPage />} />
       <Route path="/espace-universite/messages" element={<MessagesPage />} />

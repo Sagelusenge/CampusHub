@@ -3,6 +3,7 @@ import {
   Bell,
   Bot,
   BookOpen,
+  BriefcaseBusiness,
   Building2,
   ChevronLeft,
   ChevronRight,
@@ -30,6 +31,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useInstitution } from '../context/InstitutionContext.jsx';
 
 const adminNavigation = [
   { to: '/administration', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
@@ -45,24 +47,30 @@ const adminNavigation = [
   { to: '/administration/notifications', label: 'Notifications', icon: Bell },
 ];
 
-const institutionNavigation = [
-  { to: '/espace-universite', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
-  { to: '/espace-universite/fiche', label: 'Fiche publique', icon: Building2 },
-  { label: 'Campus & offre', icon: School, children: [
-    { to: '/espace-universite/campus', label: 'Campus', icon: MapPin },
-    { to: '/espace-universite/formations', label: 'Facultés & filières', icon: GraduationCap },
-    { to: '/espace-universite/services', label: 'Services', icon: Wrench },
-    { to: '/espace-universite/infrastructures', label: 'Infrastructures', icon: Activity },
-    { to: '/espace-universite/admissions', label: 'Admissions', icon: BookOpen },
-  ] },
-  { to: '/espace-universite/publications', label: 'Publications', icon: FileText },
-  { to: '/espace-universite/reseau', label: 'Réseau CampusHub', icon: Newspaper },
-  { to: '/espace-universite/copilote', label: 'Copilote établissement', icon: Bot },
-  { to: '/espace-universite/messages', label: 'Messages', icon: MessageCircle },
-  { to: '/espace-universite/affiliations', label: 'Demandes étudiantes', icon: ClipboardCheck },
-  { to: '/espace-universite/abonnement', label: 'Abonnement', icon: CreditCard },
-  { to: '/espace-universite/notifications', label: 'Notifications', icon: Bell },
-];
+function institutionNavigation(isSchool) {
+  const navigation = [
+    { to: '/espace-universite', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
+    { to: '/espace-universite/fiche', label: 'Fiche publique', icon: Building2 },
+    { label: isSchool ? 'École' : 'Campus & formations', icon: School, children: [
+      { to: '/espace-universite/campus', label: isSchool ? 'Sites scolaires' : 'Campus', icon: MapPin },
+      { to: '/espace-universite/formations', label: isSchool ? 'Sections & options' : 'Facultés & filières', icon: GraduationCap },
+      { to: '/espace-universite/services', label: isSchool ? 'Services scolaires' : 'Services', icon: Wrench },
+      { to: '/espace-universite/infrastructures', label: 'Infrastructures', icon: Activity },
+      { to: '/espace-universite/admissions', label: isSchool ? 'Conditions d’inscription' : 'Admissions', icon: BookOpen },
+    ] },
+    { to: '/espace-universite/offres', label: 'Offres', icon: BriefcaseBusiness },
+    { to: '/espace-universite/publications', label: 'Publications', icon: FileText },
+    { to: '/espace-universite/reseau', label: 'Réseau CampusHub', icon: Newspaper },
+  ];
+  if (!isSchool) navigation.push({ to: '/espace-universite/copilote', label: 'Copilote établissement', icon: Bot });
+  navigation.push(
+    { to: '/espace-universite/messages', label: 'Messages', icon: MessageCircle },
+    { to: '/espace-universite/affiliations', label: isSchool ? 'Demandes des élèves' : 'Demandes étudiantes', icon: ClipboardCheck },
+    { to: '/espace-universite/abonnement', label: 'Abonnement', icon: CreditCard },
+    { to: '/espace-universite/notifications', label: 'Notifications', icon: Bell },
+  );
+  return navigation;
+}
 
 const studentNavigation = [
   { to: '/espace-etudiant', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
@@ -94,6 +102,7 @@ const titles = {
   '/espace-universite/infrastructures': 'Infrastructures',
   '/espace-universite/admissions': 'Conditions d’admission',
   '/espace-universite/publications': 'Publications',
+  '/espace-universite/offres': 'Offres',
   '/espace-universite/reseau': 'Réseau CampusHub',
   '/espace-universite/copilote': 'Copilote établissement',
   '/espace-universite/messages': 'Messages',
@@ -110,6 +119,16 @@ const titles = {
 };
 
 export function DashboardShell({ role }) {
+  if (role === 'institution') return <InstitutionDashboardShell />;
+  return <DashboardShellContent role={role} />;
+}
+
+function InstitutionDashboardShell() {
+  const { universite } = useInstitution();
+  return <DashboardShellContent role="institution" institution={universite} />;
+}
+
+function DashboardShellContent({ role, institution }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -117,7 +136,8 @@ export function DashboardShell({ role }) {
   const { utilisateur, token, deconnexion } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const navigation = role === 'admin' ? adminNavigation : role === 'student' ? studentNavigation : institutionNavigation;
+  const isSchool = institution?.categorie_etablissement === 'ECOLE_SECONDAIRE';
+  const navigation = role === 'admin' ? adminNavigation : role === 'student' ? studentNavigation : institutionNavigation(isSchool);
   const displayName = utilisateur?.nom_affichage || utilisateur?.nomAffichage || (role === 'admin' ? 'Administrateur' : 'Gestionnaire');
   const initials = displayName.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase();
 
@@ -137,7 +157,7 @@ export function DashboardShell({ role }) {
       <aside className={`app-sidebar ${mobileOpen ? 'app-sidebar--open' : ''}`}>
         <div className="app-brand">
           <span className="app-brand__mark"><Building2 /></span>
-          <span className="app-brand__text"><strong>CampusHub</strong><small>{role === 'admin' ? 'Administration centrale' : role === 'student' ? 'Espace étudiant' : 'Espace institutionnel'}</small></span>
+          <span className="app-brand__text"><strong>CampusHub</strong><small>{role === 'admin' ? 'Administration centrale' : role === 'student' ? 'Espace étudiant' : isSchool ? 'Espace scolaire' : 'Espace institutionnel'}</small></span>
           <button className="sidebar-mobile-close" onClick={() => setMobileOpen(false)} aria-label="Fermer le menu"><X /></button>
         </div>
 
@@ -170,17 +190,28 @@ export function DashboardShell({ role }) {
         <header className="app-topbar">
           <div className="app-topbar__start">
             <button className="mobile-menu-trigger" onClick={() => setMobileOpen(true)} aria-label="Ouvrir le menu"><Menu /></button>
-            <div><small>{role === 'admin' ? 'Administration' : role === 'student' ? 'Mon parcours' : 'Mon université'}</small><strong>{titles[location.pathname] || 'CampusHub'}</strong></div>
+            <div><small>{role === 'admin' ? 'Administration' : role === 'student' ? 'Mon parcours' : isSchool ? 'Mon école' : 'Mon université'}</small><strong>{schoolTitle(location.pathname, isSchool) || titles[location.pathname] || 'CampusHub'}</strong></div>
           </div>
           <div className="app-topbar__actions">
             <NavLink className="topbar-icon" to={role === 'admin' ? '/administration/notifications' : role === 'student' ? '/espace-etudiant/notifications' : '/espace-universite/notifications'} aria-label={`${unread} notification(s) non lue(s)`}><Bell />{unread > 0 && <span title={`${unread} non lue(s)`} />}</NavLink>
-            <NavLink className="topbar-profile" to={role === 'admin' ? '/administration/parametres' : role === 'student' ? '/espace-etudiant/parametres' : '/espace-universite/parametres'} title="Modifier mon profil"><div><strong>{displayName}</strong><small>{role === 'admin' ? 'Administrateur' : role === 'student' ? 'Étudiant' : 'Gestionnaire'}</small></div><span>{utilisateur?.url_photo_profil ? <img src={utilisateur.url_photo_profil} alt={`Photo de ${displayName}`} /> : initials}</span></NavLink>
+            <NavLink className="topbar-profile" to={role === 'admin' ? '/administration/parametres' : role === 'student' ? '/espace-etudiant/parametres' : '/espace-universite/parametres'} title="Modifier mon profil"><div><strong>{displayName}</strong><small>{role === 'admin' ? 'Administrateur' : role === 'student' ? 'Étudiant' : isSchool ? 'Gestionnaire scolaire' : 'Gestionnaire'}</small></div><span>{utilisateur?.url_photo_profil ? <img src={utilisateur.url_photo_profil} alt={`Photo de ${displayName}`} /> : initials}</span></NavLink>
           </div>
         </header>
         <main className="app-content"><Outlet /></main>
       </div>
     </div>
   );
+}
+
+function schoolTitle(path, isSchool) {
+  if (!isSchool) return null;
+  return {
+    '/espace-universite/campus': 'Sites scolaires',
+    '/espace-universite/formations': 'Sections et options',
+    '/espace-universite/services': 'Services scolaires',
+    '/espace-universite/admissions': 'Conditions d’inscription',
+    '/espace-universite/affiliations': 'Demandes des élèves',
+  }[path];
 }
 
 export function DashboardPageHeader({ title, description, actions }) {

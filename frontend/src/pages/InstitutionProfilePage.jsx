@@ -22,6 +22,7 @@ export function InstitutionProfilePage() {
   const [mediaLoading, setMediaLoading] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const isSchool = (universite?.categorie_etablissement || form.categorie) === 'ECOLE_SECONDAIRE';
 
   useEffect(() => {
     const source = universite || {};
@@ -118,7 +119,7 @@ export function InstitutionProfilePage() {
 
   return <div>
     <DashboardPageHeader
-      title={universite ? 'Fiche publique' : 'Créer la fiche universitaire'}
+      title={universite ? 'Fiche publique' : 'Créer la fiche d’établissement'}
       description="Modifiez directement la photo de profil et la couverture depuis l’aperçu."
       actions={universite && <StatusBadge status={universite.statut_verification} />}
     />
@@ -138,7 +139,7 @@ export function InstitutionProfilePage() {
           <MediaPicker label={form.urlLogo ? 'Changer le profil' : 'Ajouter un profil'} loading={mediaLoading === 'urlLogo'} onChange={(file) => changerMedia('urlLogo', file)} compact />
           {form.urlLogo && <button type="button" className="profile-media-remove" disabled={Boolean(mediaLoading)} onClick={() => retirerMedia('urlLogo')} aria-label="Retirer la photo de profil"><Trash2 /></button>}
         </div>
-        <div><h2>{form.nom || 'Nom de l’université'}</h2><p><MapPin />{form.ville || 'Ville à choisir'}, {form.province || 'Province'}</p></div>
+        <div><h2>{form.nom || (isSchool ? 'Nom de l’école' : 'Nom de l’université')}</h2><p><MapPin />{form.ville || 'Ville à choisir'}, {form.province || 'Province'}</p></div>
       </section>
 
       <section className="app-panel institution-media-help">

@@ -14,8 +14,15 @@ const configs = {
   admissions:{title:'Conditions d’admission',description:'Expliquez clairement les exigences d’inscription.',path:'conditions-admission',code:'code_condition',icon:Check,fields:[['titre','Titre','text'],['niveauDiplome','Niveau','select'],['description','Description complète','textarea']]},
 };
 
+const schoolConfigs = {
+  campus:{...configs.campus,title:'Sites scolaires',description:'Gérez le site principal et les éventuelles annexes de votre école.'},
+  services:{...configs.services,title:'Services scolaires',description:'Présentez les services proposés aux élèves et aux familles.'},
+  infrastructures:{...configs.infrastructures,description:'Inventoriez les salles, laboratoires, terrains et équipements de votre école.'},
+  admissions:{...configs.admissions,title:'Conditions d’inscription',description:'Expliquez les documents, niveaux et conditions nécessaires pour inscrire un élève.'},
+};
+
 export function InstitutionResourcePage({type}) {
-  const config=configs[type]; const {token}=useAuth(); const {universite}=useInstitution();
+  const {token}=useAuth(); const {universite}=useInstitution(); const isSchool=universite?.categorie_etablissement==='ECOLE_SECONDAIRE'; const config=(isSchool?schoolConfigs:configs)[type];
   const [items,setItems]=useState([]); const [loading,setLoading]=useState(true); const [modal,setModal]=useState(false); const [form,setForm]=useState({}); const [saving,setSaving]=useState(false); const [error,setError]=useState(''); const [search,setSearch]=useState('');
   const load=useCallback(async()=>{if(!universite){setLoading(false);return;}setLoading(true);try{setItems((await apiRequest(`/catalogue/universites/${universite.code_universite}/${config.path}`,{token})).donnees||[]);}catch(err){setError(err.message);}finally{setLoading(false);}},[config.path,token,universite]);
   useEffect(()=>{
@@ -32,4 +39,4 @@ export function InstitutionResourcePage({type}) {
 
 function ResourceField({field,label,kind,value,onChange}){if(kind==='checkbox')return <label className="switch-field"><input type="checkbox" checked={Boolean(value)} onChange={e=>onChange(e.target.checked)}/><span/><div><strong>{label}</strong></div></label>;if(kind==='textarea')return <label className="editor-field"><span>{label}</span><textarea required={field==='description'} rows="4" value={value} onChange={e=>onChange(e.target.value)}/></label>;if(kind==='select')return <label className="editor-field"><span>{label}</span><select value={value} onChange={e=>onChange(e.target.value)}>{['CERTIFICAT','LICENCE','MASTER','DOCTORAT','AUTRE'].map(item=><option key={item}>{item}</option>)}</select></label>;return <label className="editor-field"><span>{label}</span><input required={['nom','titre','ville','province','categorie'].includes(field)} type={kind} min={kind==='number'?0:undefined} value={value} onChange={e=>onChange(e.target.value)}/></label>}
 function EmptyResource({icon:Icon}){return <div className="management-empty"><span><Icon/></span><h3>Aucun élément ajouté</h3><p>Utilisez le bouton « Ajouter » pour commencer.</p></div>}
-function MissingUniversity(){return <div className="no-university"><Building2/><h2>Créez d’abord votre fiche universitaire</h2><p>Cette rubrique sera disponible après la création de la fiche.</p></div>}
+function MissingUniversity(){return <div className="no-university"><Building2/><h2>Créez d’abord votre fiche d’établissement</h2><p>Cette rubrique sera disponible après la création de la fiche.</p></div>}

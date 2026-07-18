@@ -96,6 +96,19 @@ DELETE /catalogue/campus/:codeCampus/filieres/:codeFiliere
 | POST | `/publications/:code/commentaires` | Connecté | Commenter ou répondre |
 | PATCH/DELETE | `/publications/commentaires/:codeCommentaire` | Auteur/Admin | Modifier ou supprimer un commentaire |
 
+## Offres des établissements
+
+Les universités, instituts supérieurs et écoles secondaires utilisent les mêmes contrôles d’accès de gestionnaire, mais choisissent un type et un public adaptés à leur établissement.
+
+| Méthode | Route | Accès | Action |
+|---|---|---|---|
+| GET | `/offres` | Public | Rechercher les offres actives et non expirées |
+| GET | `/offres/:code` | Public | Lire une offre active |
+| GET | `/offres/moi` | Gestionnaire | Lire les brouillons et offres de son établissement |
+| POST | `/offres` | Gestionnaire/Admin | Créer un brouillon ou publier une offre |
+| PATCH | `/offres/:code` | Gestionnaire/Admin | Modifier, publier ou clôturer une offre |
+| DELETE | `/offres/:code` | Gestionnaire/Admin | Retirer une offre du catalogue |
+
 ## Interactions
 
 | Méthode | Route | Action |

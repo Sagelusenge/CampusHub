@@ -91,6 +91,10 @@ sudo docker compose -p aws-lightsail --env-file .env.runtime build app
 sudo mv "$REMOTE_DIRECTORY" "$PREVIOUS"
 sudo mv "$NEXT" "$REMOTE_DIRECTORY"
 cd "$REMOTE_DIRECTORY/deploy/aws-lightsail"
+MYSQL_APP_PASSWORD=$(grep '^MYSQL_APP_PASSWORD=' .env.runtime | cut -d= -f2-)
+sudo docker compose -p aws-lightsail --env-file .env.runtime exec -T mysql \
+  mysql -ucampushub -p"$MYSQL_APP_PASSWORD" campushub \
+  < "$REMOTE_DIRECTORY/database/17_offres_etablissements.sql"
 sudo docker compose -p aws-lightsail --env-file .env.runtime \
   up -d --remove-orphans --force-recreate app caddy
 
