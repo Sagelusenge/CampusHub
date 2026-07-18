@@ -46,6 +46,7 @@ export async function rechercherUniversites(filtres) {
     const parId = new Map(metadonnees.map((item) => [Number(item.id), item]));
     etablissements = etablissements.map((item) => ({ ...item, ...parId.get(Number(item.id)) }));
   }
+  if (filtres.statut) etablissements = etablissements.filter((item) => item.statut_verification === filtres.statut);
   if (filtres.categorie) etablissements = etablissements.filter((item) => item.categorie_etablissement === filtres.categorie);
   const ids = etablissements.map((item) => item.id);
   let campus = [];
@@ -57,12 +58,36 @@ export async function rechercherUniversites(filtres) {
     );
   }
   const rechercheCampus = filtres.campus?.toLowerCase();
-  return etablissements.map((universite) => ({
+  const rechercheTexte = filtres.recherche?.toLowerCase();
+  const universites = etablissements.map((universite) => ({
     ...universite,
     est_certifiee: idsCertifies.has(Number(universite.id)),
     campus: campus.filter((item) => Number(item.universite_id) === Number(universite.id)),
   })).filter((item) => !rechercheCampus || item.campus.some((site) =>
-    `${site.code_campus} ${site.nom} ${site.ville} ${site.province}`.toLowerCase().includes(rechercheCampus)));
+    `${site.code_campus} ${site.nom} ${site.ville} ${site.province}`.toLowerCase().includes(rechercheCampus)))
+    .filter((item) => !rechercheTexte || `${item.nom} ${item.sigle || ''}`.toLowerCase().includes(rechercheTexte));
+
+  if (filtres.page === undefined && filtres.limite === undefined) {
+    return { universites, meta: undefined };
+  }
+
+  const limite = filtres.limite ?? 10;
+  const total = universites.length;
+  const totalPages = Math.max(1, Math.ceil(total / limite));
+  const page = Math.min(filtres.page ?? 1, totalPages);
+  const debut = (page - 1) * limite;
+
+  return {
+    universites: universites.slice(debut, debut + limite),
+    meta: {
+      page,
+      limite,
+      total,
+      totalPages,
+      aPagePrecedente: page > 1,
+      aPageSuivante: page < totalPages,
+    },
+  };
 }
 
 export async function obtenirUniversiteParCode(code) {

@@ -3,14 +3,18 @@ import { z } from 'zod';
 const texteOptionnel = (maximum) => z.string().trim().max(maximum).optional();
 
 export const schemaRechercheUniversites = z.object({
+  recherche: texteOptionnel(180),
   ville: texteOptionnel(100),
   province: texteOptionnel(100),
   type: z.enum(['PUBLIQUE', 'PRIVEE']).optional(),
+  statut: z.enum(['NON_VERIFIEE', 'EN_ATTENTE', 'VERIFIEE', 'REJETEE']).optional(),
   categorie: z.enum(['UNIVERSITE', 'INSTITUT_SUPERIEUR', 'ECOLE_SECONDAIRE']).optional(),
   campus: texteOptionnel(150),
   filiere: texteOptionnel(180),
   fraisMaximum: z.coerce.number().nonnegative().optional(),
   service: texteOptionnel(140),
+  page: z.coerce.number().int().min(1).optional(),
+  limite: z.coerce.number().int().min(1).max(100).optional(),
 });
 
 export const schemaCodeUniversite = z.object({

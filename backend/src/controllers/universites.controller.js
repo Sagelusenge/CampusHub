@@ -13,9 +13,9 @@ import { envoyerSucces } from '../utils/reponse-api.js';
 // GET /api/v1/universites
 export async function lister(requete, reponse) {
   const filtres = requete.validees.query;
-  const universites = await rechercherUniversites(filtres);
+  const { universites, meta } = await rechercherUniversites(filtres);
 
-  return envoyerSucces(reponse, universites, 200, undefined, 'Universités chargées.');
+  return envoyerSucces(reponse, universites, 200, meta, 'Universités chargées.');
 }
 
 // GET /api/v1/universites/:code
