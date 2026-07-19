@@ -18,7 +18,7 @@ export async function listerUtilisateurs(filtres) {
   }
   const where = conditions.join(' AND ');
   const [[lignes], [comptage]] = await Promise.all([
-    baseDeDonnees.execute(
+    baseDeDonnees.query(
       `SELECT ${colonnesPubliques}, email, statut_compte FROM utilisateurs
        WHERE ${where} ORDER BY date_creation DESC LIMIT ? OFFSET ?`,
       [...valeurs, limite, decalage],

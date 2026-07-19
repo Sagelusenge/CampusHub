@@ -23,7 +23,7 @@ export function LoginPage() {
       const destination = location.state?.from?.pathname
         || (session.utilisateur.role === 'ADMINISTRATEUR' ? '/administration'
           : session.utilisateur.role === 'ETUDIANT' ? '/espace-etudiant'
-            : session.utilisateur.role === 'UNIVERSITE' ? '/espace-universite' : '/reseau');
+            : session.utilisateur.role === 'UNIVERSITE' ? '/espace-universite' : '/');
       navigate(destination, { replace: true });
     } catch (err) {
       setError(err.message);

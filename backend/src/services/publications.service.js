@@ -21,7 +21,7 @@ export async function listerPublications(filtres) {
   if (filtres.etiquette) { conditions.push('JSON_SEARCH(etiquettes, \'one\', ?) IS NOT NULL'); valeurs.push(`%${filtres.etiquette}%`); }
   const where = conditions.join(' AND ');
   const [[lignes], [compte]] = await Promise.all([
-    baseDeDonnees.execute(
+    baseDeDonnees.query(
       `SELECT v.*,
         (SELECT m.url_media FROM medias_publication m
          WHERE m.publication_id = v.id ORDER BY m.ordre_affichage, m.id LIMIT 1) AS url_media,

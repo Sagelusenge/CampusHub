@@ -13,7 +13,7 @@ export async function listerSignalements(filtres) {
   const where = filtres.statut ? 'WHERE s.statut_signalement = ?' : '';
   const valeurs = filtres.statut ? [filtres.statut] : [];
   const [[lignes], [compte]] = await Promise.all([
-    baseDeDonnees.execute(
+    baseDeDonnees.query(
       `SELECT s.*, d.code_utilisateur AS code_declarant, d.nom_affichage AS nom_declarant,
        p.code_publication, p.titre AS titre_publication, m.nom_affichage AS nom_moderateur
        FROM signalements s

@@ -6,7 +6,7 @@ export async function listerNotifications(utilisateurId, filtres) {
   const { page, limite, decalage } = pagination(filtres.page, filtres.limite);
   const conditionLecture = filtres.nonLues ? 'AND n.date_lecture IS NULL' : '';
   const [[lignes], [compte], [nonLues]] = await Promise.all([
-    baseDeDonnees.execute(
+    baseDeDonnees.query(
       `SELECT n.*, a.code_utilisateur AS code_acteur, a.nom_affichage AS nom_acteur
        FROM notifications n LEFT JOIN utilisateurs a ON a.id = n.acteur_id
        WHERE n.destinataire_id = ? ${conditionLecture}

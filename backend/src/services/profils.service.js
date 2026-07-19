@@ -11,7 +11,7 @@ export async function listerProfils(filtres) {
   if (filtres.competence) { conditions.push('JSON_SEARCH(competences, \'one\', ?) IS NOT NULL'); valeurs.push(`%${filtres.competence}%`); }
   const where = conditions.join(' AND ');
   const [[lignes], [compte]] = await Promise.all([
-    baseDeDonnees.execute(
+    baseDeDonnees.query(
       `SELECT * FROM vue_profils_etudiants_publics WHERE ${where}
        ORDER BY nombre_publications DESC, nom_affichage LIMIT ? OFFSET ?`,
       [...valeurs, limite, decalage],

@@ -53,7 +53,7 @@ export async function listerAudit(filtres) {
   if (filtres.action) { conditions.push('a.action = ?'); valeurs.push(filtres.action.toUpperCase()); }
   const where = conditions.join(' AND ');
   const [[lignes], [compte]] = await Promise.all([
-    baseDeDonnees.execute(
+    baseDeDonnees.query(
       `SELECT a.*, u.code_utilisateur, u.nom_affichage
        FROM journal_audit a LEFT JOIN utilisateurs u ON u.id = a.utilisateur_id
        WHERE ${where} ORDER BY a.date_creation DESC LIMIT ? OFFSET ?`, [...valeurs, limite, decalage],

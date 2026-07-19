@@ -15,7 +15,7 @@
 6. Exécuter `08_packs_et_certification.sql` pour les trois packs et le badge séparé.
 7. Exécuter `09_messagerie_privee.sql` pour les conversations et messages privés.
 8. Exécuter `10_recherche_et_contact.sql` pour la recherche personnalisée et les contacts.
-9. Exécuter ensuite les scripts `11` à `18` dans l’ordre pour les cartes, stories, outils IA, comptes de démonstration, offres, documents PDF et republications.
+9. Exécuter ensuite les scripts `11` à `19` dans l’ordre pour les cartes, stories, outils IA, comptes de démonstration, offres, documents PDF, republications et options scolaires comparables.
 10. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
 
 ## Création depuis le client MySQL
@@ -40,6 +40,7 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/15_etablis
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/16_etudiants_demo.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/17_offres_etablissements.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/18_documents_offres_et_republications.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/19_options_ecoles_secondaires.sql;
 ```
 
 Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquement des établissements fictifs clairement nommés « Démonstration » pour tester le conseiller sans faire passer ces données pour des institutions réelles.

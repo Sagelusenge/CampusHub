@@ -34,7 +34,14 @@ app.use('/uploads/documents', express.static(path.join(path.resolve(dossierTelev
     reponse.setHeader('Content-Security-Policy', `frame-ancestors 'self' ${originesFrontend.join(' ')}`);
   },
 }));
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: {
+    directives: {
+      frameSrc: ["'self'", 'https://www.openstreetmap.org'],
+    },
+  },
+}));
 app.use(cors({ origin: originesFrontend, credentials: true }));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));

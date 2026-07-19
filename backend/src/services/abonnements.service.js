@@ -46,7 +46,7 @@ export async function listerPaiements(filtres) {
   const where = filtres.statut ? 'WHERE pa.statut = ?' : '';
   const valeurs = filtres.statut ? [filtres.statut] : [];
   const [[lignes], [compte]] = await Promise.all([
-    baseDeDonnees.execute(
+    baseDeDonnees.query(
       `SELECT pa.*, u.code_utilisateur, u.nom_affichage, u.email,
         p.code_plan, p.nom AS nom_plan, p.prix_acces
        FROM paiements_abonnement pa

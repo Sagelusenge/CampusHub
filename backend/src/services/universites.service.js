@@ -237,8 +237,21 @@ export async function supprimerUniversite(code) {
 export async function comparerUniversites(codes) {
   const liste = codes.split(',').map((c) => c.trim().toUpperCase()).filter(Boolean);
   if (liste.length < 2 || liste.length > 3) throw new ErreurApi(400, 'La comparaison nécessite deux ou trois universités.');
+  const marqueurs = liste.map(() => '?').join(',');
+  const [etablissements] = await baseDeDonnees.execute(
+    `SELECT code_universite, categorie_etablissement FROM universites
+     WHERE code_universite IN (${marqueurs}) AND statut_verification = 'VERIFIEE'`,
+    liste,
+  );
+  if (etablissements.length !== liste.length) throw new ErreurApi(404, 'Un établissement sélectionné est introuvable ou non vérifié.');
+  const groupes = new Set(etablissements.map((item) =>
+    item.categorie_etablissement === 'ECOLE_SECONDAIRE' ? 'ECOLES' : 'UNIVERSITES'));
+  if (groupes.size > 1) {
+    throw new ErreurApi(400, 'Une école secondaire ne peut pas être comparée à une université ou un institut supérieur.');
+  }
   const [resultats] = await baseDeDonnees.query('CALL sp_comparer_universites(?)', [liste.join(',')]);
-  return resultats[0];
+  const categories = new Map(etablissements.map((item) => [item.code_universite, item.categorie_etablissement]));
+  return resultats[0].map((item) => ({ ...item, categorie_etablissement: categories.get(item.code_universite) }));
 }
 
 export async function statistiquesUniversite(code) {
