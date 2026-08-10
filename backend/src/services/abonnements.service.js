@@ -130,3 +130,58 @@ export async function listerAbonnements() {
   const [lignes] = await baseDeDonnees.query('SELECT * FROM vue_abonnements_universites ORDER BY statut, date_fin');
   return lignes;
 }
+
+export async function obtenirRapportsFinanciers(filtres = {}) {
+  const conditions = ["pa.type_paiement = 'ABONNEMENT'"];
+  const valeurs = [];
+  if (filtres.statut) { conditions.push('pa.statut = ?'); valeurs.push(filtres.statut); }
+  if (filtres.codeUtilisateur) { conditions.push('ut.code_utilisateur = ?'); valeurs.push(filtres.codeUtilisateur.toUpperCase()); }
+  if (filtres.dateDebut) { conditions.push('DATE(pa.date_creation) >= ?'); valeurs.push(filtres.dateDebut); }
+  if (filtres.dateFin) { conditions.push('DATE(pa.date_creation) <= ?'); valeurs.push(filtres.dateFin); }
+
+  const [paiements] = await baseDeDonnees.execute(
+    `SELECT pa.code_paiement, pa.montant, pa.devise, pa.moyen_paiement,
+       pa.reference_paiement, pa.statut, pa.commentaire_admin,
+       pa.date_creation, pa.date_traitement,
+       ut.code_utilisateur, ut.nom_affichage, ut.email, univ.telephone,
+       p.code_plan, p.nom AS nom_plan, p.duree_jours,
+       a.code_abonnement, a.date_debut AS date_abonnement_debut,
+       a.date_fin AS date_abonnement_fin, a.statut AS statut_abonnement,
+       GREATEST(DATEDIFF(a.date_fin, CURRENT_TIMESTAMP), 0) AS jours_restants,
+       COALESCE(univ.code_universite, '') AS code_universite,
+       COALESCE(univ.nom, ut.nom_affichage) AS nom_etablissement,
+       COALESCE(univ.ville, ut.ville) AS ville,
+       COALESCE(univ.province, ut.province) AS province,
+       admin.nom_affichage AS traite_par
+     FROM paiements_abonnement pa
+     JOIN utilisateurs ut ON ut.id = pa.utilisateur_id
+     JOIN plans_abonnement p ON p.id = pa.plan_id
+     LEFT JOIN abonnements_universite a ON a.paiement_id = pa.id
+     LEFT JOIN membres_universite mu ON mu.utilisateur_id = ut.id AND mu.est_proprietaire = 1
+     LEFT JOIN universites univ ON univ.id = COALESCE(a.universite_id, mu.universite_id)
+     LEFT JOIN utilisateurs admin ON admin.id = pa.traite_par_id
+     WHERE ${conditions.join(' AND ')}
+     ORDER BY pa.date_creation DESC
+     LIMIT 5000`,
+    valeurs,
+  );
+
+  const resume = paiements.reduce((total, paiement) => {
+    total.nombrePaiements += 1;
+    total.montantTotal += Number(paiement.montant || 0);
+    if (paiement.statut === 'VALIDE') {
+      total.nombreValides += 1;
+      total.montantValide += Number(paiement.montant || 0);
+    } else if (paiement.statut === 'EN_ATTENTE') {
+      total.nombreEnAttente += 1;
+      total.montantEnAttente += Number(paiement.montant || 0);
+    } else if (paiement.statut === 'REJETE') total.nombreRejetes += 1;
+    total.clients.add(paiement.code_utilisateur);
+    return total;
+  }, { nombrePaiements: 0, nombreValides: 0, nombreEnAttente: 0, nombreRejetes: 0, montantTotal: 0, montantValide: 0, montantEnAttente: 0, clients: new Set() });
+
+  return {
+    paiements,
+    resume: { ...resume, nombreClients: resume.clients.size, clients: undefined },
+  };
+}

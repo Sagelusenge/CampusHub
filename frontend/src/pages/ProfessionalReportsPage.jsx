@@ -1,10 +1,15 @@
 import {
   BadgeCheck,
   Building2,
+  CalendarClock,
+  CreditCard,
   FileBarChart,
+  FileText,
   GraduationCap,
   Printer,
+  Receipt,
   RefreshCw,
+  ScrollText,
   ShieldCheck,
   Users,
 } from 'lucide-react';
@@ -24,6 +29,7 @@ const formatDate = (value) => value
   : 'Non renseignée';
 
 const formatNumber = (value) => Number(value || 0).toLocaleString('fr-FR');
+const formatCurrency = (value, devise = 'USD') => `${Number(value || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${devise}`;
 
 const percentageChange = (current, previous) => {
   const currentValue = Number(current || 0);
@@ -53,6 +59,16 @@ function reportReference(prefix, code = 'GENERAL') {
 function safeRequest(path, token, fallback) {
   return apiRequest(path, { token }).then((response) => response.donnees ?? fallback).catch(() => fallback);
 }
+
+const ADMIN_REPORT_TYPES = [
+  { value: 'PILOTAGE', label: 'Pilotage', description: 'Indicateurs et progression', icon: FileBarChart },
+  { value: 'CONTRAT', label: 'Contrat', description: 'Contrat d’abonnement annuel', icon: ScrollText },
+  { value: 'FACTURE', label: 'Facture', description: 'Facture d’un établissement', icon: FileText },
+  { value: 'RECU', label: 'Reçu', description: 'Preuve d’un paiement validé', icon: Receipt },
+  { value: 'RELEVE_CLIENT', label: 'Relevé client', description: 'Historique par établissement', icon: CreditCard },
+  { value: 'RELEVE_GLOBAL', label: 'Relevé global', description: 'Paiements de tous les clients', icon: Users },
+  { value: 'ECHEANCIER', label: 'Échéancier', description: 'Abonnements et dates de fin', icon: CalendarClock },
+];
 
 export function ProfessionalReportsPage({ role }) {
   if (role === 'admin') return <AdminProfessionalReport />;
@@ -160,21 +176,26 @@ function EmptyReportRow({ colSpan, children }) {
 
 function AdminProfessionalReport() {
   const { token, utilisateur } = useAuth();
-  const [data, setData] = useState({ indicators: {}, activity: [], institutions: [] });
+  const [data, setData] = useState({ indicators: {}, activity: [], institutions: [], financial: { paiements: [], resume: {} } });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [reportType, setReportType] = useState('PILOTAGE');
+  const [selectedClient, setSelectedClient] = useState('');
+  const [selectedPayment, setSelectedPayment] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [dashboard, institutions] = await Promise.all([
+      const [dashboard, institutions, financial] = await Promise.all([
         apiRequest('/administration/tableau-de-bord', { token }),
         safeRequest('/universites?page=1&limite=10', token, []),
+        safeRequest('/abonnements/rapports-financiers', token, { paiements: [], resume: {} }),
       ]);
       setData({
         indicators: dashboard.donnees?.indicateurs || {},
         activity: dashboard.donnees?.activiteMensuelle || [],
         institutions,
+        financial,
       });
       setError('');
     } catch (requestError) {
@@ -199,10 +220,22 @@ function AdminProfessionalReport() {
   const previousActivity = data.activity.at(-2) || {};
   const userGrowth = percentageChange(latestActivity.nouveauxUtilisateurs, previousActivity.nouveauxUtilisateurs);
   const revenueGrowth = percentageChange(latestActivity.revenus, previousActivity.revenus);
+  const payments = data.financial.paiements;
+  const clients = useMemo(() => [...new Map(payments.map((payment) => [payment.code_utilisateur, {
+    code: payment.code_utilisateur,
+    name: payment.nom_etablissement || payment.nom_affichage,
+    email: payment.email,
+  }])).values()].sort((first, second) => first.name.localeCompare(second.name, 'fr')), [payments]);
+  const currentClient = clients.some((client) => client.code === selectedClient) ? selectedClient : clients[0]?.code || '';
+  const clientPayments = payments.filter((payment) => !currentClient || payment.code_utilisateur === currentClient);
+  const selectablePayments = reportType === 'RECU' || reportType === 'CONTRAT'
+    ? clientPayments.filter((payment) => payment.statut === 'VALIDE') : clientPayments;
+  const currentPayment = selectablePayments.find((payment) => payment.code_paiement === selectedPayment) || selectablePayments[0] || null;
 
   return (
-    <ReportWorkspace title="Rapport de pilotage administratif" description="Vue officielle des effectifs, validations, activités et actions prioritaires." loading={loading} error={error} onRefresh={load}>
-      <FormalReport
+    <ReportWorkspace title="Centre de rapports administratifs" description="Contrats, factures, reçus, relevés financiers et rapports de pilotage prêts à imprimer." loading={loading} error={error} onRefresh={load}>
+      <AdminReportSelector reportType={reportType} onReportType={setReportType} clients={clients} selectedClient={currentClient} onClient={(code) => { setSelectedClient(code); setSelectedPayment(''); }} payments={selectablePayments} selectedPayment={currentPayment?.code_paiement || ''} onPayment={setSelectedPayment} />
+      {reportType === 'PILOTAGE' ? <FormalReport
         organization="CampusHub"
         organizationType="Administration centrale de la plateforme"
         title="Rapport de pilotage administratif"
@@ -268,9 +301,126 @@ function AdminProfessionalReport() {
             </tbody>
           </table>
         </ReportSection>
-      </FormalReport>
+      </FormalReport> : <AdminFinancialDocument type={reportType} payments={payments} clientCode={currentClient} payment={currentPayment} summary={data.financial?.resume || {}} />}
     </ReportWorkspace>
   );
+}
+
+function AdminReportSelector({ reportType, onReportType, clients, selectedClient, onClient, payments, selectedPayment, onPayment }) {
+  const needsClient = ['CONTRAT', 'FACTURE', 'RECU', 'RELEVE_CLIENT'].includes(reportType);
+  const needsPayment = ['CONTRAT', 'FACTURE', 'RECU'].includes(reportType);
+  return <section className="admin-report-selector app-panel">
+    <header><div><small>Documents disponibles</small><h2>Choisissez le rapport à produire</h2></div><span>{ADMIN_REPORT_TYPES.length} modèles professionnels</span></header>
+    <div className="admin-report-types">{ADMIN_REPORT_TYPES.map(({ value, label, description, icon: Icon }) => <button type="button" className={reportType === value ? 'active' : ''} onClick={() => onReportType(value)} key={value}><Icon /><span><strong>{label}</strong><small>{description}</small></span></button>)}</div>
+    {(needsClient || needsPayment) && <div className="admin-report-filters">
+      {needsClient && <label><span>Établissement / client</span><select value={selectedClient} onChange={(event) => onClient(event.target.value)} disabled={!clients.length}>{clients.length ? clients.map((client) => <option value={client.code} key={client.code}>{client.name} — {client.code}</option>) : <option>Aucun client disponible</option>}</select></label>}
+      {needsPayment && <label><span>Transaction</span><select value={selectedPayment} onChange={(event) => onPayment(event.target.value)} disabled={!payments.length}>{payments.length ? payments.map((payment) => <option value={payment.code_paiement} key={payment.code_paiement}>{payment.code_paiement} · {formatCurrency(payment.montant, payment.devise)} · {labelStatus(payment.statut)}</option>) : <option>Aucune transaction compatible</option>}</select></label>}
+    </div>}
+  </section>;
+}
+
+function AdminFinancialDocument({ type, payments, clientCode, payment, summary }) {
+  if (type === 'CONTRAT') return <SubscriptionContractDocument payment={payment} />;
+  if (type === 'FACTURE') return <InvoiceDocument payment={payment} />;
+  if (type === 'RECU') return <ReceiptDocument payment={payment} />;
+  if (type === 'RELEVE_CLIENT') return <PaymentStatementDocument payments={payments.filter((item) => item.code_utilisateur === clientCode)} client />;
+  if (type === 'ECHEANCIER') return <SubscriptionScheduleDocument payments={payments} />;
+  return <PaymentStatementDocument payments={payments} summary={summary} />;
+}
+
+function EmptyFinancialDocument({ title, message }) {
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title={title} subtitle="Document administratif et financier" reference={reportReference('DOC-ADM')} status="Aucune donnée"><ReportSection number="1" title="Document indisponible"><div className="report-observation"><strong>Aucune donnée compatible</strong><p>{message}</p></div></ReportSection></FormalReport>;
+}
+
+function SubscriptionContractDocument({ payment }) {
+  if (!payment) return <EmptyFinancialDocument title="Contrat d’abonnement" message="Un paiement validé est nécessaire pour établir le contrat d’abonnement annuel." />;
+  const reference = payment.code_abonnement || `CTR-${payment.code_paiement}`;
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Contrat d’abonnement institutionnel" subtitle="Accès annuel aux services numériques CampusHub" reference={reference} status="Contrat actif" signatures={['Le représentant de l’établissement', 'L’administration CampusHub']}>
+    <ReportSection number="1" title="Parties au contrat"><ReportFields items={[
+      { label: 'Prestataire', value: 'CampusHub — Écosystème académique numérique' },
+      { label: 'Établissement client', value: payment.nom_etablissement, wide: true },
+      { label: 'Code client', value: payment.code_utilisateur },
+      { label: 'Code établissement', value: payment.code_universite || 'En cours d’attribution' },
+      { label: 'Adresse électronique', value: payment.email },
+      { label: 'Localisation', value: [payment.ville, payment.province].filter(Boolean).join(', ') },
+    ]} /></ReportSection>
+    <ReportSection number="2" title="Objet et durée"><ReportFields items={[
+      { label: 'Formule', value: payment.nom_plan || 'Abonnement annuel CampusHub' },
+      { label: 'Durée contractuelle', value: `${formatNumber(payment.duree_jours || 365)} jours` },
+      { label: 'Date de prise d’effet', value: formatDate(payment.date_abonnement_debut) },
+      { label: 'Date d’échéance', value: formatDate(payment.date_abonnement_fin) },
+      { label: 'Montant contractuel', value: formatCurrency(payment.montant, payment.devise) },
+      { label: 'Paiement associé', value: payment.code_paiement },
+    ]} /></ReportSection>
+    <ReportSection number="3" title="Engagements contractuels"><div className="report-observation contract-clauses"><ol><li>CampusHub accorde au client l’accès aux fonctions institutionnelles pendant la durée indiquée.</li><li>L’établissement s’engage à publier des informations exactes, licites et régulièrement mises à jour.</li><li>Les comptes gestionnaires restent sous la responsabilité de l’établissement client.</li><li>Le renouvellement nécessite un nouveau paiement annuel de 10 USD et une validation administrative.</li><li>CampusHub peut suspendre l’accès en cas de fraude, d’abus ou de violation des règles de la communauté.</li></ol></div></ReportSection>
+  </FormalReport>;
+}
+
+function InvoiceDocument({ payment }) {
+  if (!payment) return <EmptyFinancialDocument title="Facture d’abonnement" message="Sélectionnez un client possédant au moins une demande de paiement." />;
+  const paid = payment.statut === 'VALIDE';
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Facture d’abonnement" subtitle="Services numériques institutionnels" reference={`FAC-${payment.code_paiement}`} status={paid ? 'Payée' : payment.statut === 'REJETE' ? 'Annulée' : 'À payer'} signatures={['Service administratif CampusHub', 'Client / réception']}>
+    <ReportSection number="1" title="Facturation"><ReportFields items={[
+      { label: 'Facturé à', value: payment.nom_etablissement, wide: true },
+      { label: 'Code client', value: payment.code_utilisateur },
+      { label: 'Adresse électronique', value: payment.email },
+      { label: 'Date d’émission', value: formatDate(payment.date_creation) },
+      { label: 'Référence transaction', value: payment.reference_paiement },
+    ]} /></ReportSection>
+    <ReportSection number="2" title="Détail de la facture"><table className="report-table"><thead><tr><th>Désignation</th><th>Période</th><th>Quantité</th><th>Prix unitaire</th><th>Total</th></tr></thead><tbody><tr><td>{payment.nom_plan || 'Abonnement annuel CampusHub'}</td><td>{payment.duree_jours || 365} jours</td><td>1</td><td>{formatCurrency(payment.montant, payment.devise)}</td><td>{formatCurrency(payment.montant, payment.devise)}</td></tr></tbody></table></ReportSection>
+    <ReportSection number="3" title="Récapitulatif"><div className="invoice-totals"><div><span>Sous-total</span><strong>{formatCurrency(payment.montant, payment.devise)}</strong></div><div><span>Taxes</span><strong>0,00 {payment.devise || 'USD'}</strong></div><div><span>Total</span><strong>{formatCurrency(payment.montant, payment.devise)}</strong></div><div><span>Solde restant</span><strong>{formatCurrency(paid ? 0 : payment.montant, payment.devise)}</strong></div></div></ReportSection>
+  </FormalReport>;
+}
+
+function ReceiptDocument({ payment }) {
+  if (!payment) return <EmptyFinancialDocument title="Reçu de paiement" message="Seuls les paiements validés peuvent produire un reçu officiel." />;
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Reçu de paiement" subtitle="Attestation de règlement de l’abonnement annuel" reference={`REC-${payment.code_paiement}`} status="Paiement encaissé" signatures={['Agent ayant validé le paiement', 'Cachet CampusHub']}>
+    <ReportSection number="1" title="Paiement reçu"><div className="receipt-amount"><small>Montant reçu</small><strong>{formatCurrency(payment.montant, payment.devise)}</strong><span>Reçu de {payment.nom_etablissement}</span></div></ReportSection>
+    <ReportSection number="2" title="Informations de la transaction"><ReportFields items={[
+      { label: 'Code du paiement', value: payment.code_paiement },
+      { label: 'Référence externe', value: payment.reference_paiement },
+      { label: 'Moyen de paiement', value: labelStatus(payment.moyen_paiement) },
+      { label: 'Date de validation', value: formatDate(payment.date_traitement || payment.date_creation) },
+      { label: 'Client', value: payment.nom_etablissement, wide: true },
+      { label: 'Code client', value: payment.code_utilisateur },
+      { label: 'Validé par', value: payment.traite_par || 'Administration CampusHub' },
+      { label: 'Objet', value: payment.nom_plan || 'Abonnement annuel CampusHub', wide: true },
+    ]} /></ReportSection>
+  </FormalReport>;
+}
+
+function PaymentStatementDocument({ payments, client = false, summary = {} }) {
+  const first = payments[0];
+  const totals = payments.reduce((result, item) => {
+    result.total += Number(item.montant || 0);
+    if (item.statut === 'VALIDE') result.validated += Number(item.montant || 0);
+    if (item.statut === 'EN_ATTENTE') result.pending += Number(item.montant || 0);
+    return result;
+  }, { total: 0, validated: 0, pending: 0 });
+  const title = client ? 'Relevé de paiement client' : 'Relevé global des paiements';
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title={title} subtitle={client ? `Historique financier de ${first?.nom_etablissement || 'l’établissement sélectionné'}` : 'Journal consolidé de tous les établissements'} reference={reportReference(client ? 'REL-CLI' : 'REL-GLB', client ? first?.code_utilisateur : 'TOUS')} status="Relevé consolidé" signatures={['Service financier CampusHub', 'Visa administratif']}>
+    <ReportSection number="1" title="Périmètre du relevé"><ReportFields items={client ? [
+      { label: 'Établissement', value: first?.nom_etablissement, wide: true },
+      { label: 'Code client', value: first?.code_utilisateur },
+      { label: 'Adresse électronique', value: first?.email },
+      { label: 'Nombre de transactions', value: formatNumber(payments.length) },
+      { label: 'Période couverte', value: payments.length ? `${formatDate(payments.at(-1)?.date_creation)} au ${formatDate(payments[0]?.date_creation)}` : 'Aucune transaction' },
+    ] : [
+      { label: 'Nombre de clients', value: formatNumber(summary.nombreClients || new Set(payments.map((item) => item.code_utilisateur)).size) },
+      { label: 'Nombre de transactions', value: formatNumber(payments.length) },
+      { label: 'Période couverte', value: payments.length ? `${formatDate(payments.at(-1)?.date_creation)} au ${formatDate(payments[0]?.date_creation)}` : 'Aucune transaction', wide: true },
+    ]} /></ReportSection>
+    <ReportSection number="2" title="Synthèse financière"><div className="report-status-grid"><div><small>Montant enregistré</small><strong>{formatCurrency(totals.total)}</strong></div><div><small>Montant encaissé</small><strong>{formatCurrency(totals.validated)}</strong></div><div><small>Montant en attente</small><strong>{formatCurrency(totals.pending)}</strong></div><div><small>Transactions</small><strong>{formatNumber(payments.length)}</strong></div></div></ReportSection>
+    <ReportSection number="3" title="Détail des opérations"><table className="report-table report-table--payments"><thead><tr>{!client && <th>Client</th>}<th>Date</th><th>Code</th><th>Mode / référence</th><th>Montant</th><th>Statut</th></tr></thead><tbody>{payments.map((item) => <tr key={item.code_paiement}>{!client && <td>{item.nom_etablissement}<small>{item.code_utilisateur}</small></td>}<td>{formatDate(item.date_creation)}</td><td>{item.code_paiement}</td><td>{labelStatus(item.moyen_paiement)}<small>{item.reference_paiement}</small></td><td>{formatCurrency(item.montant, item.devise)}</td><td>{labelStatus(item.statut)}</td></tr>)}{!payments.length && <EmptyReportRow colSpan={client ? 5 : 6}>Aucun paiement enregistré pour ce périmètre.</EmptyReportRow>}</tbody></table></ReportSection>
+  </FormalReport>;
+}
+
+function SubscriptionScheduleDocument({ payments }) {
+  const subscriptions = payments.filter((item) => item.code_abonnement);
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Échéancier des abonnements" subtitle="Suivi des contrats actifs, expirés et proches du renouvellement" reference={reportReference('ECH-ABO')} status="Échéancier à jour" signatures={['Responsable des abonnements', 'Direction CampusHub']}>
+    <ReportSection number="1" title="Synthèse des échéances"><div className="report-status-grid"><div><small>Abonnements recensés</small><strong>{formatNumber(subscriptions.length)}</strong></div><div><small>Actifs</small><strong>{formatNumber(subscriptions.filter((item) => item.statut_abonnement === 'ACTIF').length)}</strong></div><div><small>Échéance à 30 jours</small><strong>{formatNumber(subscriptions.filter((item) => Number(item.jours_restants) <= 30).length)}</strong></div><div><small>Expirés</small><strong>{formatNumber(subscriptions.filter((item) => item.statut_abonnement === 'EXPIRE').length)}</strong></div></div></ReportSection>
+    <ReportSection number="2" title="Planning de renouvellement"><table className="report-table"><thead><tr><th>Établissement</th><th>Contrat</th><th>Début</th><th>Échéance</th><th>Jours restants</th><th>État</th></tr></thead><tbody>{subscriptions.map((item) => <tr key={item.code_abonnement}><td>{item.nom_etablissement}<small>{item.code_utilisateur}</small></td><td>{item.code_abonnement}</td><td>{formatDate(item.date_abonnement_debut)}</td><td>{formatDate(item.date_abonnement_fin)}</td><td>{formatNumber(item.jours_restants)}</td><td>{labelStatus(item.statut_abonnement)}</td></tr>)}{!subscriptions.length && <EmptyReportRow colSpan={6}>Aucun abonnement validé n’est encore disponible.</EmptyReportRow>}</tbody></table></ReportSection>
+  </FormalReport>;
 }
 
 function InstitutionProfessionalReport() {

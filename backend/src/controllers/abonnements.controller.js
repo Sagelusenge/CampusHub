@@ -7,3 +7,4 @@ export async function paiements(req, res) { const r = await service.listerPaieme
 export async function traiter(req, res) { return envoyerSucces(res, await service.traiterPaiement(req.validees.params.code, req.utilisateur.id, req.validees.body)); }
 export async function monAbonnement(req, res) { return envoyerSucces(res, await service.obtenirMonAbonnement(req.utilisateur.id)); }
 export async function abonnements(_req, res) { return envoyerSucces(res, await service.listerAbonnements()); }
+export async function rapportsFinanciers(req, res) { return envoyerSucces(res, await service.obtenirRapportsFinanciers(req.validees.query)); }

@@ -20,3 +20,13 @@ export const schemaListePaiements = z.object({
   page: z.coerce.number().int().positive().default(1),
   limite: z.coerce.number().int().min(1).max(100).default(50),
 });
+
+export const schemaRapportsPaiements = z.object({
+  statut: z.enum(['EN_ATTENTE', 'VALIDE', 'REJETE']).optional(),
+  codeUtilisateur: z.string().trim().min(5).max(30).optional(),
+  dateDebut: z.string().date().optional(),
+  dateFin: z.string().date().optional(),
+}).refine((data) => !data.dateDebut || !data.dateFin || data.dateDebut <= data.dateFin, {
+  message: 'La date de début doit précéder la date de fin.',
+  path: ['dateFin'],
+});
