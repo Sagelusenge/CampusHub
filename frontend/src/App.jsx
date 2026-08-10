@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { DashboardShell } from './components/DashboardShell.jsx';
 import { PageShell } from './components/PageShell.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
-import { SocialPageLayout } from './components/SocialNavigation.jsx';
 import { InstitutionProvider } from './context/InstitutionContext.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.jsx';
@@ -51,6 +50,17 @@ const protectAdmin = <ProtectedRoute roles={['ADMINISTRATEUR']}><DashboardShell 
 const protectInstitution = <ProtectedRoute roles={['UNIVERSITE']}><InstitutionProvider><DashboardShell role="institution" /></InstitutionProvider></ProtectedRoute>;
 const protectStudent = <ProtectedRoute roles={['ETUDIANT']}><DashboardShell role="student" /></ProtectedRoute>;
 const protectNetwork = <ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><SocialPageLayout /></ProtectedRoute>;
+
+function SocialPageLayout() {
+  const { utilisateur } = useAuth();
+  if (utilisateur?.role === 'UNIVERSITE') {
+    return <InstitutionProvider><DashboardShell role="institution" /></InstitutionProvider>;
+  }
+  const role = utilisateur?.role === 'ADMINISTRATEUR'
+    ? 'admin'
+    : utilisateur?.role === 'ETUDIANT' ? 'student' : 'visitor';
+  return <DashboardShell role={role} />;
+}
 
 function destinationFor(role) {
   if (role === 'ADMINISTRATEUR') return '/administration';

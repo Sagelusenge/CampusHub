@@ -14,8 +14,9 @@
 .settings-logout-button svg{width:15px}
 .social-topnav--embedded{position:relative;top:auto;margin:0 0 20px;border:1px solid #dce4ec;border-radius:14px;overflow:hidden;box-shadow:0 5px 18px rgba(18,45,77,.055)}
 .social-topnav--embedded .social-topnav__inner{width:100%;max-width:none;padding-inline:16px}
-.app-content--visitor .social-topnav--embedded{position:sticky;top:76px;z-index:65;box-shadow:0 8px 24px rgba(18,45,77,.11)}
-.app-content--visitor>.social-page--embedded{padding:0 30px 60px}
+.app-social-navigation{position:sticky;z-index:65;top:76px;padding:14px 30px 0;background:#f0f2f5}
+.app-social-navigation .social-topnav--embedded{margin:0;box-shadow:0 8px 24px rgba(18,45,77,.11)}
+.app-content--visitor>.social-page--embedded{padding:20px 30px 60px}
 .social-topnav--visitor .social-topnav__links>a{min-width:76px}
 .social-page--facebook{padding:22px 0 60px}.social-layout--feed{grid-template-columns:minmax(0,680px) 290px;justify-content:center;align-items:start}.social-feed-filters{padding:7px;display:flex;gap:5px;overflow-x:auto}.social-feed-filters button{padding:8px 12px;border:0;border-radius:8px;color:#66788b;background:transparent;font-size:8px;font-weight:800;white-space:nowrap}.social-feed-filters button.active{color:#087b70;background:#e7f6f3}.social-rightbar__chat{width:100%;margin-top:8px;justify-content:center}
 .social-utility-page{padding-top:28px;padding-bottom:60px}.social-utility-page .content-heading{margin-bottom:18px}.social-utility-page .messages-layout{min-height:600px}
@@ -27,7 +28,7 @@
 .partners-management-grid,.public-partners-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.partners-management-grid>article{padding:20px}.partner-logo,.public-partners-grid article>div{width:58px;height:58px;padding:8px;display:grid;place-items:center;border:1px solid #dbe4ec;border-radius:12px;background:#fff}.partner-logo img,.public-partners-grid img{width:100%;height:100%;object-fit:contain}.partners-management-grid article>span,.public-partners-grid article>span{display:block;margin-top:12px;color:#087f74;font-size:7px;font-weight:900}.partners-management-grid h2,.public-partners-grid h3{margin:5px 0;color:#163b58}.partners-management-grid p,.public-partners-grid p{color:#6e7f8f;font-size:9px}.partners-management-grid footer{display:flex;justify-content:space-between;gap:8px}.partners-management-grid footer a,.partners-management-grid footer button,.public-partners-grid a{display:flex;align-items:center;gap:5px;border:0;color:#087f74;background:transparent;font-size:8px;font-weight:800}.partners-management-grid footer svg,.public-partners-grid a svg{width:14px}.partners-management-grid footer button{color:#b43d49}.public-partners-grid article{padding:14px;border:1px solid #dfe7ed;border-radius:11px}.public-partners-grid article>div{width:50px;height:50px}.public-partners-grid h3{font-size:12px}
 @media(max-width:1050px){.social-topnav__inner{grid-template-columns:auto 1fr auto}.social-topnav__brand strong,.social-topnav__profile span{display:none}.social-layout--feed{grid-template-columns:minmax(0,680px)}.social-rightbar{display:none}.relations-grid,.partners-management-grid,.public-partners-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.institution-enrollment-grid{grid-template-columns:1fr}}
 @media(max-width:760px){.social-topnav__inner{height:58px;gap:5px}.social-topnav__brand{display:none}.social-topnav__links{grid-column:1/3;justify-content:space-around}.social-topnav__links>a{min-width:54px}.social-topnav__links>a span{display:none}.social-topnav__profile{padding:0}.social-topnav__profile span{display:none}.social-page--facebook{padding-top:12px}.social-relations-shell>header{align-items:stretch;flex-direction:column}.relations-grid,.partners-management-grid,.public-partners-grid{grid-template-columns:1fr}.social-relations-tabs{overflow-x:auto}.enrollment-layout{grid-template-columns:1fr}.enrollment-layout>aside{position:static}.builder-field{grid-template-columns:1fr 1fr}.builder-field label,.builder-field button{justify-content:center}.enrollment-requests dl{grid-template-columns:1fr}}
-@media(max-width:760px){.app-content--visitor .social-topnav--embedded{top:65px}.app-content--visitor>.social-page--embedded{padding:0 12px 42px}}
+@media(max-width:760px){.app-social-navigation{top:65px;padding:10px 12px 0}.app-content--visitor>.social-page--embedded{padding:16px 12px 42px}}
 
 /* Responsive du réseau : le fil ne dépend plus de l'ancien bandeau et reste
    lisible de 320 px jusqu'aux grands écrans. */
@@ -44,8 +45,7 @@
 @media(max-width:760px){
   .social-topnav__inner{height:58px;display:grid;grid-template-columns:1fr;gap:0}
   .social-topnav__brand,.social-topnav__account{display:none}
-  .social-topnav__links{width:100%;display:grid;grid-column:auto;grid-template-columns:repeat(5,minmax(0,1fr));gap:0}
-  .social-topnav--visitor .social-topnav__links{grid-template-columns:repeat(8,minmax(0,1fr))}
+  .social-topnav__links{width:100%;display:grid;grid-column:auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
   .social-topnav__links>a{min-width:0}
   .social-topnav__links i{top:6px;left:55%}
   .social-page--facebook{padding:12px 0 40px}

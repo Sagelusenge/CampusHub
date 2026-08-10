@@ -24,7 +24,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiRequest, uploadFile } from "../api/client.js";
 import { DashboardPageHeader } from "../components/DashboardShell.jsx";
-import { SocialNavigation } from "../components/SocialNavigation.jsx";
 import { Spinner } from "../components/Spinner.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -487,13 +486,10 @@ export function SocialFeedPage({ embedded = false, initialFilter = "TOUT" }) {
       className={`social-page social-page--modern ${embedded ? "social-page--embedded" : "social-page--facebook"}`}
     >
       {embedded && (
-        <>
-          <SocialNavigation embedded />
-          <DashboardPageHeader
-            title="Réseau CampusHub"
-            description="Stories, projets et conversations de la communauté académique."
-          />
-        </>
+        <DashboardPageHeader
+          title="Réseau CampusHub"
+          description="Stories, projets et conversations de la communauté académique."
+        />
       )}
       <div
         className={

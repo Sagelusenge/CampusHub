@@ -37,7 +37,11 @@ export function LanguageProvider({ children }) {
       if (!container) return;
       if (!container.dataset.initialized) {
         container.dataset.initialized = 'true';
-        new globalThis.google.translate.TranslateElement({ pageLanguage: 'fr', autoDisplay: false }, GOOGLE_TRANSLATE_ELEMENT);
+        new globalThis.google.translate.TranslateElement({
+          pageLanguage: 'fr',
+          includedLanguages: 'en,es',
+          autoDisplay: false,
+        }, GOOGLE_TRANSLATE_ELEMENT);
       }
       globalThis.setTimeout(synchroniser, 0);
       globalThis.setTimeout(synchroniser, 500);
@@ -61,6 +65,7 @@ export function LanguageProvider({ children }) {
   }, []);
 
   function changeLanguage(value) {
+    if (!LANGUAGE_CODES.has(value)) return;
     setLanguage(value);
     if (value === 'fr') {
       document.cookie = 'googtrans=; Max-Age=0; path=/';
@@ -68,10 +73,10 @@ export function LanguageProvider({ children }) {
       globalThis.location.reload();
       return;
     }
-    const combo = document.querySelector(`#${GOOGLE_TRANSLATE_ELEMENT} .goog-te-combo`);
-    if (!combo) return;
-    combo.value = value;
-    combo.dispatchEvent(new Event('change', { bubbles: true }));
+    const traduction = `/fr/${value}`;
+    document.cookie = `googtrans=${traduction}; Max-Age=31536000; path=/; SameSite=Lax`;
+    document.cookie = `googtrans=${traduction}; Max-Age=31536000; path=/; domain=${globalThis.location.hostname}; SameSite=Lax`;
+    globalThis.location.reload();
   }
 
   const value = useMemo(() => ({ ready, language, options: LANGUAGE_OPTIONS, changeLanguage }), [ready, language]);

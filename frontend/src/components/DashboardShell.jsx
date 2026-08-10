@@ -34,6 +34,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { AccountMenu } from './AccountMenu.jsx';
 import { LanguageSelector } from './LanguageSelector.jsx';
+import { SocialNavigation } from './SocialNavigation.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useInstitution } from '../context/InstitutionContext.jsx';
 import { notifierNouvelleActivite } from '../utils/notifications-navigateur.js';
@@ -174,6 +175,7 @@ function DashboardShellContent({ role, institution, children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const isSchool = institution?.categorie_etablissement === 'ECOLE_SECONDAIRE';
+  const socialRoute = isSocialRoute(location.pathname);
   const navigation = role === 'admin'
     ? adminNavigation
     : role === 'student'
@@ -246,10 +248,22 @@ function DashboardShellContent({ role, institution, children }) {
             <AccountMenu roleLabel={role === 'admin' ? 'Administrateur' : role === 'student' ? 'Étudiant' : role === 'visitor' ? 'Visiteur' : isSchool ? 'Gestionnaire scolaire' : 'Gestionnaire'} />
           </div>
         </header>
+        {socialRoute && <div className="app-social-navigation"><SocialNavigation embedded /></div>}
         <main className={`app-content ${role === 'visitor' ? 'app-content--visitor' : ''}`}>{children ?? <Outlet />}</main>
       </div>
     </div>
   );
+}
+
+function isSocialRoute(path) {
+  return path === '/reseau'
+    || path === '/relations'
+    || path === '/chat'
+    || path === '/administration/reseau'
+    || path === '/espace-universite/reseau'
+    || path === '/espace-universite/messages'
+    || path === '/espace-etudiant/reseau'
+    || path === '/espace-etudiant/messages';
 }
 
 function visitorTitle(path, role) {
