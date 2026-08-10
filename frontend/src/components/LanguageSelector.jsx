@@ -138,6 +138,7 @@ function creerTraducteur(langue) {
 
 export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState(langueMemorisee);
+  const [changing, setChanging] = useState(false);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -153,14 +154,25 @@ export function LanguageProvider({ children }) {
   }, [language]);
 
   function changeLanguage(value) {
-    if (!LANGUAGE_CODES.has(value) || value === language) return;
+    if (!LANGUAGE_CODES.has(value) || value === language || changing) return;
+    setChanging(true);
     globalThis.localStorage?.setItem(LANGUAGE_STORAGE_KEY, value);
     setLanguage(value);
-    globalThis.location.reload();
+    globalThis.setTimeout(() => globalThis.location.reload(), 450);
   }
 
-  const value = { ready: true, language, options: LANGUAGE_OPTIONS, changeLanguage };
-  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+  const value = { ready: !changing, language, options: LANGUAGE_OPTIONS, changeLanguage };
+  return <LanguageContext.Provider value={value}>
+    {children}
+    {changing && <div className="language-loading-overlay notranslate" translate="no" role="status" aria-live="assertive">
+      <div className="language-loading-card">
+        <span className="language-loading-logo"><img src="/favicon.svg" alt="Logo CampusHub" /></span>
+        <strong>CampusHub</strong>
+        <p>Chargement de la langue…</p>
+        <span className="language-loading-progress" aria-hidden="true" />
+      </div>
+    </div>}
+  </LanguageContext.Provider>;
 }
 
 export function LanguageSelector({ compact = false }) {

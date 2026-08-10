@@ -35,7 +35,7 @@ export function HomePage() {
     <section className="section ai-home-section">
       <div className="container ai-home-card">
         <Reveal className="ai-home-card__copy">
-          <span className="pill pill--light"><Sparkles /> Nouveau • GPT‑5.6</span>
+          <span className="pill pill--light"><Sparkles /> CampusHub AI</span>
           <h2>Votre projet d’études devient un plan concret.</h2>
           <p>CampusHub AI croise votre objectif, votre budget et votre mobilité avec les formations vérifiées de la plateforme. Il peut aussi lire une photo de bulletin, avec votre confirmation.</p>
           <div className="ai-home-card__proof"><span><CheckCircle2 />Aucune formation inventée</span><span><CheckCircle2 />Recommandations expliquées</span><span><CheckCircle2 />Dossier sauvegardé</span></div>

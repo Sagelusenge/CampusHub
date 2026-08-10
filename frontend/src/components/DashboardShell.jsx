@@ -39,6 +39,16 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useInstitution } from '../context/InstitutionContext.jsx';
 import { notifierNouvelleActivite } from '../utils/notifications-navigateur.js';
 
+const SIDEBAR_STORAGE_PREFIX = 'campushub-sidebar-collapsed';
+
+function lireEtatSidebar(role) {
+  try {
+    return globalThis.localStorage?.getItem(`${SIDEBAR_STORAGE_PREFIX}-${role}`) === 'true';
+  } catch {
+    return false;
+  }
+}
+
 const adminNavigation = [
   { to: '/administration', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/administration/demandes', label: 'Demandes', icon: ClipboardCheck },
@@ -167,7 +177,7 @@ function InstitutionDashboardShell({ children }) {
 }
 
 function DashboardShellContent({ role, institution, children }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => lireEtatSidebar(role));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const [campusOpen, setCampusOpen] = useState(true);
@@ -183,6 +193,15 @@ function DashboardShellContent({ role, institution, children }) {
       : role === 'visitor'
         ? visitorNavigation
         : institutionNavigation(isSchool);
+
+  useEffect(() => {
+    try {
+      globalThis.localStorage?.setItem(`${SIDEBAR_STORAGE_PREFIX}-${role}`, String(collapsed));
+    } catch {
+      // La navigation reste utilisable lorsque le stockage du navigateur est indisponible.
+    }
+  }, [collapsed, role]);
+
   useEffect(() => {
     let actif = true;
     const verifier = () => apiRequest('/notifications?page=1&limite=1&nonLues=true', { token })
