@@ -53,7 +53,7 @@ async function traduireLot(lot, langue) {
   const resultat = (donnees?.[0] || []).map((segment) => segment?.[0] || '').join('');
   const traductions = resultat.split(SEPARATOR).map((texte) => texte.trim());
   if (traductions.length !== lot.length) return;
-  lot.forEach(({ noeuds }, index) => {
+  lot.forEach(({ noeuds, attributs }, index) => {
     const traduction = traductions[index];
     if (!traduction) return;
     noeuds.forEach((node) => {
@@ -62,11 +62,13 @@ async function traduireLot(lot, langue) {
       const fin = original.match(/\s*$/)?.[0] || '';
       node.nodeValue = `${debut}${traduction}${fin}`;
     });
+    attributs.forEach(({ element, nom }) => element.setAttribute(nom, traduction));
   });
 }
 
 function creerTraducteur(langue) {
   const etatNoeuds = new WeakMap();
+  const etatAttributs = new WeakMap();
   let enCours = false;
   let relanceDemandee = false;
 
@@ -80,15 +82,32 @@ function creerTraducteur(langue) {
       while (node) {
         if (texteTraduisible(node) && etatNoeuds.get(node) !== node.nodeValue) {
           const texte = node.nodeValue.trim();
-          if (!groupes.has(texte)) groupes.set(texte, []);
-          groupes.get(texte).push(node);
+          if (!groupes.has(texte)) groupes.set(texte, { noeuds: [], attributs: [] });
+          groupes.get(texte).noeuds.push(node);
         }
         node = walker.nextNode();
       }
-      const entrees = Array.from(groupes, ([texte, noeuds]) => ({ texte, noeuds }));
+      document.querySelectorAll('[placeholder], [title], [aria-label]').forEach((element) => {
+        if (element.closest('.notranslate, .language-selector')) return;
+        for (const nom of ['placeholder', 'title', 'aria-label']) {
+          const texte = element.getAttribute(nom)?.trim();
+          const precedent = etatAttributs.get(element)?.[nom];
+          if (!texte || texte.length < 2 || !/[A-Za-zÀ-ÿ]/.test(texte) || precedent === texte) continue;
+          if (!groupes.has(texte)) groupes.set(texte, { noeuds: [], attributs: [] });
+          groupes.get(texte).attributs.push({ element, nom });
+        }
+      });
+      const entrees = Array.from(groupes, ([texte, cibles]) => ({ texte, ...cibles }));
       for (const lot of lotsDeTraduction(entrees)) {
         await traduireLot(lot, langue);
-        lot.forEach(({ noeuds }) => noeuds.forEach((noeud) => etatNoeuds.set(noeud, noeud.nodeValue)));
+        lot.forEach(({ noeuds, attributs }) => {
+          noeuds.forEach((noeud) => etatNoeuds.set(noeud, noeud.nodeValue));
+          attributs.forEach(({ element, nom }) => {
+            const etat = etatAttributs.get(element) || {};
+            etat[nom] = element.getAttribute(nom);
+            etatAttributs.set(element, etat);
+          });
+        });
       }
     } catch {
       // Le site reste utilisable en français si le service externe est momentanément indisponible.
@@ -106,7 +125,13 @@ function creerTraducteur(langue) {
     globalThis.clearTimeout(minuterie);
     minuterie = globalThis.setTimeout(traduirePage, 120);
   });
-  observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+    attributes: true,
+    attributeFilter: ['placeholder', 'title', 'aria-label'],
+  });
   traduirePage();
   return () => { observer.disconnect(); globalThis.clearTimeout(minuterie); };
 }
