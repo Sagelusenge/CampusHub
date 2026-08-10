@@ -49,13 +49,18 @@ export function AdminDashboardPage() {
     { label: 'Publications', value: stats.publications || 0, icon: FileText, tone: 'violet', note: `${stats.signalements_a_traiter || 0} signalement(s)` },
   ];
   const maximumActivite = Math.max(1, ...data.activite.map((item) => Number(item.nouveauxUtilisateurs)));
+  const maximumRevenus = Math.max(1, ...data.activite.map((item) => Number(item.revenus)));
   const chartValues = data.activite.map((item) => ({
     ...item,
     hauteur: Math.max(4, Math.round(Number(item.nouveauxUtilisateurs) / maximumActivite * 94)),
+    hauteurRevenus: Math.max(4, Math.round(Number(item.revenus) / maximumRevenus * 94)),
   }));
   const totalActions = Number(stats.comptes_en_attente || 0) + Number(stats.universites_a_verifier || 0)
     + Number(stats.signalements_a_traiter || 0) + Number(stats.paiements_a_verifier || 0)
     + Number(stats.villes_a_examiner || 0);
+  const comptesPart = totalActions ? Number(stats.comptes_en_attente || 0) / totalActions * 100 : 0;
+  const universitesPart = totalActions ? comptesPart + Number(stats.universites_a_verifier || 0) / totalActions * 100 : 0;
+  const moderationPart = totalActions ? universitesPart + Number(stats.signalements_a_traiter || 0) / totalActions * 100 : 0;
 
   return (
     <div className="dashboard-view">
@@ -76,14 +81,15 @@ export function AdminDashboardPage() {
 
       <div className="analytics-grid">
         <section className="app-panel analytics-chart">
-          <div className="app-panel__heading"><div><h2>Activité des 6 derniers mois</h2><p>Évolution générale de la plateforme</p></div><span className="chart-legend"><i /> Activité réelle</span></div>
-          <div className="bar-chart">
-            {chartValues.map((item) => <div className="bar-chart__item" key={item.mois}><strong>{item.nouveauxUtilisateurs}</strong><div><span style={{ height: `${item.hauteur}%` }} /></div><small>{new Date(`${item.mois}-02`).toLocaleDateString('fr-FR',{month:'short'})}</small></div>)}
+          <div className="app-panel__heading"><div><h2>Activité des 6 derniers mois</h2><p>Nouveaux comptes et revenus validés</p></div></div>
+          <div className="institution-chart-legend"><span><i className="dot dot--blue" /> Utilisateurs</span><span><i className="dot dot--teal" /> Revenus (USD)</span></div>
+          <div className="bar-chart bar-chart--grouped">
+            {chartValues.map((item) => <div className="bar-chart__item" key={item.mois}><strong>{item.nouveauxUtilisateurs} / ${Number(item.revenus).toLocaleString('fr-FR')}</strong><div className="grouped-bars grouped-bars--admin"><span className="bar--application" title={`${item.nouveauxUtilisateurs} nouveau(x) utilisateur(s)`} style={{ height: `${item.hauteur}%` }} /><span className="bar--publication" title={`${item.revenus} USD validé(s)`} style={{ height: `${item.hauteurRevenus}%` }} /></div><small>{new Date(`${item.mois}-02`).toLocaleDateString('fr-FR',{month:'short'})}</small></div>)}
           </div>
         </section>
         <section className="app-panel action-summary">
           <div className="app-panel__heading"><div><h2>Actions requises</h2><p>Éléments à traiter</p></div></div>
-          <div className="donut" style={{ '--donut-value': `${Math.min(92, totalActions * 12 + 18)}%` }}><div><strong>{totalActions}</strong><small>en attente</small></div></div>
+          <div className="donut donut--actions" style={{ '--actions-one': `${comptesPart}%`, '--actions-two': `${universitesPart}%`, '--actions-three': `${moderationPart}%` }}><div><strong>{totalActions}</strong><small>en attente</small></div></div>
           <div className="summary-rows">
             <Link to="/administration/demandes"><span><i className="dot dot--amber" /> Comptes</span><strong>{stats.comptes_en_attente || 0}</strong></Link>
             <Link to="/administration/universites"><span><i className="dot dot--teal" /> Universités</span><strong>{stats.universites_a_verifier || 0}</strong></Link>

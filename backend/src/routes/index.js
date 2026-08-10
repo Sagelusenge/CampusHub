@@ -21,6 +21,7 @@ import { routeStories } from './stories.routes.js';
 import { routeOrientation } from './orientation.routes.js';
 import { routeCopiloteInstitution } from './copilote-institution.routes.js';
 import { routeOffres } from './offres.routes.js';
+import { routeCommunaute } from './communaute.routes.js';
 
 export const routesApi = Router();
 
@@ -37,6 +38,7 @@ routesApi.use('/stories', routeStories);
 routesApi.use('/orientation', routeOrientation);
 routesApi.use('/copilote-institution', routeCopiloteInstitution);
 routesApi.use('/offres', routeOffres);
+routesApi.use('/communaute', routeCommunaute);
 routesApi.use('/universites', routeUniversites);
 routesApi.use('/utilisateurs', routeUtilisateurs);
 routesApi.use('/profils', routeProfils);

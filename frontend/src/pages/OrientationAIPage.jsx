@@ -100,7 +100,7 @@ export function OrientationAIPage({ embedded = false }) {
 
   return <section className={`orientation-ai ${embedded ? 'orientation-ai--embedded' : ''}`}>
     <div className={embedded ? '' : 'container'}>
-      <DashboardPageHeader title="CampusHub AI" description="Un conseiller d’orientation fondé sur les établissements et formations vérifiés." />
+      <DashboardPageHeader title="CampusHub AI" description="Un conseiller d’orientation fondé sur les établissements et formations vérifiés." actions={<Link className="secondary-action" to="/orientation-finaliste"><GraduationCap />Je suis finaliste</Link>} />
       <div className="ai-status-strip">
         <span className={configuration?.disponible ? 'ai-status-dot ai-status-dot--live' : 'ai-status-dot'} />
         <div><strong>{configuration?.disponible ? 'GPT‑5.6 connecté' : 'Mode démonstration vérifiable'}</strong><small>{configuration?.message || 'Vérification de la configuration…'}</small></div>

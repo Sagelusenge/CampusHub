@@ -2,6 +2,7 @@ import {
   ajouterCommentaire,
   ajouterMedia as ajouterMediaPublication,
   creerPublication,
+  listerMesPublications,
   listerPublications,
   modifierCommentaire as modifierCommentairePublication,
   modifierPublication,
@@ -18,6 +19,18 @@ export async function lister(requete, reponse) {
   const resultat = await listerPublications(filtres);
 
   return envoyerSucces(reponse, resultat.publications, 200, resultat.meta, 'Publications chargées.');
+}
+
+// GET /api/v1/publications/moi
+export async function listerMiennes(requete, reponse) {
+  const publications = await listerMesPublications(requete.utilisateur);
+  return envoyerSucces(
+    reponse,
+    publications,
+    200,
+    undefined,
+    'Vos publications ont été chargées.',
+  );
 }
 
 // GET /api/v1/publications/:code

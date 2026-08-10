@@ -23,7 +23,7 @@ SELECT
   (SELECT COUNT(*) FROM campus c WHERE c.universite_id = u.id) AS nombre_campus,
   (SELECT COUNT(*) FROM facultes fa WHERE fa.universite_id = u.id) AS nombre_facultes,
   (SELECT COUNT(*) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS nombre_filieres,
-  (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id) AS nombre_etudiants,
+  (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id AND pe.statut_institution = 'ACTIF') AS nombre_etudiants,
   (SELECT COUNT(*) FROM abonnements_universites au WHERE au.universite_id = u.id) AS nombre_abonnes,
   (SELECT MIN(fi.frais_minimum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_minimum,
   (SELECT MAX(fi.frais_maximum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_maximum
@@ -78,6 +78,7 @@ JOIN utilisateurs ut ON ut.id = pe.utilisateur_id
 LEFT JOIN universites u ON u.id = pe.universite_id
 LEFT JOIN filieres fi ON fi.id = pe.filiere_id
 WHERE pe.est_visible = 1
+  AND pe.statut_institution = 'ACTIF'
   AND ut.statut_compte = 'ACTIF';
 
 CREATE OR REPLACE VIEW vue_fil_actualite AS

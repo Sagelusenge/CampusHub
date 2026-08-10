@@ -136,6 +136,6 @@ INSERT INTO abonnements_universites (utilisateur_id, universite_id)
 VALUES (@etudiant_id, @universite_id);
 
 COMMIT;
-
+select *from commentaires
 SELECT code_universite, nom, sigle FROM universites WHERE id = @universite_id;
 SELECT 'Données françaises de démonstration ajoutées avec succès' AS message;

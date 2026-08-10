@@ -1,0 +1,150 @@
+.faq-hero{
+  position:relative;overflow:hidden;padding:76px 0 70px;color:#fff;
+  background:radial-gradient(circle at 82% 16%,rgba(37,210,187,.27),transparent 28%),linear-gradient(135deg,#061f51,#0a4777);
+}
+.faq-hero::after{
+  content:'';position:absolute;inset:0;opacity:.22;
+  background-image:radial-gradient(rgba(255,255,255,.35) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+.faq-hero__content{position:relative;z-index:1;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:22px}
+.faq-hero__icon{width:58px;height:58px;display:grid;place-items:center;border-radius:17px;color:#073263;background:#75dfd2}
+.faq-hero__icon svg{width:28px}
+.faq-hero .eyebrow{color:#79e2d5}
+.faq-hero h1{max-width:760px;margin:8px 0 12px;font-size:clamp(38px,5vw,62px);line-height:1.04;letter-spacing:-.055em}
+.faq-hero p{max-width:760px;margin:0;color:#cfdaea;font-size:16px;line-height:1.65}
+.faq-search{
+  grid-column:1/-1;width:min(820px,100%);min-height:58px;margin-top:17px;padding:0 17px;
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;
+  border:1px solid rgba(255,255,255,.27);border-radius:15px;background:#fff;box-shadow:0 18px 50px rgba(2,18,48,.25);
+}
+.faq-search>svg{width:21px;color:#087f74}
+.faq-search input{width:100%;height:56px;border:0;outline:0;color:#173853;background:transparent;font-size:14px}
+.faq-search>span{padding:6px 9px;border-radius:999px;color:#08786e;background:#e4f6f2;font-size:9px;font-weight:800;white-space:nowrap}
+.faq-section{background:#f5f8fc}
+.faq-layout{display:grid;grid-template-columns:235px minmax(0,790px);justify-content:center;align-items:start;gap:25px}
+.faq-categories{position:sticky;top:94px;padding:14px;border:1px solid #dce4ed;border-radius:15px;background:#fff;box-shadow:0 10px 28px rgba(20,48,82,.06)}
+.faq-categories>strong{display:block;padding:7px 9px 12px;color:#173a58;font-size:11px}
+.faq-categories>a{min-height:42px;padding:0 10px;display:flex;align-items:center;gap:9px;border-radius:9px;color:#607286;font-size:10px;font-weight:700}
+.faq-categories>a:hover{color:#087f74;background:#eaf7f4}
+.faq-categories svg{width:16px}
+.faq-content{display:flex;flex-direction:column;gap:19px}
+.faq-group{scroll-margin-top:95px;padding:23px;border:1px solid #dce4ed;border-radius:17px;background:#fff;box-shadow:0 12px 35px rgba(18,47,79,.055)}
+.faq-group>header{margin-bottom:17px;display:flex;align-items:center;gap:12px}
+.faq-group>header>span{width:43px;height:43px;display:grid;place-items:center;flex:0 0 43px;border-radius:12px;color:#087f74;background:#dff5f0}
+.faq-group>header svg{width:20px}
+.faq-group h2{margin:0 0 3px;color:#153a58;font-size:19px}
+.faq-group header p{margin:0;color:#7a8999;font-size:10px}
+.faq-questions{border-top:1px solid #e6ebf1}
+.faq-questions details{border-bottom:1px solid #e6ebf1}
+.faq-questions details:last-child{border-bottom:0}
+.faq-questions summary{min-height:60px;padding:10px 3px;display:flex;align-items:center;justify-content:space-between;gap:15px;color:#27445f;font-size:12px;font-weight:800;cursor:pointer;list-style:none}
+.faq-questions summary::-webkit-details-marker{display:none}
+.faq-questions summary svg{width:17px;flex:0 0 17px;color:#78899a;transition:.2s}
+.faq-questions details[open] summary{color:#087f74}
+.faq-questions details[open] summary svg{transform:rotate(180deg)}
+.faq-questions details>p{margin:0;padding:0 30px 18px 3px;color:#65778a;font-size:11px;line-height:1.75}
+.faq-contact{padding:23px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;border-radius:17px;color:#fff;background:linear-gradient(135deg,#07316d,#086c78)}
+.faq-contact>span{width:48px;height:48px;display:grid;place-items:center;border-radius:13px;color:#08386c;background:#72ded1}
+.faq-contact>span svg{width:22px}
+.faq-contact small{color:#7ee1d5;font-weight:800;text-transform:uppercase}
+.faq-contact h2{margin:3px 0;color:#fff;font-size:18px}
+.faq-contact p{margin:0;color:#d0dbea;font-size:10px}
+.faq-contact .button{border-color:#fff;color:#092f69;background:#fff;white-space:nowrap}
+.faq-empty{padding:50px;text-align:center;border:1px solid #dce4ed;border-radius:17px;background:#fff}
+.faq-empty>svg{width:45px;height:45px;padding:11px;border-radius:13px;color:#087f74;background:#dff5f0}
+.faq-empty h2{color:#173a58}
+.faq-empty p{color:#718196}
+.main-nav{gap:clamp(14px,1.6vw,24px)}
+.brand-mark--logo{overflow:hidden;background:transparent}
+.brand-mark--logo img{width:100%;height:100%;display:block}
+.contact-form .form-grid{row-gap:18px}
+.contact-form>.button{margin-top:24px}
+
+.verification-page{
+  min-height:calc(100vh - 72px);padding:55px 20px;display:grid;place-items:center;background:#f3f7fb;
+}
+.email-verification-card{
+  width:min(480px,100%);padding:36px;text-align:center;border:1px solid #d7e2eb;border-radius:20px;
+  background:#fff;box-shadow:0 24px 70px rgba(19,51,84,.12);
+}
+.student-registration .email-verification-card,.visitor-registration .email-verification-card{align-self:center;justify-self:center}
+.email-verification-card__icon{
+  width:64px;height:64px;margin:0 auto 17px;display:grid;place-items:center;border-radius:18px;
+  color:#087f74;background:#ddf5f0;
+}
+.email-verification-card__icon svg{width:29px;height:29px}
+.email-verification-card>small{color:#087f74;font-size:9px;font-weight:900;text-transform:uppercase}
+.email-verification-card h2{margin:7px 0 9px;color:#123754;font-size:25px}
+.email-verification-card>p{margin:0 0 17px;color:#708195;line-height:1.6}
+.email-verification-card>p strong{color:#244761}
+.verification-notice{
+  margin:13px 0;padding:10px 12px;display:flex;align-items:center;justify-content:center;gap:7px;
+  border-radius:10px;color:#08786e;background:#eaf8f5;font-size:9px;font-weight:700;
+}
+.verification-notice svg{width:16px}
+.email-verification-card form{display:flex;flex-direction:column;gap:12px}
+.email-verification-card form>label{color:#304e67;font-size:10px;font-weight:800}
+.verification-code-input{
+  width:100%;height:66px;padding-left:10px;text-align:center;border:1px solid #cbd8e4;border-radius:13px;
+  outline:0;color:#08316d;background:#f9fbfd;font-size:30px;font-weight:900;letter-spacing:12px;
+}
+.verification-code-input:focus{border-color:#07877b;box-shadow:0 0 0 4px rgba(7,135,123,.1)}
+.email-verification-card form>small{display:flex;align-items:center;justify-content:center;gap:5px;color:#7d8b9b;font-size:8px}
+.email-verification-card form>small svg{width:14px}
+.verification-resend{
+  margin:17px auto 0;display:flex;align-items:center;justify-content:center;gap:7px;border:0;
+  color:#087f74;background:transparent;font-size:9px;font-weight:800;
+}
+.verification-resend svg{width:15px}
+.verification-resend:disabled{color:#8a97a5;cursor:not-allowed}
+
+/* Les deux parcours secondaires de la connexion deviennent de vraies cartes. */
+.auth-role-options{margin-top:13px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.auth-role-card{
+  min-width:0;padding:12px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;
+  border:1px solid #d4dfeb;border-radius:12px;color:#24425e;background:#f8fbfd;transition:.2s;
+}
+.auth-role-card:hover{border-color:#80c8be;background:#eff9f7;transform:translateY(-2px);box-shadow:0 8px 18px rgba(14,64,86,.08)}
+.auth-role-card>span{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;color:#087f74;background:#dff5f0}
+.auth-role-card>span svg{width:17px}
+.auth-role-card>div{min-width:0;display:flex;flex-direction:column;gap:1px}
+.auth-role-card strong{font-size:10px}
+.auth-role-card small{overflow:hidden;color:#758597;font-size:8px;text-overflow:ellipsis;white-space:nowrap}
+.auth-role-card>svg{width:14px;color:#7990a5}
+
+/* Centre le duo présentation/formulaire et supprime la grande zone vide à droite. */
+.student-registration.student-registration--refined{
+  grid-template-columns:minmax(0,620px) minmax(480px,560px);
+  justify-content:center;column-gap:clamp(45px,5vw,80px);
+}
+.student-registration--refined .registration-intro{width:100%;max-width:620px}
+.student-registration--refined .registration-form--refined{width:100%;max-width:560px;justify-self:start}
+
+@media(max-width:1280px){
+  .student-registration.student-registration--refined{grid-template-columns:minmax(0,700px);row-gap:30px}
+  .student-registration--refined .registration-intro,
+  .student-registration--refined .registration-form--refined{max-width:700px;justify-self:stretch}
+}
+@media(max-width:850px){
+  .faq-layout{grid-template-columns:1fr}
+  .faq-categories{position:static;display:flex;overflow-x:auto;gap:5px;scrollbar-width:none}
+  .faq-categories::-webkit-scrollbar{display:none}
+  .faq-categories>strong{display:none}
+  .faq-categories>a{flex:0 0 auto;white-space:nowrap}
+  .faq-contact{grid-template-columns:auto 1fr}
+  .faq-contact .button{grid-column:1/-1;width:100%}
+}
+@media(max-width:560px){
+  .faq-hero{padding:50px 0}
+  .faq-hero__content{grid-template-columns:1fr}
+  .faq-hero__icon{width:49px;height:49px}
+  .faq-hero h1{font-size:38px}
+  .faq-search{grid-column:auto;grid-template-columns:auto minmax(0,1fr)}
+  .faq-search>span{display:none}
+  .faq-section{padding:45px 0}
+  .faq-group{padding:18px}
+  .faq-questions summary{font-size:11px}
+  .faq-contact{padding:18px}
+  .auth-role-options{grid-template-columns:1fr}
+}

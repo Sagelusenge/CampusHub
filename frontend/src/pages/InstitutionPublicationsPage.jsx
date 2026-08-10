@@ -17,6 +17,7 @@ export function InstitutionPublicationsPage() {
   const [modal, setModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [form, setForm] = useState(initialForm);
   const [image, setImage] = useState(null);
   const preview = useMemo(() => image ? URL.createObjectURL(image) : null, [image]);
@@ -27,12 +28,14 @@ export function InstitutionPublicationsPage() {
     if (!universite) { setLoading(false); return; }
     setLoading(true);
     try {
-      const response = await apiRequest(`/publications?universite=${universite.code_universite}&page=1&limite=50`);
-      setItems(response.donnees || []);
+      const response = await apiRequest('/publications/moi', { token });
+      setItems((response.donnees || []).filter(
+        (item) => item.code_universite === universite.code_universite,
+      ));
       setError('');
     } catch (err) { setError(err.message); }
     finally { setLoading(false); }
-  }, [universite]);
+  }, [token, universite]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -43,6 +46,7 @@ export function InstitutionPublicationsPage() {
     event.preventDefault();
     setSaving(true);
     setError('');
+    setMessage('');
     try {
       const response = await apiRequest('/publications', {
         method: 'POST', token,
@@ -67,6 +71,10 @@ export function InstitutionPublicationsPage() {
           },
         });
       }
+      const statut = response.donnees.statut_publication;
+      setMessage(statut === 'PUBLIEE'
+        ? 'La publication est maintenant visible dans le réseau CampusHub.'
+        : 'Le brouillon a bien été enregistré.');
       setModal(false); setForm(initialForm); setImage(null); await load();
     } catch (err) { setError(err.message); }
     finally { setSaving(false); }
@@ -83,6 +91,7 @@ export function InstitutionPublicationsPage() {
   if (!universite) return <div className="no-university"><FileText /><h2>Créez d’abord votre fiche universitaire</h2></div>;
   return <div>
     <DashboardPageHeader title="Publications" description="Partagez vos annonces, recherches, photos et actualités académiques." actions={<button className="button" onClick={() => setModal(true)}><Plus />Nouvelle publication</button>} />
+    {message && <div className="alert alert--success">{message}</div>}
     {error && <div className="alert alert--error">{error}</div>}
     <section className="publication-manager">
       {loading ? <div className="content-loading"><Spinner />Chargement…</div> : items.length ? items.map((item) => <article className="managed-publication" key={item.code_publication}>

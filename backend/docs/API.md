@@ -29,6 +29,8 @@ Authorization: Bearer <jetonAcces>
 | Méthode | Route | Accès | Action |
 |---|---|---|---|
 | POST | `/auth/inscription` | Public | Inscrire un visiteur, étudiant, établissement ou entreprise |
+| POST | `/auth/verification-email/confirmer` | Public | Confirmer l’adresse avec un code à 6 chiffres |
+| POST | `/auth/verification-email/renvoyer` | Public | Renvoyer un code après le délai de sécurité |
 | POST | `/auth/connexion` | Public | Recevoir les jetons d'accès et d'actualisation |
 | POST | `/auth/actualiser` | Public | Remplacer un jeton d'actualisation et renouveler l'accès |
 | POST | `/auth/deconnexion` | Public | Révoquer le jeton d'actualisation |

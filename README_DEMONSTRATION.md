@@ -13,6 +13,7 @@ Ces comptes sont uniquement destinés aux tests et aux présentations. Les 20 é
 | Profil | Adresse e-mail |
 |---|---|
 | Administrateur CampusHub | `admin@campushub.test` |
+| Gestionnaire de démonstration ISIG | `institution@campushub.test` |
 
 ## 10 établissements supérieurs
 
@@ -49,4 +50,3 @@ Ces comptes sont uniquement destinés aux tests et aux présentations. Les 20 é
 1. Ouvrir la page de connexion.
 2. Utiliser l’une des adresses ci-dessus et le mot de passe commun.
 3. Le compte administrateur ouvre l’administration ; chaque compte institutionnel ouvre son espace établissement.
-

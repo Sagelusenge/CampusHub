@@ -96,6 +96,13 @@ export async function traiterPaiement(code, adminId, donnees) {
 }
 
 async function activerAbonnement(connexion, paiement) {
+  const [comptes] = await connexion.execute(
+    'SELECT date_verification_email FROM utilisateurs WHERE id = ? LIMIT 1',
+    [paiement.utilisateur_id],
+  );
+  if (!comptes[0]?.date_verification_email) {
+    throw new ErreurApi(409, 'L’établissement doit confirmer son adresse e-mail avant son activation.');
+  }
   const [precedents] = await connexion.execute(
     `SELECT date_fin FROM abonnements_universite WHERE utilisateur_id = ? AND statut = 'ACTIF' ORDER BY date_fin DESC LIMIT 1`,
     [paiement.utilisateur_id],
@@ -112,8 +119,8 @@ async function activerAbonnement(connexion, paiement) {
     [paiement.utilisateur_id, membres[0]?.universite_id ?? null, paiement.plan_id, paiement.id, debut, fin],
   );
   await connexion.execute(
-    `UPDATE utilisateurs SET statut_compte = 'ACTIF', statut_verification = 'VERIFIE',
-     date_verification_email = COALESCE(date_verification_email, CURRENT_TIMESTAMP) WHERE id = ?`,
+    `UPDATE utilisateurs SET statut_compte = 'ACTIF', statut_verification = 'VERIFIE'
+     WHERE id = ?`,
     [paiement.utilisateur_id],
   );
 }

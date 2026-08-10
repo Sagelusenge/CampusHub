@@ -102,6 +102,6 @@ FROM profils_etudiants pe
 JOIN utilisateurs ut ON ut.id = pe.utilisateur_id
 LEFT JOIN universites u ON u.id = pe.universite_id
 LEFT JOIN filieres fi ON fi.id = pe.filiere_id
-WHERE pe.est_visible = 1 AND ut.statut_compte = 'ACTIF';
+WHERE pe.est_visible = 1 AND pe.statut_institution = 'ACTIF' AND ut.statut_compte = 'ACTIF';
 
 SELECT 'Documents PDF et republications activés' AS message;

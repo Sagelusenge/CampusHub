@@ -1,11 +1,139 @@
-import { Bell, CheckCheck, Info, Trash2 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { apiRequest } from '../api/client.js';
-import { DashboardPageHeader } from '../components/DashboardShell.jsx';
-import { Spinner } from '../components/Spinner.jsx';
-import { useAuth } from '../context/AuthContext.jsx';
+import { Bell, BellRing, CheckCheck, Info, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { apiRequest } from "../api/client.js";
+import { DashboardPageHeader } from "../components/DashboardShell.jsx";
+import { Spinner } from "../components/Spinner.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
+import {
+  activerNotificationsNavigateur,
+  statutNotificationsNavigateur,
+} from "../utils/notifications-navigateur.js";
 
-export function NotificationsPage(){const {token}=useAuth();const [data,setData]=useState({items:[],nonLues:0});const [loading,setLoading]=useState(true);const [error,setError]=useState('');const load=useCallback(async()=>{setLoading(true);try{const response=await apiRequest('/notifications?page=1&limite=100',{token});setData({items:response.donnees?.notifications||response.donnees||[],nonLues:response.donnees?.nonLues||0})}catch(err){setError(err.message)}finally{setLoading(false)}},[token]);useEffect(()=>{
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  load();
-},[load]);async function readAll(){await apiRequest('/notifications/tout-lire',{method:'PATCH',token});load()}async function read(item){if(item.date_lecture)return;await apiRequest(`/notifications/${item.code_notification}/lire`,{method:'PATCH',token});setData(current=>({...current,nonLues:Math.max(0,current.nonLues-1),items:current.items.map(x=>x.code_notification===item.code_notification?{...x,date_lecture:new Date().toISOString()}:x)}))}async function remove(item){await apiRequest(`/notifications/${item.code_notification}`,{method:'DELETE',token});setData(current=>({...current,items:current.items.filter(x=>x.code_notification!==item.code_notification)}))}return <div><DashboardPageHeader title="Notifications" description={`${data.nonLues} notification(s) non lue(s).`} actions={<button className="secondary-action" onClick={readAll}><CheckCheck/>Tout marquer comme lu</button>}/>{error&&<div className="alert alert--error">{error}</div>}<section className="app-panel notification-list">{loading?<div className="content-loading"><Spinner/>Chargement…</div>:data.items.length?data.items.map(item=><article className={item.date_lecture?'':'notification--unread'} key={item.code_notification} onClick={()=>read(item)}><span><Info/></span><div><div><strong>{item.titre||item.type_notification||'Notification CampusHub'}</strong>{!item.date_lecture&&<i/>}</div><p>{item.message}</p><small>{item.nom_acteur&&`${item.nom_acteur} • `}{new Date(item.date_creation).toLocaleString('fr-FR')}</small></div><button onClick={e=>{e.stopPropagation();remove(item)}}><Trash2/></button></article>):<div className="management-empty"><Bell/><h3>Aucune notification</h3><p>Vos nouvelles activités apparaîtront ici.</p></div>}</section></div>}
+export function NotificationsPage() {
+  const { token } = useAuth();
+  const [data, setData] = useState({ items: [], nonLues: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [pushStatus, setPushStatus] = useState(statutNotificationsNavigateur());
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await apiRequest("/notifications?page=1&limite=100", {
+        token,
+      });
+      setData({
+        items: response.donnees?.notifications || response.donnees || [],
+        nonLues: response.donnees?.nonLues || 0,
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+  }, [load]);
+  async function readAll() {
+    await apiRequest("/notifications/tout-lire", { method: "PATCH", token });
+    load();
+  }
+  async function read(item) {
+    if (item.date_lecture) return;
+    await apiRequest(`/notifications/${item.code_notification}/lire`, {
+      method: "PATCH",
+      token,
+    });
+    setData((current) => ({
+      ...current,
+      nonLues: Math.max(0, current.nonLues - 1),
+      items: current.items.map((x) =>
+        x.code_notification === item.code_notification
+          ? { ...x, date_lecture: new Date().toISOString() }
+          : x,
+      ),
+    }));
+  }
+  async function remove(item) {
+    await apiRequest(`/notifications/${item.code_notification}`, {
+      method: "DELETE",
+      token,
+    });
+    setData((current) => ({
+      ...current,
+      items: current.items.filter(
+        (x) => x.code_notification !== item.code_notification,
+      ),
+    }));
+  }
+  async function enablePush() {
+    setError("");
+    try {
+      await activerNotificationsNavigateur();
+      setPushStatus("granted");
+    } catch (err) {
+      setPushStatus(statutNotificationsNavigateur());
+      setError(err.message);
+    }
+  }
+  return (
+    <div>
+      <DashboardPageHeader
+        title="Notifications"
+        description={`${data.nonLues} notification(s) non lue(s).`}
+        actions={<><button className={`secondary-action ${pushStatus === "granted" ? "notification-push--active" : ""}`} onClick={enablePush} disabled={pushStatus === "granted" || pushStatus === "NON_SUPPORTE"}><BellRing />{pushStatus === "granted" ? "Push activé" : "Activer les push"}</button><button className="secondary-action" onClick={readAll}><CheckCheck />Tout marquer comme lu</button></>}
+      />
+      {error && <div className="alert alert--error">{error}</div>}
+      <section className="app-panel notification-list">
+        {loading ? (
+          <div className="content-loading">
+            <Spinner />
+            Chargement…
+          </div>
+        ) : data.items.length ? (
+          data.items.map((item) => (
+            <article
+              className={item.date_lecture ? "" : "notification--unread"}
+              key={item.code_notification}
+              onClick={() => read(item)}
+            >
+              <span>
+                <Info />
+              </span>
+              <div>
+                <div>
+                  <strong>
+                    {item.titre ||
+                      item.type_notification ||
+                      "Notification CampusHub"}
+                  </strong>
+                  {!item.date_lecture && <i />}
+                </div>
+                <p>{item.message}</p>
+                <small>
+                  {item.nom_acteur && `${item.nom_acteur} • `}
+                  {new Date(item.date_creation).toLocaleString("fr-FR")}
+                </small>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  remove(item);
+                }}
+              >
+                <Trash2 />
+              </button>
+            </article>
+          ))
+        ) : (
+          <div className="management-empty">
+            <Bell />
+            <h3>Aucune notification</h3>
+            <p>Vos nouvelles activités apparaîtront ici.</p>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}

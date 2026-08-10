@@ -188,13 +188,13 @@ INSERT INTO utilisateurs (
   statut_verification, nom_affichage, ville, province, date_verification_email
 )
 SELECT 0, '', 'admin@campushub.test',
-  '$2b$12$W9V.tWlcTKHoRyUA5pNGGOW1MuliEST.aET4mDjI.m52rK5eezJAi',
+  '$2b$12$fjXn8YO6ZbIR2T9nVwzMYOZrBw0VHTi1pvZTSHMn9.G5D5cd5naYi',
   'ADMINISTRATEUR', 'ACTIF', 'VERIFIE', 'Administration CampusHub',
   'Goma', 'Nord-Kivu', CURRENT_TIMESTAMP
 WHERE NOT EXISTS (SELECT 1 FROM utilisateurs WHERE email = 'admin@campushub.test');
 
 UPDATE utilisateurs
-SET mot_de_passe_hash = '$2b$12$W9V.tWlcTKHoRyUA5pNGGOW1MuliEST.aET4mDjI.m52rK5eezJAi',
+SET mot_de_passe_hash = '$2b$12$fjXn8YO6ZbIR2T9nVwzMYOZrBw0VHTi1pvZTSHMn9.G5D5cd5naYi',
     statut_compte = 'ACTIF', statut_verification = 'VERIFIE'
 WHERE email = 'admin@campushub.test';
 

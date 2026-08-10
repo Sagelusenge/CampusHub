@@ -40,7 +40,8 @@ export async function rechercherUniversites(filtres) {
     const marqueurs = idsInitiaux.map(() => '?').join(',');
     const [metadonnees] = await baseDeDonnees.execute(
       `SELECT id, categorie_etablissement, pays, latitude, longitude, url_logo, url_couverture,
-        (SELECT COUNT(*) FROM campus c WHERE c.universite_id = universites.id) AS nombre_campus
+        (SELECT COUNT(*) FROM campus c WHERE c.universite_id = universites.id) AS nombre_campus,
+        (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = universites.id AND pe.statut_institution = 'ACTIF') AS nombre_etudiants
        FROM universites WHERE id IN (${marqueurs})`, idsInitiaux,
     );
     const parId = new Map(metadonnees.map((item) => [Number(item.id), item]));
@@ -96,7 +97,7 @@ export async function obtenirUniversiteParCode(code) {
        (SELECT COUNT(*) FROM campus c WHERE c.universite_id = u.id) AS nombre_campus,
        (SELECT COUNT(*) FROM facultes fa WHERE fa.universite_id = u.id) AS nombre_facultes,
        (SELECT COUNT(*) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS nombre_filieres,
-       (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id) AS nombre_etudiants,
+       (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id AND pe.statut_institution = 'ACTIF') AS nombre_etudiants,
        (SELECT COUNT(*) FROM abonnements_universites au WHERE au.universite_id = u.id) AS nombre_abonnes,
        (SELECT MIN(fi.frais_minimum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_minimum,
        (SELECT MAX(fi.frais_maximum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_maximum,
@@ -250,12 +251,86 @@ export async function comparerUniversites(codes) {
     throw new ErreurApi(400, 'Une école secondaire ne peut pas être comparée à une université ou un institut supérieur.');
   }
   const [resultats] = await baseDeDonnees.query('CALL sp_comparer_universites(?)', [liste.join(',')]);
+  const [effectifs] = await baseDeDonnees.execute(
+    `SELECT u.code_universite, COUNT(pe.id) AS nombre_etudiants
+     FROM universites u
+     LEFT JOIN profils_etudiants pe ON pe.universite_id = u.id AND pe.statut_institution = 'ACTIF'
+     WHERE u.code_universite IN (${marqueurs}) GROUP BY u.id`,
+    liste,
+  );
   const categories = new Map(etablissements.map((item) => [item.code_universite, item.categorie_etablissement]));
-  return resultats[0].map((item) => ({ ...item, categorie_etablissement: categories.get(item.code_universite) }));
+  const effectifsParCode = new Map(effectifs.map((item) => [item.code_universite, Number(item.nombre_etudiants)]));
+  return resultats[0].map((item) => ({
+    ...item,
+    categorie_etablissement: categories.get(item.code_universite),
+    nombre_etudiants: effectifsParCode.get(item.code_universite) || 0,
+  }));
 }
 
 export async function statistiquesUniversite(code) {
   const universite = await trouverUniversiteParCode(code);
-  const [resultats] = await baseDeDonnees.query('CALL sp_statistiques_universite(?)', [universite.id]);
-  return resultats[0][0];
+  const [statistiques, publications, offres, candidatures, repartition] = await Promise.all([
+    baseDeDonnees.query('CALL sp_statistiques_universite(?)', [universite.id]),
+    baseDeDonnees.execute(
+      `SELECT DATE_FORMAT(date_creation, '%Y-%m') AS mois, COUNT(*) AS total
+       FROM publications
+       WHERE universite_id = ? AND statut_publication = 'PUBLIEE'
+         AND date_creation >= DATE_SUB(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'), INTERVAL 5 MONTH)
+       GROUP BY DATE_FORMAT(date_creation, '%Y-%m')`,
+      [universite.id],
+    ),
+    baseDeDonnees.execute(
+      `SELECT DATE_FORMAT(date_creation, '%Y-%m') AS mois, COUNT(*) AS total
+       FROM offres_etablissements
+       WHERE universite_id = ? AND statut = 'PUBLIEE'
+         AND date_creation >= DATE_SUB(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'), INTERVAL 5 MONTH)
+       GROUP BY DATE_FORMAT(date_creation, '%Y-%m')`,
+      [universite.id],
+    ),
+    baseDeDonnees.execute(
+      `SELECT mois, COUNT(*) AS total FROM (
+         SELECT DATE_FORMAT(date_creation, '%Y-%m') AS mois
+         FROM demandes_affiliation_etudiante
+         WHERE universite_id = ? AND date_creation >= DATE_SUB(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'), INTERVAL 5 MONTH)
+         UNION ALL
+         SELECT DATE_FORMAT(date_creation, '%Y-%m') AS mois
+         FROM demandes_inscription_ligne
+         WHERE universite_id = ? AND date_creation >= DATE_SUB(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'), INTERVAL 5 MONTH)
+       ) activite GROUP BY mois`,
+      [universite.id, universite.id],
+    ),
+    baseDeDonnees.execute(
+      `SELECT categorie, COUNT(*) AS total FROM (
+         SELECT CASE statut WHEN 'EN_ATTENTE' THEN 'EN_ATTENTE' WHEN 'ACCEPTEE' THEN 'ACCEPTEE' ELSE 'REJETEE' END AS categorie
+         FROM demandes_affiliation_etudiante WHERE universite_id = ?
+         UNION ALL
+         SELECT CASE WHEN statut IN ('SOUMISE','EN_ETUDE','DOCUMENTS_REQUIS') THEN 'EN_ATTENTE'
+           WHEN statut = 'ACCEPTEE' THEN 'ACCEPTEE' ELSE 'REJETEE' END AS categorie
+         FROM demandes_inscription_ligne WHERE universite_id = ?
+       ) demandes GROUP BY categorie`,
+      [universite.id, universite.id],
+    ),
+  ]);
+
+  const indexer = (lignes) => new Map(lignes.map((item) => [item.mois, Number(item.total)]));
+  const publicationsParMois = indexer(publications[0]);
+  const offresParMois = indexer(offres[0]);
+  const candidaturesParMois = indexer(candidatures[0]);
+  const activiteMensuelle = Array.from({ length: 6 }, (_, index) => {
+    const date = new Date(); date.setDate(1); date.setMonth(date.getMonth() - (5 - index));
+    const mois = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    return {
+      mois,
+      publications: publicationsParMois.get(mois) || 0,
+      offres: offresParMois.get(mois) || 0,
+      candidatures: candidaturesParMois.get(mois) || 0,
+    };
+  });
+  const demandes = { enAttente: 0, acceptees: 0, rejetees: 0 };
+  repartition[0].forEach((item) => {
+    if (item.categorie === 'EN_ATTENTE') demandes.enAttente = Number(item.total);
+    if (item.categorie === 'ACCEPTEE') demandes.acceptees = Number(item.total);
+    if (item.categorie === 'REJETEE') demandes.rejetees = Number(item.total);
+  });
+  return { indicateurs: statistiques[0][0][0], activiteMensuelle, repartitionDemandes: demandes };
 }

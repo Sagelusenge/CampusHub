@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { DashboardShell } from './components/DashboardShell.jsx';
 import { PageShell } from './components/PageShell.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
+import { SocialPageLayout } from './components/SocialNavigation.jsx';
 import { InstitutionProvider } from './context/InstitutionContext.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.jsx';
@@ -26,22 +27,30 @@ import { PortfolioDetailPage } from './pages/PortfolioDetailPage.jsx';
 import { PortfoliosPage } from './pages/PortfoliosPage.jsx';
 import { SettingsPage } from './pages/SettingsPage.jsx';
 import { SocialFeedPage } from './pages/SocialFeedPage.jsx';
+import { SocialRelationsPage } from './pages/SocialRelationsPage.jsx';
 import { StudentAffiliationPage, StudentDashboardPage, StudentProfilePage } from './pages/StudentPages.jsx';
 import { StudentRegistrationPage } from './pages/StudentRegistrationPage.jsx';
 import { AdminSubscriptionsPage, InstitutionSubscriptionPage } from './pages/SubscriptionsPages.jsx';
 import { UniversitiesPage } from './pages/UniversitiesPage.jsx';
 import { UniversityApplicationPage } from './pages/UniversityApplicationPage.jsx';
 import { UniversityAffiliationsPage } from './pages/UniversityAffiliationsPage.jsx';
+import { InstitutionStudentsPage } from './pages/InstitutionStudentsPage.jsx';
 import { UniversityDetailPage } from './pages/UniversityDetailPage.jsx';
 import { VisitorRegistrationPage } from './pages/VisitorRegistrationPage.jsx';
 import { InstitutionOffersPage } from './pages/InstitutionOffersPage.jsx';
 import { OffersPage } from './pages/OffersPage.jsx';
 import { OfferDetailPage } from './pages/OfferDetailPage.jsx';
+import { OnlineEnrollmentPage } from './pages/OnlineEnrollmentPage.jsx';
+import { InstitutionEnrollmentPage } from './pages/InstitutionEnrollmentPage.jsx';
+import { InstitutionPartnersPage } from './pages/InstitutionPartnersPage.jsx';
+import { FinalistOrientationPage } from './pages/FinalistOrientationPage.jsx';
+import { FaqPage } from './pages/FaqPage.jsx';
+import { ProfessionalReportsPage } from './pages/ProfessionalReportsPage.jsx';
 
 const protectAdmin = <ProtectedRoute roles={['ADMINISTRATEUR']}><DashboardShell role="admin" /></ProtectedRoute>;
 const protectInstitution = <ProtectedRoute roles={['UNIVERSITE']}><InstitutionProvider><DashboardShell role="institution" /></InstitutionProvider></ProtectedRoute>;
 const protectStudent = <ProtectedRoute roles={['ETUDIANT']}><DashboardShell role="student" /></ProtectedRoute>;
-const protectNetwork = <ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><SocialFeedPage /></ProtectedRoute>;
+const protectNetwork = <ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><SocialPageLayout /></ProtectedRoute>;
 
 function destinationFor(role) {
   if (role === 'ADMINISTRATEUR') return '/administration';
@@ -55,7 +64,7 @@ function ConnectedHome({ children }) {
   const { estConnecte, utilisateur, initialisationTerminee } = useAuth();
   const destination = destinationFor(utilisateur?.role);
   if (!initialisationTerminee) return null;
-  return estConnecte && destination && utilisateur?.role !== 'VISITEUR'
+  return estConnecte && destination
     ? <Navigate to={destination} replace /> : children;
 }
 
@@ -67,17 +76,26 @@ export function App() {
     <Route path="/comparaison" element={<ComparePage />} />
     <Route path="/portfolios" element={<PortfoliosPage />} />
     <Route path="/portfolios/:code" element={<PortfolioDetailPage />} />
-    <Route path="/reseau" element={protectNetwork} />
+    <Route element={protectNetwork}>
+      <Route path="/reseau" element={<SocialFeedPage embedded />} />
+      <Route path="/annonces" element={<SocialFeedPage key="annonces" initialFilter="ANNONCE" />} />
+      <Route path="/relations" element={<SocialRelationsPage />} />
+      <Route path="/chat" element={<div className="container social-utility-page"><MessagesPage /></div>} />
+      <Route path="/notifications" element={<div className="container social-utility-page"><NotificationsPage /></div>} />
+      <Route path="/parametres" element={<section className="public-settings-page"><div className="container"><SettingsPage /></div></section>} />
+    </Route>
     <Route path="/actualites" element={<Navigate to="/reseau" replace />} />
+    <Route path="/faq" element={<FaqPage />} />
     <Route path="/contact" element={<ContactPage />} />
     <Route path="/offres" element={<OffersPage />} />
     <Route path="/offres/:code" element={<OfferDetailPage />} />
+    <Route path="/universites/:code/inscription-en-ligne" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT']}><OnlineEnrollmentPage /></ProtectedRoute>} />
     <Route path="/connexion" element={<ConnectedHome><LoginPage /></ConnectedHome>} />
     <Route path="/partenariat" element={<UniversityApplicationPage />} />
     <Route path="/inscription-etudiant" element={<StudentRegistrationPage />} />
     <Route path="/inscription-visiteur" element={<VisitorRegistrationPage />} />
     <Route path="/orientation" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT']}><PageShell><OrientationAIPage /></PageShell></ProtectedRoute>} />
-    <Route path="/parametres" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><PageShell><section className="public-settings-page"><div className="container"><SettingsPage /></div></section></PageShell></ProtectedRoute>} />
+    <Route path="/orientation-finaliste" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT']}><PageShell><FinalistOrientationPage /></PageShell></ProtectedRoute>} />
 
     <Route element={protectAdmin}>
       <Route path="/administration" element={<AdminDashboardPage />} />
@@ -90,6 +108,7 @@ export function App() {
       <Route path="/administration/localisations" element={<AdminLocationsPage />} />
       <Route path="/administration/contacts" element={<AdminContactsPage />} />
       <Route path="/administration/reseau" element={<SocialFeedPage embedded />} />
+      <Route path="/administration/rapports" element={<ProfessionalReportsPage role="admin" />} />
       <Route path="/administration/notifications" element={<NotificationsPage />} />
       <Route path="/administration/parametres" element={<SettingsPage />} />
     </Route>
@@ -104,10 +123,14 @@ export function App() {
       <Route path="/espace-universite/admissions" element={<InstitutionResourcePage type="admissions" />} />
       <Route path="/espace-universite/publications" element={<InstitutionPublicationsPage />} />
       <Route path="/espace-universite/offres" element={<InstitutionOffersPage />} />
+      <Route path="/espace-universite/inscriptions-en-ligne" element={<InstitutionEnrollmentPage />} />
+      <Route path="/espace-universite/partenaires" element={<InstitutionPartnersPage />} />
       <Route path="/espace-universite/reseau" element={<SocialFeedPage embedded />} />
+      <Route path="/espace-universite/rapports" element={<ProfessionalReportsPage role="institution" />} />
       <Route path="/espace-universite/copilote" element={<InstitutionCopilotPage />} />
       <Route path="/espace-universite/messages" element={<MessagesPage />} />
       <Route path="/espace-universite/affiliations" element={<UniversityAffiliationsPage />} />
+      <Route path="/espace-universite/etudiants" element={<InstitutionStudentsPage />} />
       <Route path="/espace-universite/abonnement" element={<InstitutionSubscriptionPage />} />
       <Route path="/espace-universite/notifications" element={<NotificationsPage />} />
       <Route path="/espace-universite/parametres" element={<SettingsPage />} />
@@ -117,8 +140,10 @@ export function App() {
       <Route path="/espace-etudiant" element={<StudentDashboardPage />} />
       <Route path="/espace-etudiant/affiliation" element={<StudentAffiliationPage />} />
       <Route path="/espace-etudiant/profil" element={<StudentProfilePage />} />
+      <Route path="/espace-etudiant/rapports" element={<ProfessionalReportsPage role="student" />} />
       <Route path="/espace-etudiant/reseau" element={<SocialFeedPage embedded />} />
       <Route path="/espace-etudiant/orientation" element={<OrientationAIPage embedded />} />
+      <Route path="/espace-etudiant/orientation-finaliste" element={<FinalistOrientationPage embedded />} />
       <Route path="/espace-etudiant/actualites" element={<Navigate to="/espace-etudiant/reseau" replace />} />
       <Route path="/espace-etudiant/messages" element={<MessagesPage />} />
       <Route path="/espace-etudiant/notifications" element={<NotificationsPage />} />

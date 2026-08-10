@@ -13,6 +13,7 @@ import {
   FileClock,
   FileText,
   GraduationCap,
+  Handshake,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -23,6 +24,7 @@ import {
   Settings,
   ShieldCheck,
   School,
+  UserRound,
   Users,
   Wrench,
   X,
@@ -30,8 +32,11 @@ import {
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
+import { AccountMenu } from './AccountMenu.jsx';
+import { LanguageSelector } from './LanguageSelector.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useInstitution } from '../context/InstitutionContext.jsx';
+import { notifierNouvelleActivite } from '../utils/notifications-navigateur.js';
 
 const adminNavigation = [
   { to: '/administration', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
@@ -44,6 +49,7 @@ const adminNavigation = [
   { to: '/administration/localisations', label: 'Villes proposées', icon: MapPin },
   { to: '/administration/contacts', label: 'Messages de contact', icon: Mail },
   { to: '/administration/reseau', label: 'Réseau CampusHub', icon: Newspaper },
+  { to: '/administration/rapports', label: 'Rapports', icon: FileText },
   { to: '/administration/notifications', label: 'Notifications', icon: Bell },
 ];
 
@@ -59,13 +65,17 @@ function institutionNavigation(isSchool) {
       { to: '/espace-universite/admissions', label: isSchool ? 'Conditions d’inscription' : 'Admissions', icon: BookOpen },
     ] },
     { to: '/espace-universite/offres', label: 'Offres', icon: BriefcaseBusiness },
+    { to: '/espace-universite/inscriptions-en-ligne', label: 'Inscriptions en ligne', icon: ClipboardCheck },
+    { to: '/espace-universite/partenaires', label: 'Partenaires', icon: Handshake },
     { to: '/espace-universite/publications', label: 'Publications', icon: FileText },
     { to: '/espace-universite/reseau', label: 'Réseau CampusHub', icon: Newspaper },
+    { to: '/espace-universite/rapports', label: 'Rapports', icon: FileText },
   ];
   if (!isSchool) navigation.push({ to: '/espace-universite/copilote', label: 'Copilote établissement', icon: Bot });
   navigation.push(
     { to: '/espace-universite/messages', label: 'Messages', icon: MessageCircle },
     { to: '/espace-universite/affiliations', label: isSchool ? 'Demandes des élèves' : 'Demandes étudiantes', icon: ClipboardCheck },
+    { to: '/espace-universite/etudiants', label: isSchool ? 'Gestion des élèves' : 'Gestion des étudiants', icon: Users },
     { to: '/espace-universite/abonnement', label: 'Abonnement', icon: CreditCard },
     { to: '/espace-universite/notifications', label: 'Notifications', icon: Bell },
   );
@@ -76,10 +86,20 @@ const studentNavigation = [
   { to: '/espace-etudiant', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/espace-etudiant/reseau', label: 'Réseau CampusHub', icon: Newspaper },
   { to: '/espace-etudiant/orientation', label: 'CampusHub AI', icon: Bot },
+  { to: '/espace-etudiant/orientation-finaliste', label: 'Orientation finaliste', icon: BookOpen },
   { to: '/espace-etudiant/messages', label: 'Messages', icon: MessageCircle },
   { to: '/espace-etudiant/affiliation', label: 'Mon affiliation', icon: Building2 },
   { to: '/espace-etudiant/profil', label: 'Mon profil', icon: GraduationCap },
+  { to: '/espace-etudiant/rapports', label: 'Rapports', icon: FileText },
   { to: '/espace-etudiant/notifications', label: 'Notifications', icon: Bell },
+];
+
+const visitorNavigation = [
+  { to: '/reseau', label: 'Réseau', icon: Newspaper, end: true },
+  { to: '/universites', label: 'Établissements', icon: Building2 },
+  { to: '/offres', label: 'Offres', icon: BriefcaseBusiness },
+  { to: '/contact', label: 'Contact', icon: Mail },
+  { to: '/faq', label: 'Aide', icon: BookOpen },
 ];
 
 const titles = {
@@ -93,6 +113,7 @@ const titles = {
   '/administration/localisations': 'Villes proposées',
   '/administration/contacts': 'Messages de contact',
   '/administration/reseau': 'Réseau CampusHub',
+  '/administration/rapports': 'Rapports professionnels',
   '/administration/notifications': 'Notifications',
   '/espace-universite': 'Tableau de bord',
   '/espace-universite/fiche': 'Fiche publique',
@@ -103,48 +124,75 @@ const titles = {
   '/espace-universite/admissions': 'Conditions d’admission',
   '/espace-universite/publications': 'Publications',
   '/espace-universite/offres': 'Offres',
+  '/espace-universite/inscriptions-en-ligne': 'Inscriptions en ligne',
+  '/espace-universite/partenaires': 'Partenaires',
   '/espace-universite/reseau': 'Réseau CampusHub',
+  '/espace-universite/rapports': 'Rapports professionnels',
   '/espace-universite/copilote': 'Copilote établissement',
   '/espace-universite/messages': 'Messages',
   '/espace-universite/affiliations': 'Demandes étudiantes',
+  '/espace-universite/etudiants': 'Gestion des étudiants',
   '/espace-universite/abonnement': 'Abonnement',
   '/espace-universite/notifications': 'Notifications',
   '/espace-etudiant': 'Tableau de bord',
   '/espace-etudiant/reseau': 'Réseau CampusHub',
   '/espace-etudiant/orientation': 'CampusHub AI',
+  '/espace-etudiant/orientation-finaliste': 'Orientation finaliste',
   '/espace-etudiant/messages': 'Messages',
   '/espace-etudiant/affiliation': 'Mon affiliation',
   '/espace-etudiant/profil': 'Mon profil',
+  '/espace-etudiant/rapports': 'Rapports professionnels',
   '/espace-etudiant/notifications': 'Notifications',
+  '/reseau': 'Réseau CampusHub',
+  '/universites': 'Établissements',
+  '/offres': 'Offres',
+  '/annonces': 'Annonces',
+  '/relations': 'Relations',
+  '/chat': 'Messages',
+  '/contact': 'Contact',
+  '/faq': 'Centre d’aide',
+  '/notifications': 'Notifications',
+  '/parametres': 'Mon profil',
 };
 
-export function DashboardShell({ role }) {
-  if (role === 'institution') return <InstitutionDashboardShell />;
-  return <DashboardShellContent role={role} />;
+export function DashboardShell({ role, children }) {
+  if (role === 'institution') return <InstitutionDashboardShell>{children}</InstitutionDashboardShell>;
+  return <DashboardShellContent role={role}>{children}</DashboardShellContent>;
 }
 
-function InstitutionDashboardShell() {
+function InstitutionDashboardShell({ children }) {
   const { universite } = useInstitution();
-  return <DashboardShellContent role="institution" institution={universite} />;
+  return <DashboardShellContent role="institution" institution={universite}>{children}</DashboardShellContent>;
 }
 
-function DashboardShellContent({ role, institution }) {
+function DashboardShellContent({ role, institution, children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const [campusOpen, setCampusOpen] = useState(true);
-  const { utilisateur, token, deconnexion } = useAuth();
+  const { token, deconnexion } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const isSchool = institution?.categorie_etablissement === 'ECOLE_SECONDAIRE';
-  const navigation = role === 'admin' ? adminNavigation : role === 'student' ? studentNavigation : institutionNavigation(isSchool);
-  const displayName = utilisateur?.nom_affichage || utilisateur?.nomAffichage || (role === 'admin' ? 'Administrateur' : 'Gestionnaire');
-  const initials = displayName.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase();
-
+  const navigation = role === 'admin'
+    ? adminNavigation
+    : role === 'student'
+      ? studentNavigation
+      : role === 'visitor'
+        ? visitorNavigation
+        : institutionNavigation(isSchool);
   useEffect(() => {
-    apiRequest('/notifications?page=1&limite=1&nonLues=true', { token })
-      .then((response) => setUnread(Number(response.donnees?.nonLues || 0)))
-      .catch(() => setUnread(0));
+    let actif = true;
+    const verifier = () => apiRequest('/notifications?page=1&limite=1&nonLues=true', { token })
+      .then((response) => {
+        if (!actif) return;
+        setUnread(Number(response.donnees?.nonLues || 0));
+        notifierNouvelleActivite(response.donnees?.notifications?.[0]).catch(() => null);
+      })
+      .catch(() => { if (actif) setUnread(0); });
+    verifier();
+    const intervalle = window.setInterval(verifier, 20_000);
+    return () => { actif = false; window.clearInterval(intervalle); };
   }, [token, location.pathname]);
 
   async function quitter() {
@@ -157,7 +205,7 @@ function DashboardShellContent({ role, institution }) {
       <aside className={`app-sidebar ${mobileOpen ? 'app-sidebar--open' : ''}`}>
         <div className="app-brand">
           <span className="app-brand__mark"><Building2 /></span>
-          <span className="app-brand__text"><strong>CampusHub</strong><small>{role === 'admin' ? 'Administration centrale' : role === 'student' ? 'Espace étudiant' : isSchool ? 'Espace scolaire' : 'Espace institutionnel'}</small></span>
+          <span className="app-brand__text"><strong>CampusHub</strong><small>{role === 'admin' ? 'Administration centrale' : role === 'student' ? 'Espace étudiant' : role === 'visitor' ? 'Espace visiteur' : isSchool ? 'Espace scolaire' : 'Espace institutionnel'}</small></span>
           <button className="sidebar-mobile-close" onClick={() => setMobileOpen(false)} aria-label="Fermer le menu"><X /></button>
         </div>
 
@@ -178,7 +226,7 @@ function DashboardShellContent({ role, institution }) {
         </nav>
 
         <div className="app-sidebar__bottom">
-          <NavLink to={role === 'admin' ? '/administration/parametres' : role === 'student' ? '/espace-etudiant/parametres' : '/espace-universite/parametres'}><Settings /><span>Paramètres</span></NavLink>
+          <NavLink to={role === 'admin' ? '/administration/parametres' : role === 'student' ? '/espace-etudiant/parametres' : role === 'visitor' ? '/parametres' : '/espace-universite/parametres'}>{role === 'visitor' ? <UserRound /> : <Settings />}<span>{role === 'visitor' ? 'Profil & paramètres' : 'Paramètres'}</span></NavLink>
           <button onClick={quitter}><LogOut /><span>Déconnexion</span></button>
         </div>
         <button className="sidebar-collapse" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? 'Agrandir le menu' : 'Réduire le menu'}>{collapsed ? <ChevronRight /> : <ChevronLeft />}</button>
@@ -190,17 +238,27 @@ function DashboardShellContent({ role, institution }) {
         <header className="app-topbar">
           <div className="app-topbar__start">
             <button className="mobile-menu-trigger" onClick={() => setMobileOpen(true)} aria-label="Ouvrir le menu"><Menu /></button>
-            <div><small>{role === 'admin' ? 'Administration' : role === 'student' ? 'Mon parcours' : isSchool ? 'Mon école' : 'Mon université'}</small><strong>{schoolTitle(location.pathname, isSchool) || titles[location.pathname] || 'CampusHub'}</strong></div>
+            <div><small>{role === 'admin' ? 'Administration' : role === 'student' ? 'Mon parcours' : role === 'visitor' ? 'Mon espace' : isSchool ? 'Mon école' : 'Mon université'}</small><strong>{schoolTitle(location.pathname, isSchool) || titles[location.pathname] || visitorTitle(location.pathname, role) || 'CampusHub'}</strong></div>
           </div>
           <div className="app-topbar__actions">
-            <NavLink className="topbar-icon" to={role === 'admin' ? '/administration/notifications' : role === 'student' ? '/espace-etudiant/notifications' : '/espace-universite/notifications'} aria-label={`${unread} notification(s) non lue(s)`}><Bell />{unread > 0 && <span title={`${unread} non lue(s)`} />}</NavLink>
-            <NavLink className="topbar-profile" to={role === 'admin' ? '/administration/parametres' : role === 'student' ? '/espace-etudiant/parametres' : '/espace-universite/parametres'} title="Modifier mon profil"><div><strong>{displayName}</strong><small>{role === 'admin' ? 'Administrateur' : role === 'student' ? 'Étudiant' : isSchool ? 'Gestionnaire scolaire' : 'Gestionnaire'}</small></div><span>{utilisateur?.url_photo_profil ? <img src={utilisateur.url_photo_profil} alt={`Photo de ${displayName}`} /> : initials}</span></NavLink>
+            <LanguageSelector compact />
+            <NavLink className="topbar-icon" to={role === 'admin' ? '/administration/notifications' : role === 'student' ? '/espace-etudiant/notifications' : role === 'visitor' ? '/notifications' : '/espace-universite/notifications'} aria-label={`${unread} notification(s) non lue(s)`}><Bell />{unread > 0 && <span title={`${unread} non lue(s)`} />}</NavLink>
+            <AccountMenu roleLabel={role === 'admin' ? 'Administrateur' : role === 'student' ? 'Étudiant' : role === 'visitor' ? 'Visiteur' : isSchool ? 'Gestionnaire scolaire' : 'Gestionnaire'} />
           </div>
         </header>
-        <main className="app-content"><Outlet /></main>
+        <main className={`app-content ${role === 'visitor' ? 'app-content--visitor' : ''}`}>{children ?? <Outlet />}</main>
       </div>
     </div>
   );
+}
+
+function visitorTitle(path, role) {
+  if (role !== 'visitor') return null;
+  if (path.startsWith('/universites/')) return 'Fiche de l’établissement';
+  if (path.startsWith('/offres/')) return 'Détail de l’offre';
+  if (path.startsWith('/portfolios/')) return 'Profil CampusHub';
+  if (path.includes('orientation')) return 'Orientation';
+  return null;
 }
 
 function schoolTitle(path, isSchool) {
@@ -211,6 +269,7 @@ function schoolTitle(path, isSchool) {
     '/espace-universite/services': 'Services scolaires',
     '/espace-universite/admissions': 'Conditions d’inscription',
     '/espace-universite/affiliations': 'Demandes des élèves',
+    '/espace-universite/etudiants': 'Gestion des élèves',
   }[path];
 }
 

@@ -9,7 +9,7 @@ export async function tableauDeBord() {
       (SELECT COUNT(*) FROM utilisateurs WHERE statut_compte = 'EN_ATTENTE') AS comptes_en_attente,
       (SELECT COUNT(*) FROM universites) AS universites,
       (SELECT COUNT(*) FROM universites WHERE statut_verification = 'EN_ATTENTE') AS universites_a_verifier,
-      (SELECT COUNT(*) FROM profils_etudiants WHERE est_visible = 1) AS profils_etudiants,
+      (SELECT COUNT(*) FROM profils_etudiants WHERE est_visible = 1 AND statut_institution = 'ACTIF') AS profils_etudiants,
       (SELECT COUNT(*) FROM filieres WHERE est_active = 1) AS filieres,
       (SELECT COUNT(*) FROM publications WHERE statut_publication = 'PUBLIEE') AS publications,
       (SELECT COUNT(*) FROM signalements WHERE statut_signalement IN ('OUVERT', 'EN_EXAMEN')) AS signalements_a_traiter,

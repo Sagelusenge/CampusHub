@@ -15,7 +15,7 @@
 6. Exécuter `08_packs_et_certification.sql` pour les trois packs et le badge séparé.
 7. Exécuter `09_messagerie_privee.sql` pour les conversations et messages privés.
 8. Exécuter `10_recherche_et_contact.sql` pour la recherche personnalisée et les contacts.
-9. Exécuter ensuite les scripts `11` à `19` dans l’ordre pour les cartes, stories, outils IA, comptes de démonstration, offres, documents PDF, republications et options scolaires comparables.
+9. Exécuter ensuite les scripts `11` à `25` dans l’ordre pour les cartes, stories, outils IA, comptes de démonstration, offres, réseau, inscriptions en ligne, partenaires, vérification e-mail, messagerie enrichie, couvertures, gestion des étudiants et audit.
 10. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
 
 ## Création depuis le client MySQL
@@ -41,6 +41,12 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/16_etudian
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/17_offres_etablissements.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/18_documents_offres_et_republications.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/19_options_ecoles_secondaires.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/20_reseau_inscriptions_partenaires.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/21_verification_email.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/22_messagerie_avancee.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/23_medias_messagerie.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/24_couvertures_etablissements.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/25_gestion_etudiants_audit.sql;
 ```
 
 Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquement des établissements fictifs clairement nommés « Démonstration » pour tester le conseiller sans faire passer ces données pour des institutions réelles.
@@ -62,6 +68,7 @@ Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquemen
 - Orientation IA : `dossiers_orientation` et `vue_impact_orientation_ia`.
 - Copilote institutionnel : `generations_copilote_institution` et `vue_usage_copilote_institution`.
 - Offres d’établissement : `offres_etablissements` et `vue_offres_etablissements`.
+- Confirmation e-mail : `codes_verification_email` (code haché, expiration, essais et utilisation).
 
 Les fichiers médias ne sont pas enregistrés directement dans MySQL. La table `medias_publication` conserve leur URL et leurs informations techniques.
 

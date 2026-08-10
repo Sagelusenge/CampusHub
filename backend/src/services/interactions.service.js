@@ -64,7 +64,7 @@ async function universiteAssociee(utilisateur) {
   }
   if (utilisateur.role === 'ETUDIANT') {
     const [lignes] = await baseDeDonnees.execute(
-      'SELECT universite_id FROM profils_etudiants WHERE utilisateur_id = ? LIMIT 1', [utilisateur.id],
+      "SELECT universite_id FROM profils_etudiants WHERE utilisateur_id = ? AND statut_institution = 'ACTIF' LIMIT 1", [utilisateur.id],
     );
     return lignes[0]?.universite_id ?? null;
   }
@@ -81,6 +81,7 @@ async function publicationCreee(code) {
 }
 
 export async function reposterPublication(utilisateur, code) {
+  if (utilisateur.role === 'VISITEUR') throw new ErreurApi(403, 'Le compte visiteur ne peut pas republier.');
   const [sources] = await baseDeDonnees.execute(
     "SELECT * FROM publications WHERE code_publication = ? AND statut_publication = 'PUBLIEE' LIMIT 1",
     [code.toUpperCase()],
@@ -108,6 +109,7 @@ export async function reposterPublication(utilisateur, code) {
 }
 
 export async function reposterOffre(utilisateur, code) {
+  if (utilisateur.role === 'VISITEUR') throw new ErreurApi(403, 'Le compte visiteur ne peut pas republier.');
   const [sources] = await baseDeDonnees.execute(
     `SELECT * FROM offres_etablissements WHERE code_offre = ? AND statut = 'PUBLIEE'
        AND (date_limite IS NULL OR date_limite >= CURRENT_DATE) LIMIT 1`, [code.toUpperCase()],

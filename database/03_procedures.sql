@@ -273,7 +273,7 @@ BEGIN
     u.province,
     u.inscriptions_ouvertes,
     (SELECT COUNT(*) FROM filieres f WHERE f.universite_id = u.id AND f.est_active = 1) AS nombre_filieres,
-    (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id) AS nombre_etudiants
+    (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id AND pe.statut_institution = 'ACTIF') AS nombre_etudiants
   FROM universites u
   WHERE (p_ville IS NULL OR p_ville = '' OR u.ville = p_ville)
     AND (p_province IS NULL OR p_province = '' OR u.province = p_province)
@@ -317,7 +317,7 @@ BEGIN
     (SELECT MAX(f.frais_maximum) FROM filieres f WHERE f.universite_id = u.id AND f.est_active = 1) AS frais_maximum,
     (SELECT COUNT(*) FROM services_universitaires s WHERE s.universite_id = u.id AND s.est_disponible = 1) AS nombre_services,
     (SELECT COUNT(*) FROM infrastructures i WHERE i.universite_id = u.id) AS nombre_infrastructures,
-    (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id) AS nombre_etudiants
+    (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id AND pe.statut_institution = 'ACTIF') AS nombre_etudiants
   FROM universites u
   WHERE FIND_IN_SET(u.code_universite, REPLACE(p_codes_universites, ' ', '')) > 0
   ORDER BY u.nom;
@@ -335,7 +335,7 @@ BEGIN
     u.nom,
     (SELECT COUNT(*) FROM facultes f WHERE f.universite_id = u.id) AS nombre_facultes,
     (SELECT COUNT(*) FROM filieres f WHERE f.universite_id = u.id AND f.est_active = 1) AS nombre_filieres,
-    (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id) AS nombre_etudiants,
+    (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id AND pe.statut_institution = 'ACTIF') AS nombre_etudiants,
     (SELECT COUNT(*) FROM publications p WHERE p.universite_id = u.id AND p.statut_publication = 'PUBLIEE') AS nombre_publications,
     (SELECT COUNT(*) FROM abonnements_universites au WHERE au.universite_id = u.id) AS nombre_abonnes,
     (SELECT COUNT(*) FROM services_universitaires s WHERE s.universite_id = u.id AND s.est_disponible = 1) AS nombre_services

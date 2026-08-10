@@ -17,13 +17,16 @@ export async function listerStories(utilisateurId) {
   return lignes;
 }
 
-export async function creerStory(utilisateurId, donnees) {
+export async function creerStory(utilisateur, donnees) {
+  if (utilisateur.role === 'VISITEUR') {
+    throw new ErreurApi(403, 'Le compte visiteur ne peut pas créer de story.');
+  }
   const connexion = await baseDeDonnees.getConnection();
   try {
     await connexion.execute(
       `INSERT INTO stories (id, code_story, auteur_id, type_media, url_media, texte, couleur_fond, date_expiration)
        VALUES (0, '', ?, ?, ?, ?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 24 HOUR))`,
-      [utilisateurId, donnees.typeMedia, donnees.urlMedia, donnees.texte ?? null, donnees.couleurFond ?? null],
+      [utilisateur.id, donnees.typeMedia, donnees.urlMedia, donnees.texte ?? null, donnees.couleurFond ?? null],
     );
     const [lignes] = await connexion.query('SELECT * FROM stories WHERE id = @campushub_dernier_id');
     return lignes[0];

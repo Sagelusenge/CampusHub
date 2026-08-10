@@ -12,6 +12,7 @@ import { gestionnaireAsync as ga } from '../utils/gestionnaire-async.js';
 export const routePublications = Router();
 routePublications.get('/', valider(schemaListePublications, 'query'), ga(c.lister));
 routePublications.post('/', authentifier, valider(schemaCreationPublication), ga(c.creer));
+routePublications.get('/moi', authentifier, ga(c.listerMiennes));
 routePublications.get('/:code', valider(schemaCodePublication, 'params'), ga(c.afficher));
 routePublications.patch('/:code', authentifier, valider(schemaCodePublication, 'params'), valider(schemaModificationPublication), ga(c.modifier));
 routePublications.delete('/:code', authentifier, valider(schemaCodePublication, 'params'), ga(c.retirer));

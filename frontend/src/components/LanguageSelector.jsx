@@ -1,0 +1,98 @@
+import { ChevronDown, Languages } from 'lucide-react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+
+const GOOGLE_TRANSLATE_SCRIPT = 'campushub-google-translate';
+const GOOGLE_TRANSLATE_ELEMENT = 'campushub_google_translate_engine';
+const LanguageContext = createContext({ ready: false, language: 'fr', options: [], changeLanguage: () => {} });
+const nomsLangues = new Intl.DisplayNames(['fr'], { type: 'language' });
+
+function langueMemorisee() {
+  const cookie = document.cookie.split(';').map((item) => item.trim()).find((item) => item.startsWith('googtrans='));
+  return cookie?.split('/').filter(Boolean).at(-1) || 'fr';
+}
+
+function nomStable(code, secours) {
+  try {
+    const nom = nomsLangues.of(code) || secours;
+    return nom ? `${nom.charAt(0).toUpperCase()}${nom.slice(1)}` : code;
+  } catch { return secours || code; }
+}
+
+export function LanguageProvider({ children }) {
+  const [options, setOptions] = useState([{ value: 'fr', label: 'Français' }]);
+  const [language, setLanguage] = useState(langueMemorisee);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let actif = true;
+    const synchroniser = () => {
+      const combo = document.querySelector(`#${GOOGLE_TRANSLATE_ELEMENT} .goog-te-combo`);
+      if (!combo || !actif) return false;
+      const languesGoogle = Array.from(combo.options)
+        .filter((option) => option.value && option.value !== 'fr')
+        .map((option) => ({ value: option.value, label: nomStable(option.value, option.textContent) }));
+      setOptions([{ value: 'fr', label: 'Français' }, ...languesGoogle]);
+      setLanguage(combo.value || langueMemorisee());
+      setReady(true);
+      return true;
+    };
+    const initialise = () => {
+      if (!globalThis.google?.translate?.TranslateElement) return;
+      const container = document.getElementById(GOOGLE_TRANSLATE_ELEMENT);
+      if (!container) return;
+      if (!container.dataset.initialized) {
+        container.dataset.initialized = 'true';
+        new globalThis.google.translate.TranslateElement({ pageLanguage: 'fr', autoDisplay: false }, GOOGLE_TRANSLATE_ELEMENT);
+      }
+      globalThis.setTimeout(synchroniser, 0);
+      globalThis.setTimeout(synchroniser, 500);
+      globalThis.setTimeout(synchroniser, 1_500);
+    };
+
+    globalThis.campusHubGoogleTranslateInit = initialise;
+    const existing = document.getElementById(GOOGLE_TRANSLATE_SCRIPT);
+    if (existing) {
+      existing.addEventListener('load', initialise);
+      initialise();
+      return () => { actif = false; existing.removeEventListener('load', initialise); };
+    }
+    const script = document.createElement('script');
+    script.id = GOOGLE_TRANSLATE_SCRIPT;
+    script.async = true;
+    script.src = 'https://translate.google.com/translate_a/element.js?cb=campusHubGoogleTranslateInit';
+    script.addEventListener('load', initialise);
+    document.head.appendChild(script);
+    return () => { actif = false; script.removeEventListener('load', initialise); };
+  }, []);
+
+  function changeLanguage(value) {
+    setLanguage(value);
+    if (value === 'fr') {
+      document.cookie = 'googtrans=; Max-Age=0; path=/';
+      document.cookie = `googtrans=; Max-Age=0; path=/; domain=${globalThis.location.hostname}`;
+      globalThis.location.reload();
+      return;
+    }
+    const combo = document.querySelector(`#${GOOGLE_TRANSLATE_ELEMENT} .goog-te-combo`);
+    if (!combo) return;
+    combo.value = value;
+    combo.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  const value = useMemo(() => ({ ready, language, options, changeLanguage }), [ready, language, options]);
+  return <LanguageContext.Provider value={value}>{children}<div id={GOOGLE_TRANSLATE_ELEMENT} className="google-translate-engine" aria-hidden="true" /></LanguageContext.Provider>;
+}
+
+export function LanguageSelector({ compact = false }) {
+  const { ready, language, options, changeLanguage } = useContext(LanguageContext);
+  return (
+    <label className={`language-selector notranslate ${compact ? 'language-selector--compact' : ''}`} translate="no" title="Choisir la langue">
+      <Languages aria-hidden="true" />
+      <span className="language-selector__code">{language.split('-')[0].toUpperCase()}</span>
+      <ChevronDown className="language-selector__chevron" aria-hidden="true" />
+      <select className="notranslate" translate="no" aria-label="Choisir la langue du site" value={language} disabled={!ready} onChange={(event) => changeLanguage(event.target.value)}>
+        {options.map((option) => <option translate="no" value={option.value} key={option.value}>{option.label}</option>)}
+      </select>
+    </label>
+  );
+}

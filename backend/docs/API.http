@@ -20,6 +20,7 @@
 @codeCommentaire = COM00012026
 @codeSignalement = SIG00012026
 @codeNotification = NOT00012026
+@codeConfirmationEmail = 000000
 
 ### Santé de l'API
 GET {{baseUrl}}/sante
@@ -39,12 +40,30 @@ Content-Type: application/json
   "motDePasse": "MotDePasse123!",
   "role": "ETUDIANT",
   "nomAffichage": "Nouvel Étudiant",
+  "matriculeEtudiant": "2026-INFO-014",
   "ville": "Goma",
   "province": "Nord-Kivu"
 }
 
+### Confirmer l'adresse avec le code reçu par e-mail
+POST {{baseUrl}}/auth/verification-email/confirmer
+Content-Type: application/json
+
+{
+  "email": "nouvel.etudiant@campushub.cd",
+  "code": "{{codeConfirmationEmail}}"
+}
+
+### Demander un nouveau code (après le délai de sécurité)
+POST {{baseUrl}}/auth/verification-email/renvoyer
+Content-Type: application/json
+
+{
+  "email": "nouvel.etudiant@campushub.cd"
+}
+
 ### Connexion
-### Après l'inscription, un administrateur doit d'abord passer le compte à ACTIF.
+### Après l'inscription, l'étudiant confirme d'abord son adresse e-mail.
 # @name connexion
 POST {{baseUrl}}/auth/connexion
 Content-Type: application/json

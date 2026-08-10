@@ -2,6 +2,8 @@ const labels = {
   EN_ATTENTE: 'En attente',
   ACTIF: 'Actif',
   SUSPENDU: 'Suspendu',
+  BLOQUE: 'Bloqué',
+  RETIRE: 'Retiré',
   VERIFIE: 'Vérifié',
   VERIFIEE: 'Vérifiée',
   REJETE: 'Rejeté',

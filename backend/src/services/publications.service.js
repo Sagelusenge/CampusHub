@@ -36,6 +36,43 @@ export async function listerPublications(filtres) {
   return { publications: lignes, meta: metaPagination(compte[0].total, page, limite) };
 }
 
+export async function listerMesPublications(utilisateur) {
+  let condition = 'p.auteur_id = ?';
+  const valeurs = [utilisateur.id];
+
+  if (utilisateur.role === 'UNIVERSITE') {
+    const [etablissements] = await baseDeDonnees.execute(
+      `SELECT universite_id FROM membres_universite
+       WHERE utilisateur_id = ?`,
+      [utilisateur.id],
+    );
+    const ids = etablissements.map((item) => item.universite_id);
+    if (ids.length) {
+      condition = `(p.auteur_id = ? OR p.universite_id IN (${ids.map(() => '?').join(',')}))`;
+      valeurs.push(...ids);
+    }
+  }
+
+  const [lignes] = await baseDeDonnees.query(
+    `SELECT p.*, a.code_utilisateur AS code_auteur, a.nom_affichage AS nom_auteur,
+       a.url_photo_profil AS photo_auteur, u.code_universite, u.nom AS nom_universite,
+       (SELECT m.url_media FROM medias_publication m
+        WHERE m.publication_id = p.id ORDER BY m.ordre_affichage, m.id LIMIT 1) AS url_media,
+       (SELECT m.type_media FROM medias_publication m
+        WHERE m.publication_id = p.id ORDER BY m.ordre_affichage, m.id LIMIT 1) AS type_media,
+       (SELECT COUNT(*) FROM mentions_jaime j WHERE j.publication_id = p.id) AS nombre_jaime,
+       (SELECT COUNT(*) FROM commentaires c WHERE c.publication_id = p.id) AS nombre_commentaires
+     FROM publications p
+     JOIN utilisateurs a ON a.id = p.auteur_id
+     LEFT JOIN universites u ON u.id = p.universite_id
+     WHERE ${condition}
+     ORDER BY COALESCE(p.date_publication, p.date_creation) DESC
+     LIMIT 100`,
+    valeurs,
+  );
+  return lignes;
+}
+
 export async function obtenirPublication(code) {
   const publication = await publicationInterne(code);
   if (publication.statut_publication !== 'PUBLIEE') throw new ErreurApi(404, 'Publication introuvable.');
@@ -60,6 +97,9 @@ export async function obtenirPublication(code) {
 }
 
 export async function creerPublication(utilisateur, donnees) {
+  if (utilisateur.role === 'VISITEUR') {
+    throw new ErreurApi(403, 'Le compte visiteur peut consulter le réseau, mais ne peut pas publier.');
+  }
   let universiteId = null;
   if (donnees.codeUniversite) {
     const [u] = await baseDeDonnees.execute('SELECT id FROM universites WHERE code_universite = ? LIMIT 1', [donnees.codeUniversite.toUpperCase()]);
@@ -70,7 +110,7 @@ export async function creerPublication(utilisateur, donnees) {
     }
   } else if (utilisateur.role === 'ETUDIANT') {
     const [profils] = await baseDeDonnees.execute(
-      'SELECT universite_id FROM profils_etudiants WHERE utilisateur_id = ? LIMIT 1',
+      "SELECT universite_id FROM profils_etudiants WHERE utilisateur_id = ? AND statut_institution = 'ACTIF' LIMIT 1",
       [utilisateur.id],
     );
     universiteId = profils[0]?.universite_id ?? null;

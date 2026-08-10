@@ -12,7 +12,8 @@
     "check": "node scripts/verifier-syntaxe.js",
     "eval:orientation": "node scripts/evaluer-orientation.js",
     "db:demo-ai": "node scripts/appliquer-sql.js ../database/13_donnees_demo_campushub_ai.sql",
-    "db:copilote": "node scripts/appliquer-sql.js ../database/14_copilote_institutionnel.sql"
+    "db:copilote": "node scripts/appliquer-sql.js ../database/14_copilote_institutionnel.sql",
+    "db:reset-local": "node scripts/reinitialiser-base-locale.js --confirmer"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -28,6 +29,7 @@
     "morgan": "^1.11.0",
     "multer": "^2.2.0",
     "mysql2": "^3.22.6",
+    "nodemailer": "^9.0.3",
     "openai": "^6.48.0",
     "zod": "^4.4.3"
   },

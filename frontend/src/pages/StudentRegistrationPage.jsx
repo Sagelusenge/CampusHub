@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { LocationSelector } from '../components/LocationSelector.jsx';
+import { EmailVerificationStep } from '../components/EmailVerificationStep.jsx';
 import { PageShell } from '../components/PageShell.jsx';
 import { Spinner } from '../components/Spinner.jsx';
 
@@ -20,6 +21,7 @@ export function StudentRegistrationPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
+  const [verification, setVerification] = useState(null);
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -30,7 +32,7 @@ export function StudentRegistrationPage() {
     setLoading(true);
     setError('');
     try {
-      await apiRequest('/auth/inscription', {
+      const response = await apiRequest('/auth/inscription', {
         method: 'POST',
         body: {
           nomAffichage: form.nomAffichage,
@@ -43,7 +45,7 @@ export function StudentRegistrationPage() {
           role: 'ETUDIANT',
         },
       });
-      setDone(true);
+      setVerification(response.donnees);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -71,7 +73,12 @@ export function StudentRegistrationPage() {
         <h2>Votre compte est prêt</h2>
         <p>Connectez-vous maintenant. Vous arriverez directement dans votre espace étudiant pour demander la confirmation de votre université.</p>
         <Link className="button button--large" to="/connexion">Accéder à mon espace <ArrowRight /></Link>
-      </div> : <form className="form-card registration-form registration-form--refined" onSubmit={submit}>
+      </div> : verification ? <EmailVerificationStep
+        email={form.email}
+        emailMasque={verification.email_masque}
+        emailEnvoye={verification.email_envoye}
+        onVerified={() => setDone(true)}
+      /> : <form className="form-card registration-form registration-form--refined" onSubmit={submit}>
         <div className="registration-form__heading">
           <span>01</span><div><small>Création du compte</small><h2>Vos informations</h2></div>
         </div>

@@ -7,6 +7,7 @@ import { Spinner } from '../components/Spinner.jsx';
 import { LocationSelector } from '../components/LocationSelector.jsx';
 import { FileUploadField } from '../components/FileUploadField.jsx';
 import { PlanSelector } from '../components/PlanSelector.jsx';
+import { EmailVerificationStep } from '../components/EmailVerificationStep.jsx';
 
 const initialForm = {
   nomAffichage: '',
@@ -22,6 +23,7 @@ export function UniversityApplicationPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   function update(field) {
     return (event) => setForm((current) => ({ ...current, [field]: event.target.value }));
@@ -42,6 +44,21 @@ export function UniversityApplicationPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (result && !emailVerified) {
+    return (
+      <PageShell footer={false}>
+        <section className="verification-page">
+          <EmailVerificationStep
+            email={form.email}
+            emailMasque={result.email_masque}
+            emailEnvoye={result.email_envoye}
+            onVerified={() => setEmailVerified(true)}
+          />
+        </section>
+      </PageShell>
+    );
   }
 
   if (result) {

@@ -90,7 +90,7 @@ export function AdminAuditPage() {
   const { token } = useAuth();
   const loader = useCallback(async () => (await apiRequest('/administration/audit?page=1&limite=100', { token })).donnees || [], [token]);
   const list = useRemoteList(loader);
-  return <ManagementPage title="Journal d’audit" description="Historique des opérations sensibles effectuées sur CampusHub." icon={FileClock} list={list} columns={['Action','Entité','Utilisateur','Détails','Date']} renderRow={(item) => <tr key={item.code_audit || item.id}><td><strong>{item.action}</strong></td><td><span className="role-chip">{item.type_entite}</span><small className="cell-subtitle">{item.code_entite || item.entite_id || '—'}</small></td><td>{item.nom_affichage || 'Système'}<small className="cell-subtitle">{item.code_utilisateur || ''}</small></td><td className="details-cell">{item.details || '—'}</td><td>{formatDate(item.date_creation)}</td></tr>} />;
+  return <ManagementPage title="Journal d’audit" description="Traçabilité des consultations et opérations sensibles, avec valeurs avant/après et adresse IP." icon={FileClock} list={list} columns={['Action','Entité','Utilisateur','Détails','Date']} renderRow={(item) => <tr key={item.code_audit || item.id}><td><strong>{item.action}</strong><small className="cell-subtitle">{item.code_audit}</small></td><td><span className="role-chip">{item.type_entite}</span><small className="cell-subtitle">ID {item.identifiant_entite || '—'}</small></td><td>{item.nom_affichage || 'Système / anonyme'}<small className="cell-subtitle">{item.code_utilisateur || item.adresse_ip || ''}</small></td><td className="audit-details-cell"><details><summary>Consulter les données</summary><pre>{formatAuditDetails(item)}</pre></details></td><td>{formatDateTime(item.date_creation)}</td></tr>} />;
 }
 
 function ManagementPage({ title, description, icon: Icon, list, columns, renderRow, extra, message }) {
@@ -101,3 +101,8 @@ function ManagementPage({ title, description, icon: Icon, list, columns, renderR
 
 function Identity({ title, subtitle, icon: Icon }) { return <div className="table-identity"><span>{Icon ? <Icon /> : title?.slice(0,2).toUpperCase()}</span><div><strong>{title}</strong><small>{subtitle}</small></div></div>; }
 function formatDate(value) { return value ? new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium'}).format(new Date(value)) : '—'; }
+function formatDateTime(value) { return value ? new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium',timeStyle:'short'}).format(new Date(value)) : '—'; }
+function formatAuditDetails(item) {
+  const parse = (value) => { if (!value) return null; if (typeof value === 'object') return value; try { return JSON.parse(value); } catch { return value; } };
+  return JSON.stringify({ avant: parse(item.anciennes_valeurs), apres: parse(item.nouvelles_valeurs), adresseIp: item.adresse_ip || null }, null, 2);
+}

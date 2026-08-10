@@ -2,12 +2,14 @@ import { Router } from 'express';
 import * as controller from '../controllers/orientation.controller.js';
 import { authentifier, autoriserRoles } from '../middlewares/authentification.middleware.js';
 import { valider } from '../middlewares/validation.middleware.js';
-import { schemaAnalyseBulletin, schemaCodeDossier, schemaOrientation } from '../schemas/orientation.schema.js';
+import { schemaAnalyseBulletin, schemaCodeDossier, schemaOrientation, schemaOrientationFinaliste } from '../schemas/orientation.schema.js';
 import { gestionnaireAsync as ga } from '../utils/gestionnaire-async.js';
 
 export const routeOrientation = Router();
 routeOrientation.use(authentifier, autoriserRoles('VISITEUR', 'ETUDIANT'));
 routeOrientation.get('/configuration', controller.configuration);
+routeOrientation.get('/finalistes/configuration', controller.configurationFinalistes);
+routeOrientation.post('/finalistes/recommandations', valider(schemaOrientationFinaliste), ga(controller.recommanderFinaliste));
 routeOrientation.get('/dossiers', ga(controller.dossiers));
 routeOrientation.get('/dossiers/:code', valider(schemaCodeDossier, 'params'), ga(controller.dossier));
 routeOrientation.post('/analyser-bulletin', valider(schemaAnalyseBulletin), ga(controller.analyser));

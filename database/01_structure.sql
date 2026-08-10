@@ -201,6 +201,11 @@ CREATE TABLE profils_etudiants (
   competences JSON NULL,
   annee_diplomation SMALLINT UNSIGNED NULL,
   est_visible TINYINT(1) NOT NULL DEFAULT 1,
+  statut_institution ENUM('ACTIF', 'SUSPENDU', 'BLOQUE', 'RETIRE') NOT NULL DEFAULT 'ACTIF',
+  motif_statut VARCHAR(1000) NULL,
+  date_fin_suspension DATETIME NULL,
+  statut_modifie_par_id BIGINT UNSIGNED NULL,
+  date_statut DATETIME NULL,
   date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   date_modification DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT uq_profils_code UNIQUE (code_profil),
@@ -208,7 +213,9 @@ CREATE TABLE profils_etudiants (
   CONSTRAINT fk_profils_utilisateur FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
   CONSTRAINT fk_profils_universite FOREIGN KEY (universite_id) REFERENCES universites(id) ON DELETE SET NULL,
   CONSTRAINT fk_profils_filiere FOREIGN KEY (filiere_id) REFERENCES filieres(id) ON DELETE SET NULL,
-  INDEX idx_profils_etudes (universite_id, filiere_id)
+  CONSTRAINT fk_profils_statut_modifie_par FOREIGN KEY (statut_modifie_par_id) REFERENCES utilisateurs(id) ON DELETE SET NULL,
+  INDEX idx_profils_etudes (universite_id, filiere_id),
+  INDEX idx_profils_universite_statut (universite_id, statut_institution, date_modification)
 ) ENGINE=InnoDB;
 
 CREATE TABLE services_universitaires (
@@ -410,7 +417,8 @@ CREATE TABLE journal_audit (
   CONSTRAINT uq_audit_code UNIQUE (code_audit),
   CONSTRAINT fk_audit_utilisateur FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE SET NULL,
   INDEX idx_audit_entite (type_entite, identifiant_entite),
-  INDEX idx_audit_utilisateur_date (utilisateur_id, date_creation DESC)
+  INDEX idx_audit_utilisateur_date (utilisateur_id, date_creation DESC),
+  INDEX idx_audit_action_date (action, date_creation)
 ) ENGINE=InnoDB;
 
 SELECT 'Structure française CampusHub créée avec succès' AS message;

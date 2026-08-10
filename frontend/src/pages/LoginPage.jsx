@@ -1,4 +1,7 @@
-import { ArrowRight, Building2, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
+import {
+  ArrowRight, Building2, Eye, EyeOff, GraduationCap, LockKeyhole,
+  Mail, ShieldCheck, Users,
+} from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PageShell } from '../components/PageShell.jsx';
@@ -23,7 +26,7 @@ export function LoginPage() {
       const destination = location.state?.from?.pathname
         || (session.utilisateur.role === 'ADMINISTRATEUR' ? '/administration'
           : session.utilisateur.role === 'ETUDIANT' ? '/espace-etudiant'
-            : session.utilisateur.role === 'UNIVERSITE' ? '/espace-universite' : '/');
+            : session.utilisateur.role === 'UNIVERSITE' ? '/espace-universite' : '/reseau');
       navigate(destination, { replace: true });
     } catch (err) {
       setError(err.message);
@@ -69,8 +72,10 @@ export function LoginPage() {
 
             <div className="form-divider"><span>Nouvel établissement ?</span></div>
             <Link className="button button--outline button--full" to="/partenariat">Envoyer une demande</Link>
-            <Link className="auth-secondary-link" to="/inscription-etudiant">Je suis étudiant — créer un compte</Link>
-            <Link className="auth-secondary-link" to="/inscription-visiteur">Je suis visiteur — rejoindre le réseau</Link>
+            <div className="auth-role-options">
+              <Link className="auth-role-card" to="/inscription-etudiant"><span><GraduationCap /></span><div><strong>Je suis étudiant</strong><small>Créer mon espace</small></div><ArrowRight /></Link>
+              <Link className="auth-role-card" to="/inscription-visiteur"><span><Users /></span><div><strong>Je suis visiteur</strong><small>Rejoindre le réseau</small></div><ArrowRight /></Link>
+            </div>
           </form>
         </div>
       </section>

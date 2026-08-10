@@ -9,6 +9,7 @@ import { rateLimit } from 'express-rate-limit';
 import { environnement } from './config/environnement.js';
 import { dossierTeleversements } from './config/televersement.js';
 import { gestionnaireErreurs, routeIntrouvable } from './middlewares/erreurs.middleware.js';
+import { auditerActions } from './middlewares/audit.middleware.js';
 import { routesApi } from './routes/index.js';
 
 export const app = express();
@@ -38,7 +39,10 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   contentSecurityPolicy: {
     directives: {
-      frameSrc: ["'self'", 'https://www.openstreetmap.org'],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://translate.google.com', 'https://translate.googleapis.com'],
+      connectSrc: ["'self'", 'https://translate.google.com', 'https://translate.googleapis.com'],
+      imgSrc: ["'self'", 'data:', 'blob:', 'https://translate.google.com', 'https://www.gstatic.com'],
+      frameSrc: ["'self'", 'https://www.openstreetmap.org', 'https://translate.google.com'],
     },
   },
 }));
@@ -57,7 +61,7 @@ if (environnement.NODE_ENV === 'production' && existsSync(dossierFrontend)) {
   });
 }
 
-app.use('/api/v1', routesApi);
+app.use('/api/v1', auditerActions, routesApi);
 if (environnement.NODE_ENV === 'production' && existsSync(dossierFrontend)) {
   app.use((requete, reponse, suivant) => {
     if (requete.method !== 'GET' || !requete.accepts('html')) return suivant();

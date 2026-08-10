@@ -25,3 +25,19 @@ export const schemaAnalyseBulletin = z.object({
 });
 
 export const schemaCodeDossier = z.object({ code: z.string().trim().min(5).max(30) });
+
+export const schemaOrientationFinaliste = z.object({
+  optionSecondaire: z.enum([
+    'SCIENTIFIQUE', 'COMMERCIALE_GESTION', 'PEDAGOGIE', 'LITTERAIRE',
+    'TECHNIQUE_INDUSTRIELLE', 'TECHNIQUE_SOCIALE', 'AGRICULTURE', 'AUTRE',
+  ]),
+  pourcentage: z.coerce.number().min(0).max(100),
+  interets: z.array(z.enum([
+    'INFORMATIQUE', 'SANTE', 'INGENIERIE', 'GESTION', 'DROIT',
+    'EDUCATION', 'AGRICULTURE', 'COMMUNICATION', 'SCIENCES', 'ARTS',
+  ])).min(1).max(4),
+  budgetMax: z.coerce.number().positive().max(1000000).nullable().optional(),
+  province: z.string().trim().max(100).nullable().optional(),
+  ville: z.string().trim().max(100).nullable().optional(),
+  mobilite: z.boolean().default(true),
+});
