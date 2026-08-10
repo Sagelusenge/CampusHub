@@ -92,17 +92,9 @@ sudo mv "$REMOTE_DIRECTORY" "$PREVIOUS"
 sudo mv "$NEXT" "$REMOTE_DIRECTORY"
 cd "$REMOTE_DIRECTORY/deploy/aws-lightsail"
 MYSQL_ROOT_PASSWORD=$(grep '^MYSQL_ROOT_PASSWORD=' .env.runtime | cut -d= -f2-)
-for migration in \
-  17_offres_etablissements.sql \
-  18_documents_offres_et_republications.sql \
-  19_options_ecoles_secondaires.sql \
-  20_reseau_inscriptions_partenaires.sql \
-  21_verification_email.sql \
-  22_messagerie_avancee.sql \
-  23_medias_messagerie.sql \
-  24_couvertures_etablissements.sql \
-  25_gestion_etudiants_audit.sql \
-  26_abonnement_annuel_unique.sql; do
+# Les migrations 01 a 25 sont deja presentes sur cette installation. Ne pas les
+# rejouer : certaines contiennent des ALTER TABLE volontairement non repetables.
+for migration in 26_abonnement_annuel_unique.sql; do
   sudo docker compose -p aws-lightsail --env-file .env.runtime exec -T mysql \
     mysql -uroot -p"$MYSQL_ROOT_PASSWORD" campushub \
     < "$REMOTE_DIRECTORY/database/$migration"
