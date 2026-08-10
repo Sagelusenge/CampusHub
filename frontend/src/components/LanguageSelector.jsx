@@ -3,23 +3,21 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 const GOOGLE_TRANSLATE_SCRIPT = 'campushub-google-translate';
 const GOOGLE_TRANSLATE_ELEMENT = 'campushub_google_translate_engine';
-const LanguageContext = createContext({ ready: false, language: 'fr', options: [], changeLanguage: () => {} });
-const nomsLangues = new Intl.DisplayNames(['fr'], { type: 'language' });
+const LANGUAGE_OPTIONS = Object.freeze([
+  { value: 'fr', label: 'Français' },
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Español' },
+]);
+const LANGUAGE_CODES = new Set(LANGUAGE_OPTIONS.map(({ value }) => value));
+const LanguageContext = createContext({ ready: false, language: 'fr', options: LANGUAGE_OPTIONS, changeLanguage: () => {} });
 
 function langueMemorisee() {
   const cookie = document.cookie.split(';').map((item) => item.trim()).find((item) => item.startsWith('googtrans='));
-  return cookie?.split('/').filter(Boolean).at(-1) || 'fr';
-}
-
-function nomStable(code, secours) {
-  try {
-    const nom = nomsLangues.of(code) || secours;
-    return nom ? `${nom.charAt(0).toUpperCase()}${nom.slice(1)}` : code;
-  } catch { return secours || code; }
+  const code = cookie?.split('/').filter(Boolean).at(-1) || 'fr';
+  return LANGUAGE_CODES.has(code) ? code : 'fr';
 }
 
 export function LanguageProvider({ children }) {
-  const [options, setOptions] = useState([{ value: 'fr', label: 'Français' }]);
   const [language, setLanguage] = useState(langueMemorisee);
   const [ready, setReady] = useState(false);
 
@@ -28,11 +26,8 @@ export function LanguageProvider({ children }) {
     const synchroniser = () => {
       const combo = document.querySelector(`#${GOOGLE_TRANSLATE_ELEMENT} .goog-te-combo`);
       if (!combo || !actif) return false;
-      const languesGoogle = Array.from(combo.options)
-        .filter((option) => option.value && option.value !== 'fr')
-        .map((option) => ({ value: option.value, label: nomStable(option.value, option.textContent) }));
-      setOptions([{ value: 'fr', label: 'Français' }, ...languesGoogle]);
-      setLanguage(combo.value || langueMemorisee());
+      const langueActive = combo.value || langueMemorisee();
+      setLanguage(LANGUAGE_CODES.has(langueActive) ? langueActive : 'fr');
       setReady(true);
       return true;
     };
@@ -79,7 +74,7 @@ export function LanguageProvider({ children }) {
     combo.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  const value = useMemo(() => ({ ready, language, options, changeLanguage }), [ready, language, options]);
+  const value = useMemo(() => ({ ready, language, options: LANGUAGE_OPTIONS, changeLanguage }), [ready, language]);
   return <LanguageContext.Provider value={value}>{children}<div id={GOOGLE_TRANSLATE_ELEMENT} className="google-translate-engine" aria-hidden="true" /></LanguageContext.Provider>;
 }
 
