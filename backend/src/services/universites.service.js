@@ -261,7 +261,7 @@ export async function comparerUniversites(codes) {
 
 export async function statistiquesUniversite(code) {
   const universite = await trouverUniversiteParCode(code);
-  const [statistiques, publications, offres, candidatures, repartition] = await Promise.all([
+  const [statistiques, publications, offres, candidatures, repartition, engagement] = await Promise.all([
     baseDeDonnees.query('CALL sp_statistiques_universite(?)', [universite.id]),
     baseDeDonnees.execute(
       `SELECT DATE_FORMAT(date_creation, '%Y-%m') AS mois, COUNT(*) AS total
@@ -302,20 +302,45 @@ export async function statistiquesUniversite(code) {
        ) demandes GROUP BY categorie`,
       [universite.id, universite.id],
     ),
+    baseDeDonnees.execute(
+      `SELECT mois, SUM(nombre_jaime) AS mentions_jaime,
+         SUM(nombre_commentaires) AS commentaires, SUM(nombre_favoris) AS favoris,
+         SUM(nombre_partages) AS partages
+       FROM (
+         SELECT DATE_FORMAT(p.date_creation, '%Y-%m') AS mois,
+           (SELECT COUNT(*) FROM mentions_jaime j WHERE j.publication_id = p.id) AS nombre_jaime,
+           (SELECT COUNT(*) FROM commentaires c WHERE c.publication_id = p.id) AS nombre_commentaires,
+           (SELECT COUNT(*) FROM favoris_publications f WHERE f.publication_id = p.id) AS nombre_favoris,
+           (SELECT COUNT(*) FROM publications rp WHERE rp.publication_source_id = p.id AND rp.statut_publication = 'PUBLIEE') AS nombre_partages
+         FROM publications p
+         WHERE p.universite_id = ? AND p.statut_publication = 'PUBLIEE'
+           AND p.date_creation >= DATE_SUB(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'), INTERVAL 5 MONTH)
+       ) publications_engagement
+       GROUP BY mois`,
+      [universite.id],
+    ),
   ]);
 
   const indexer = (lignes) => new Map(lignes.map((item) => [item.mois, Number(item.total)]));
   const publicationsParMois = indexer(publications[0]);
   const offresParMois = indexer(offres[0]);
   const candidaturesParMois = indexer(candidatures[0]);
+  const engagementParMois = new Map(engagement[0].map((item) => [item.mois, {
+    mentionsJaime: Number(item.mentions_jaime || 0),
+    commentaires: Number(item.commentaires || 0),
+    favoris: Number(item.favoris || 0),
+    partages: Number(item.partages || 0),
+  }]));
   const activiteMensuelle = Array.from({ length: 6 }, (_, index) => {
     const date = new Date(); date.setDate(1); date.setMonth(date.getMonth() - (5 - index));
     const mois = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const interactions = engagementParMois.get(mois) || { mentionsJaime: 0, commentaires: 0, favoris: 0, partages: 0 };
     return {
       mois,
       publications: publicationsParMois.get(mois) || 0,
       offres: offresParMois.get(mois) || 0,
       candidatures: candidaturesParMois.get(mois) || 0,
+      ...interactions,
     };
   });
   const demandes = { enAttente: 0, acceptees: 0, rejetees: 0 };
@@ -324,5 +349,11 @@ export async function statistiquesUniversite(code) {
     if (item.categorie === 'ACCEPTEE') demandes.acceptees = Number(item.total);
     if (item.categorie === 'REJETEE') demandes.rejetees = Number(item.total);
   });
-  return { indicateurs: statistiques[0][0][0], activiteMensuelle, repartitionDemandes: demandes };
+  const engagementTotal = activiteMensuelle.reduce((total, item) => ({
+    mentionsJaime: total.mentionsJaime + item.mentionsJaime,
+    commentaires: total.commentaires + item.commentaires,
+    favoris: total.favoris + item.favoris,
+    partages: total.partages + item.partages,
+  }), { mentionsJaime: 0, commentaires: 0, favoris: 0, partages: 0 });
+  return { indicateurs: statistiques[0][0][0], activiteMensuelle, repartitionDemandes: demandes, engagement: engagementTotal };
 }

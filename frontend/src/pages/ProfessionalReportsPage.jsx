@@ -70,6 +70,17 @@ const ADMIN_REPORT_TYPES = [
   { value: 'ECHEANCIER', label: 'Échéancier', description: 'Abonnements et dates de fin', icon: CalendarClock },
 ];
 
+const INSTITUTION_REPORT_TYPES = [
+  { value: 'SYNTHESE', label: 'Synthèse', description: 'Situation générale', icon: FileBarChart },
+  { value: 'ETUDIANTS', label: 'Étudiants', description: 'Liste et états des étudiants', icon: Users },
+  { value: 'INSCRIPTIONS', label: 'Inscriptions', description: 'Demandes et candidatures', icon: GraduationCap },
+  { value: 'ACTIVITE', label: 'Performance', description: 'Activité et engagement social', icon: ShieldCheck },
+  { value: 'CONTRAT', label: 'Contrat', description: 'Contrat CampusHub actif', icon: ScrollText },
+  { value: 'FACTURE', label: 'Facture', description: 'Factures d’abonnement', icon: FileText },
+  { value: 'RECU', label: 'Reçu', description: 'Paiements validés', icon: Receipt },
+  { value: 'RELEVE', label: 'Relevé', description: 'Historique des paiements', icon: CreditCard },
+];
+
 export function ProfessionalReportsPage({ role }) {
   if (role === 'admin') return <AdminProfessionalReport />;
   if (role === 'institution') return <InstitutionProfessionalReport />;
@@ -427,21 +438,25 @@ function InstitutionProfessionalReport() {
   const { token, utilisateur } = useAuth();
   const { universite } = useInstitution();
   const institutionCode = universite?.code_universite;
-  const [data, setData] = useState({ affiliations: [], offers: [], subscription: null, enrollments: [], statistics: { indicateurs: {}, activiteMensuelle: [], repartitionDemandes: {} } });
+  const [data, setData] = useState({ affiliations: [], students: [], offers: [], subscription: null, enrollments: [], financial: { paiements: [], resume: {} }, statistics: { indicateurs: {}, activiteMensuelle: [], repartitionDemandes: {}, engagement: {} } });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [reportType, setReportType] = useState('SYNTHESE');
+  const [selectedPayment, setSelectedPayment] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [affiliations, offers, subscription, enrollments, statistics] = await Promise.all([
+      const [affiliations, students, offers, subscription, enrollments, financial, statistics] = await Promise.all([
         safeRequest('/affiliations/universite', token, []),
+        safeRequest('/affiliations/universite/etudiants?page=1&limite=100', token, []),
         safeRequest('/offres/moi?page=1&limite=50', token, []),
         safeRequest('/abonnements/moi', token, null),
         safeRequest('/communaute/inscriptions/moi/demandes', token, []),
-        institutionCode ? safeRequest(`/universites/${institutionCode}/statistiques`, token, { indicateurs: {}, activiteMensuelle: [], repartitionDemandes: {} }) : Promise.resolve({ indicateurs: {}, activiteMensuelle: [], repartitionDemandes: {} }),
+        safeRequest('/abonnements/mes-documents-financiers', token, { paiements: [], resume: {} }),
+        institutionCode ? safeRequest(`/universites/${institutionCode}/statistiques`, token, { indicateurs: {}, activiteMensuelle: [], repartitionDemandes: {}, engagement: {} }) : Promise.resolve({ indicateurs: {}, activiteMensuelle: [], repartitionDemandes: {}, engagement: {} }),
       ]);
-      setData({ affiliations, offers, subscription, enrollments, statistics });
+      setData({ affiliations, students, offers, subscription, enrollments, financial, statistics });
       setError('');
     } catch (requestError) {
       setError(requestError.message);
@@ -465,10 +480,14 @@ function InstitutionProfessionalReport() {
   const requestDistribution = data.statistics?.repartitionDemandes || {};
   const requestTotal = Number(requestDistribution.enAttente || 0) + Number(requestDistribution.acceptees || 0) + Number(requestDistribution.rejetees || 0);
   const acceptanceRate = requestTotal ? Math.round(Number(requestDistribution.acceptees || 0) / requestTotal * 100) : 0;
+  const payments = data.financial.paiements;
+  const selectablePayments = reportType === 'RECU' || reportType === 'CONTRAT' ? payments.filter((payment) => payment.statut === 'VALIDE') : payments;
+  const currentPayment = selectablePayments.find((payment) => payment.code_paiement === selectedPayment) || selectablePayments[0] || null;
 
   return (
-    <ReportWorkspace title="Rapport institutionnel" description={`Situation académique et opérationnelle de ${universite?.nom || 'votre établissement'}.`} loading={loading} error={error} onRefresh={load}>
-      <FormalReport
+    <ReportWorkspace title="Centre de documents institutionnels" description={`Listes, analyses et documents financiers de ${universite?.nom || 'votre établissement'}.`} loading={loading} error={error} onRefresh={load}>
+      <InstitutionReportSelector reportType={reportType} onReportType={setReportType} payments={selectablePayments} selectedPayment={currentPayment?.code_paiement || ''} onPayment={setSelectedPayment} />
+      {reportType === 'SYNTHESE' ? <FormalReport
         organization={universite?.nom || 'Établissement CampusHub'}
         organizationType={isSchool ? 'Établissement d’enseignement secondaire' : 'Établissement d’enseignement supérieur et universitaire'}
         title={isSchool ? 'Rapport de situation scolaire' : 'Rapport de situation académique'}
@@ -558,9 +577,63 @@ function InstitutionProfessionalReport() {
             </ul>
           </div>
         </ReportSection>
-      </FormalReport>
+      </FormalReport> : <InstitutionDocument type={reportType} universite={universite} students={data.students} affiliations={data.affiliations} enrollments={data.enrollments} offers={data.offers} statistics={data.statistics} payments={payments} payment={currentPayment} />}
     </ReportWorkspace>
   );
+}
+
+function InstitutionReportSelector({ reportType, onReportType, payments, selectedPayment, onPayment }) {
+  const needsPayment = ['CONTRAT', 'FACTURE', 'RECU'].includes(reportType);
+  return <section className="admin-report-selector institution-report-selector app-panel">
+    <header><div><small>Documents de l’établissement</small><h2>Choisissez le document à consulter</h2></div><span>{INSTITUTION_REPORT_TYPES.length} modèles disponibles</span></header>
+    <div className="admin-report-types institution-report-types">{INSTITUTION_REPORT_TYPES.map(({ value, label, description, icon: Icon }) => <button type="button" className={reportType === value ? 'active' : ''} onClick={() => onReportType(value)} key={value}><Icon /><span><strong>{label}</strong><small>{description}</small></span></button>)}</div>
+    {needsPayment && <div className="admin-report-filters"><label><span>Transaction d’abonnement</span><select value={selectedPayment} onChange={(event) => onPayment(event.target.value)} disabled={!payments.length}>{payments.length ? payments.map((payment) => <option value={payment.code_paiement} key={payment.code_paiement}>{payment.code_paiement} · {formatCurrency(payment.montant, payment.devise)} · {labelStatus(payment.statut)}</option>) : <option>Aucune transaction compatible</option>}</select></label></div>}
+  </section>;
+}
+
+function InstitutionDocument({ type, universite, students, affiliations, enrollments, offers, statistics, payments, payment }) {
+  if (type === 'ETUDIANTS') return <InstitutionStudentsDocument universite={universite} students={students} />;
+  if (type === 'INSCRIPTIONS') return <InstitutionEnrollmentsDocument universite={universite} affiliations={affiliations} enrollments={enrollments} />;
+  if (type === 'ACTIVITE') return <InstitutionActivityDocument universite={universite} offers={offers} statistics={statistics} />;
+  if (type === 'CONTRAT') return <SubscriptionContractDocument payment={payment} />;
+  if (type === 'FACTURE') return <InvoiceDocument payment={payment} />;
+  if (type === 'RECU') return <ReceiptDocument payment={payment} />;
+  return <PaymentStatementDocument payments={payments} client />;
+}
+
+function InstitutionStudentsDocument({ universite, students }) {
+  const isSchool = universite?.categorie_etablissement === 'ECOLE_SECONDAIRE';
+  const labels = isSchool ? { singular: 'élève', plural: 'élèves' } : { singular: 'étudiant', plural: 'étudiants' };
+  const count = (status) => students.filter((student) => student.statut_institution === status).length;
+  return <FormalReport organization={universite?.nom || 'Établissement CampusHub'} organizationType={isSchool ? 'Établissement d’enseignement secondaire' : 'Établissement d’enseignement supérieur et universitaire'} title={`Liste officielle des ${labels.plural}`} subtitle={`Effectifs affiliés et état institutionnel des ${labels.plural}`} reference={reportReference(isSchool ? 'LST-ELEVES' : 'LST-ETUD', universite?.code_universite)} logo={universite?.url_logo} status="Liste mise à jour" signatures={[isSchool ? 'Gestionnaire scolaire' : 'Service académique', 'Autorité de l’établissement']}>
+    <ReportSection number="1" title="Synthèse des effectifs"><div className="report-status-grid"><div><small>Total chargé</small><strong>{formatNumber(students.length)}</strong></div><div><small>Actifs</small><strong>{formatNumber(count('ACTIF'))}</strong></div><div><small>Suspendus</small><strong>{formatNumber(count('SUSPENDU'))}</strong></div><div><small>Bloqués / retirés</small><strong>{formatNumber(count('BLOQUE') + count('RETIRE'))}</strong></div></div></ReportSection>
+    <ReportSection number="2" title={`Liste des ${labels.plural}`} description={`Identité, matricule, formation et statut de chaque ${labels.singular}.`}><table className="report-table report-table--student-list"><thead><tr><th>N°</th><th>Matricule</th><th>Nom complet</th><th>{isSchool ? 'Option' : 'Filière'}</th><th>Adresse électronique</th><th>Statut</th></tr></thead><tbody>{students.map((student, index) => <tr key={student.code_utilisateur}><td>{index + 1}</td><td>{student.matricule_etudiant || '—'}</td><td>{student.nom_affichage}<small>{student.code_utilisateur}</small></td><td>{student.nom_filiere || 'Non affecté'}</td><td>{student.email}</td><td>{labelStatus(student.statut_institution)}</td></tr>)}{!students.length && <EmptyReportRow colSpan={6}>Aucun {labels.singular} affilié n’est encore enregistré.</EmptyReportRow>}</tbody></table></ReportSection>
+  </FormalReport>;
+}
+
+function InstitutionEnrollmentsDocument({ universite, affiliations, enrollments }) {
+  const isSchool = universite?.categorie_etablissement === 'ECOLE_SECONDAIRE';
+  const pendingAffiliations = affiliations.filter((item) => item.statut === 'EN_ATTENTE').length;
+  const acceptedAffiliations = affiliations.filter((item) => item.statut === 'ACCEPTEE').length;
+  const pendingOnline = enrollments.filter((item) => ['SOUMISE', 'EN_ETUDE', 'DOCUMENTS_REQUIS'].includes(item.statut)).length;
+  return <FormalReport organization={universite?.nom || 'Établissement CampusHub'} organizationType={isSchool ? 'Établissement d’enseignement secondaire' : 'Établissement d’enseignement supérieur et universitaire'} title="Rapport des inscriptions et affiliations" subtitle="Dossiers reçus, décisions et suivi des candidats" reference={reportReference('RPT-INS', universite?.code_universite)} logo={universite?.url_logo} status="Suivi des admissions" signatures={['Service des inscriptions', 'Autorité de l’établissement']}>
+    <ReportSection number="1" title="Indicateurs"><ReportMetrics items={[{ label: 'Affiliations reçues', value: formatNumber(affiliations.length), icon: Users }, { label: 'Affiliations acceptées', value: formatNumber(acceptedAffiliations), icon: GraduationCap }, { label: 'Candidatures en ligne', value: formatNumber(enrollments.length), icon: FileText }, { label: 'Dossiers à traiter', value: formatNumber(pendingAffiliations + pendingOnline), icon: CalendarClock }]} /></ReportSection>
+    <ReportSection number="2" title="Demandes d’affiliation"><table className="report-table"><thead><tr><th>Code</th><th>Candidat</th><th>Matricule</th><th>Formation</th><th>Date</th><th>Décision</th></tr></thead><tbody>{affiliations.map((item) => <tr key={item.code_demande}><td>{item.code_demande}</td><td>{item.nom_affichage}<small>{item.email}</small></td><td>{item.matricule_etudiant || '—'}</td><td>{item.nom_filiere || '—'}</td><td>{formatDate(item.date_creation)}</td><td>{labelStatus(item.statut)}</td></tr>)}{!affiliations.length && <EmptyReportRow colSpan={6}>Aucune demande d’affiliation.</EmptyReportRow>}</tbody></table></ReportSection>
+    <ReportSection number="3" title="Candidatures en ligne"><table className="report-table"><thead><tr><th>Code</th><th>Candidat</th><th>Contact</th><th>Date</th><th>Statut</th></tr></thead><tbody>{enrollments.map((item) => <tr key={item.code_demande}><td>{item.code_demande}</td><td>{item.nom_candidat}</td><td>{item.email}<small>{item.telephone || 'Aucun téléphone'}</small></td><td>{formatDate(item.date_creation)}</td><td>{labelStatus(item.statut)}</td></tr>)}{!enrollments.length && <EmptyReportRow colSpan={5}>Aucune candidature en ligne.</EmptyReportRow>}</tbody></table></ReportSection>
+  </FormalReport>;
+}
+
+function InstitutionActivityDocument({ universite, offers, statistics }) {
+  const isSchool = universite?.categorie_etablissement === 'ECOLE_SECONDAIRE';
+  const activity = statistics?.activiteMensuelle || [];
+  const engagement = statistics?.engagement || {};
+  const currentMonth = activity.at(-1) || {};
+  const totalInteractions = Number(engagement.mentionsJaime || 0) + Number(engagement.commentaires || 0) + Number(engagement.favoris || 0) + Number(engagement.partages || 0);
+  return <FormalReport organization={universite?.nom || 'Établissement CampusHub'} organizationType={isSchool ? 'Établissement d’enseignement secondaire' : 'Établissement d’enseignement supérieur et universitaire'} title="Rapport de performance et d’activité" subtitle="Admissions, offres, publications et engagement de la communauté" reference={reportReference('RPT-PERF', universite?.code_universite)} logo={universite?.url_logo} status="Analyse sur six mois" signatures={['Responsable de la communication', 'Direction de l’établissement']}>
+    <ReportSection number="1" title="Activité institutionnelle"><ReportTrendChart data={activity} series={[{ key: 'publications', label: 'Publications', color: '#078d82' }, { key: 'offres', label: 'Offres', color: '#d79b22' }, { key: 'candidatures', label: 'Candidatures', color: '#174b80' }]} /><div className="report-status-grid"><div><small>Publications ce mois</small><strong>{formatNumber(currentMonth.publications)}</strong></div><div><small>Offres ce mois</small><strong>{formatNumber(currentMonth.offres)}</strong></div><div><small>Candidatures ce mois</small><strong>{formatNumber(currentMonth.candidatures)}</strong></div><div><small>Offres actuellement publiées</small><strong>{formatNumber(offers.filter((item) => item.statut === 'PUBLIEE').length)}</strong></div></div></ReportSection>
+    <ReportSection number="2" title="Engagement des publications" description="Mentions J’aime, commentaires, enregistrements et republications réellement enregistrés."><ReportTrendChart data={activity} series={[{ key: 'mentionsJaime', label: 'Mentions J’aime', color: '#174b80' }, { key: 'commentaires', label: 'Commentaires', color: '#078d82' }, { key: 'favoris', label: 'Enregistrements', color: '#d79b22' }, { key: 'partages', label: 'Republications', color: '#7c4aa0' }]} /><div className="report-status-grid"><div><small>Mentions J’aime</small><strong>{formatNumber(engagement.mentionsJaime)}</strong></div><div><small>Commentaires</small><strong>{formatNumber(engagement.commentaires)}</strong></div><div><small>Enregistrements</small><strong>{formatNumber(engagement.favoris)}</strong></div><div><small>Interactions totales</small><strong>{formatNumber(totalInteractions)}</strong></div></div></ReportSection>
+    <ReportSection number="3" title="Détail mensuel"><table className="report-table report-table--center"><thead><tr><th>Mois</th><th>Publications</th><th>J’aime</th><th>Commentaires</th><th>Enregistrements</th><th>Republications</th></tr></thead><tbody>{activity.map((item) => <tr key={item.mois}><td>{new Date(`${item.mois}-02`).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</td><td>{formatNumber(item.publications)}</td><td>{formatNumber(item.mentionsJaime)}</td><td>{formatNumber(item.commentaires)}</td><td>{formatNumber(item.favoris)}</td><td>{formatNumber(item.partages)}</td></tr>)}{!activity.length && <EmptyReportRow colSpan={6}>Aucune activité enregistrée.</EmptyReportRow>}</tbody></table></ReportSection>
+  </FormalReport>;
 }
 
 function StudentProfessionalReport() {

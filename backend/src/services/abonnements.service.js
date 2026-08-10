@@ -131,9 +131,10 @@ export async function listerAbonnements() {
   return lignes;
 }
 
-export async function obtenirRapportsFinanciers(filtres = {}) {
+export async function obtenirRapportsFinanciers(filtres = {}, utilisateurId = null) {
   const conditions = ["pa.type_paiement = 'ABONNEMENT'"];
   const valeurs = [];
+  if (utilisateurId) { conditions.push('pa.utilisateur_id = ?'); valeurs.push(utilisateurId); }
   if (filtres.statut) { conditions.push('pa.statut = ?'); valeurs.push(filtres.statut); }
   if (filtres.codeUtilisateur) { conditions.push('ut.code_utilisateur = ?'); valeurs.push(filtres.codeUtilisateur.toUpperCase()); }
   if (filtres.dateDebut) { conditions.push('DATE(pa.date_creation) >= ?'); valeurs.push(filtres.dateDebut); }
@@ -184,4 +185,8 @@ export async function obtenirRapportsFinanciers(filtres = {}) {
     paiements,
     resume: { ...resume, nombreClients: resume.clients.size, clients: undefined },
   };
+}
+
+export async function obtenirMesDocumentsFinanciers(utilisateurId) {
+  return obtenirRapportsFinanciers({}, utilisateurId);
 }

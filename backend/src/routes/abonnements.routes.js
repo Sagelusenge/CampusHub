@@ -9,6 +9,7 @@ export const routeAbonnements = Router();
 routeAbonnements.get('/plans', ga(c.plans));
 routeAbonnements.post('/paiements', valider(schemaPaiementAbonnement), ga(c.soumettre));
 routeAbonnements.get('/moi', authentifier, autoriserRoles('UNIVERSITE'), ga(c.monAbonnement));
+routeAbonnements.get('/mes-documents-financiers', authentifier, autoriserRoles('UNIVERSITE'), ga(c.mesDocumentsFinanciers));
 routeAbonnements.get('/paiements', authentifier, autoriserRoles('ADMINISTRATEUR'), valider(schemaListePaiements, 'query'), ga(c.paiements));
 routeAbonnements.get('/rapports-financiers', authentifier, autoriserRoles('ADMINISTRATEUR'), valider(schemaRapportsPaiements, 'query'), ga(c.rapportsFinanciers));
 routeAbonnements.patch('/paiements/:code', authentifier, autoriserRoles('ADMINISTRATEUR'), valider(schemaCodePaiement, 'params'), valider(schemaTraitementPaiement), ga(c.traiter));

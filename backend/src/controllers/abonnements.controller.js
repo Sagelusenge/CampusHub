@@ -8,3 +8,4 @@ export async function traiter(req, res) { return envoyerSucces(res, await servic
 export async function monAbonnement(req, res) { return envoyerSucces(res, await service.obtenirMonAbonnement(req.utilisateur.id)); }
 export async function abonnements(_req, res) { return envoyerSucces(res, await service.listerAbonnements()); }
 export async function rapportsFinanciers(req, res) { return envoyerSucces(res, await service.obtenirRapportsFinanciers(req.validees.query)); }
+export async function mesDocumentsFinanciers(req, res) { return envoyerSucces(res, await service.obtenirMesDocumentsFinanciers(req.utilisateur.id)); }
