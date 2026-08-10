@@ -9,12 +9,28 @@ export const schemaInscription = z.object({
   ville: z.string().trim().max(100).optional(),
   province: z.string().trim().max(100).optional(),
   matriculeEtudiant: z.string().trim().min(2).max(80).optional(),
+  codeUniversite: z.string().trim().min(5).max(30).optional(),
+  codeFiliere: z.string().trim().min(5).max(30).optional(),
 }).superRefine((donnees, contexte) => {
   if (donnees.role === 'ETUDIANT' && !donnees.matriculeEtudiant) {
     contexte.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['matriculeEtudiant'],
       message: 'Le matricule étudiant est obligatoire.',
+    });
+  }
+  if (donnees.role === 'ETUDIANT' && !donnees.codeUniversite) {
+    contexte.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['codeUniversite'],
+      message: 'Choisissez votre université.',
+    });
+  }
+  if (donnees.role === 'ETUDIANT' && !donnees.codeFiliere) {
+    contexte.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['codeFiliere'],
+      message: 'Choisissez votre filière.',
     });
   }
 });

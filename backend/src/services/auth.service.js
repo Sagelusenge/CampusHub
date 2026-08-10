@@ -8,6 +8,11 @@ import {
   enregistrerDerniereConnexion,
   trouverUtilisateurParEmail,
 } from './utilisateurs.service.js';
+import {
+  creerDemandeAffiliation,
+  notifierDemandeAffiliation,
+  validerChoixAffiliation,
+} from './affiliations.service.js';
 import { envoyerCodeVerification } from './email.service.js';
 
 function creerJeton(utilisateur) {
@@ -77,6 +82,7 @@ async function creerEtEnvoyerCode(utilisateur) {
 export async function inscrireUtilisateur(donnees) {
   const utilisateurExistant = await trouverUtilisateurParEmail(donnees.email);
   if (utilisateurExistant) throw new ErreurApi(409, 'Un compte utilise déjà cette adresse email.');
+  if (donnees.role === 'ETUDIANT') await validerChoixAffiliation(donnees);
 
   const hash = await bcrypt.hash(donnees.motDePasse, environnement.BCRYPT_ROUNDS);
   const [resultats] = await baseDeDonnees.query(
@@ -102,6 +108,12 @@ export async function inscrireUtilisateur(donnees) {
       utilisateur.id, null, null, donnees.matriculeEtudiant,
       'Étudiant CampusHub', JSON.stringify([]), null,
     ]);
+    await creerDemandeAffiliation(utilisateur.id, {
+      codeUniversite: donnees.codeUniversite,
+      codeFiliere: donnees.codeFiliere,
+      matriculeEtudiant: donnees.matriculeEtudiant,
+      message: 'Demande créée automatiquement lors de l’inscription CampusHub.',
+    }, { notifier: false });
   }
   let emailEnvoye = true;
   try {
@@ -115,6 +127,7 @@ export async function inscrireUtilisateur(donnees) {
     verification_email_requise: true,
     email_masque: masquerEmail(utilisateur.email),
     email_envoye: emailEnvoye,
+    affiliation_demandee: donnees.role === 'ETUDIANT',
   };
 }
 
@@ -190,6 +203,13 @@ export async function confirmerCodeVerification(email, code) {
     throw erreur;
   } finally {
     connexion.release();
+  }
+  if (utilisateur.role === 'ETUDIANT') {
+    try {
+      await notifierDemandeAffiliation(utilisateur.id);
+    } catch (erreur) {
+      console.error('Échec de la notification d’affiliation après vérification :', erreur.code || erreur.message);
+    }
   }
   return {
     email_verifie: true,

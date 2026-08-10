@@ -23,6 +23,7 @@ const schemaEnvironnement = z.object({
   SMTP_USER: z.string().default(''),
   SMTP_PASSWORD: z.string().default(''),
   SMTP_FROM: z.string().default(''),
+  ADMIN_NOTIFICATION_EMAIL: z.string().email().or(z.literal('')).default(''),
   EMAIL_VERIFICATION_TTL_MINUTES: z.coerce.number().int().min(5).max(60).default(10),
   EMAIL_VERIFICATION_MAX_ATTEMPTS: z.coerce.number().int().min(3).max(10).default(5),
   OPENAI_API_KEY: z.string().default(''),

@@ -1,8 +1,8 @@
 import {
-  ArrowRight, BadgeCheck, Check, GraduationCap, Hash, LockKeyhole, Mail,
+  ArrowRight, BadgeCheck, BookOpen, Building2, Check, GraduationCap, Hash, LockKeyhole, Mail,
   ShieldCheck, Sparkles, UserRound,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { LocationSelector } from '../components/LocationSelector.jsx';
@@ -12,6 +12,7 @@ import { Spinner } from '../components/Spinner.jsx';
 
 const initialForm = {
   nomAffichage: '', email: '', matriculeEtudiant: '', motDePasse: '',
+  codeUniversite: '', codeFiliere: '',
   pays: 'Democratic Republic of the Congo', province: '', ville: '',
   countryCode: 'CD', stateCode: '',
 };
@@ -22,9 +23,33 @@ export function StudentRegistrationPage() {
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
   const [verification, setVerification] = useState(null);
+  const [universities, setUniversities] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
+
+  useEffect(() => {
+    apiRequest('/universites?statut=VERIFIEE&limite=100')
+      .then((response) => setUniversities((response.donnees || []).filter((item) => item.categorie_etablissement !== 'ECOLE_SECONDAIRE')))
+      .catch((err) => setError(err.message));
+  }, []);
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  async function chooseUniversity(code) {
+    setForm((current) => ({ ...current, codeUniversite: code, codeFiliere: '' }));
+    setPrograms([]);
+    if (!code) return;
+    setLoadingPrograms(true);
+    try {
+      const response = await apiRequest(`/universites/${code}`);
+      setPrograms((response.donnees?.filieres || []).filter((item) => item.est_active !== 0));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoadingPrograms(false);
+    }
   }
 
   async function submit(event) {
@@ -38,6 +63,8 @@ export function StudentRegistrationPage() {
           nomAffichage: form.nomAffichage,
           email: form.email,
           matriculeEtudiant: form.matriculeEtudiant,
+          codeUniversite: form.codeUniversite,
+          codeFiliere: form.codeFiliere,
           motDePasse: form.motDePasse,
           pays: form.pays,
           province: form.province,
@@ -71,7 +98,7 @@ export function StudentRegistrationPage() {
         <Check />
         <small>Inscription réussie</small>
         <h2>Votre compte est prêt</h2>
-        <p>Connectez-vous maintenant. Vous arriverez directement dans votre espace étudiant pour demander la confirmation de votre université.</p>
+        <p>Votre demande d’affiliation a été transmise à l’établissement choisi. Connectez-vous pour suivre sa décision depuis votre espace étudiant.</p>
         <Link className="button button--large" to="/connexion">Accéder à mon espace <ArrowRight /></Link>
       </div> : verification ? <EmailVerificationStep
         email={form.email}
@@ -92,9 +119,16 @@ export function StudentRegistrationPage() {
           <label className="form-field form-field--wide"><span>Mot de passe *</span><div className="input-with-icon"><LockKeyhole /><input type="password" minLength="8" required autoComplete="new-password" value={form.motDePasse} onChange={(e) => update('motDePasse', e.target.value)} placeholder="8 caractères minimum" /></div></label>
         </div>
 
-        <div className="registration-divider"><span>02</span><strong>Votre localisation</strong></div>
+        <div className="registration-divider"><span>02</span><strong>Votre établissement</strong></div>
+        <p className="registration-section-note">Votre choix sera envoyé à l’université uniquement après la confirmation de votre adresse e-mail.</p>
+        <div className="registration-fields registration-affiliation-fields">
+          <label className="form-field form-field--wide"><span>Université ou institut supérieur *</span><div className="input-with-icon"><Building2 /><select required value={form.codeUniversite} onChange={(event) => chooseUniversity(event.target.value)}><option value="">Choisir votre établissement…</option>{universities.map((item) => <option value={item.code_universite} key={item.code_universite}>{item.nom} — {item.ville}</option>)}</select></div><small>Seuls les établissements vérifiés sont proposés.</small></label>
+          <label className="form-field form-field--wide"><span>Filière suivie *</span><div className="input-with-icon"><BookOpen /><select required disabled={!form.codeUniversite || loadingPrograms} value={form.codeFiliere} onChange={(event) => update('codeFiliere', event.target.value)}><option value="">{loadingPrograms ? 'Chargement des filières…' : form.codeUniversite ? 'Choisir votre filière…' : 'Choisissez d’abord un établissement'}</option>{programs.map((item) => <option value={item.code_filiere} key={item.code_filiere}>{item.nom_filiere || item.nom} — {item.niveau_diplome || 'Formation'}</option>)}</select></div></label>
+        </div>
+
+        <div className="registration-divider"><span>03</span><strong>Votre localisation</strong></div>
         <LocationSelector value={form} emailContact={form.email} onChange={(values) => setForm((current) => ({ ...current, ...values }))} />
-        <button className="button button--full button--large" disabled={loading || !form.province || !form.ville || !form.matriculeEtudiant.trim()}>{loading ? <Spinner /> : <>Créer mon espace <ArrowRight /></>}</button>
+        <button className="button button--full button--large" disabled={loading || !form.province || !form.ville || !form.matriculeEtudiant.trim() || !form.codeUniversite || !form.codeFiliere}>{loading ? <Spinner /> : <>Créer mon espace <ArrowRight /></>}</button>
         <small className="form-help">Déjà inscrit ? <Link to="/connexion">Se connecter</Link></small>
       </form>}
     </section>

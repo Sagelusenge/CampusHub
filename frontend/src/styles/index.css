@@ -221,6 +221,7 @@ input, select, textarea { color: var(--ink); }
 .input-with-icon:focus-within { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(7,135,124,.1); }
 .input-with-icon > svg { flex: 0 0 auto; color: #7b8799; }
 .input-with-icon input { min-height: 45px; padding: 0; border: 0; background: transparent; box-shadow: none !important; }
+.input-with-icon select { width: 100%; min-height: 45px; padding: 0 28px 0 0; border: 0; outline: 0; color: #31465f; background: transparent; box-shadow: none; }
 .input-with-icon button { padding: 5px; display: grid; place-items: center; border: 0; color: #7b8799; background: transparent; }
 .form-card .button--full { margin-top: 24px; }
 .form-divider { display: flex; align-items: center; gap: 12px; margin: 25px 0 0; color: #8994a5; font-size: 11px; }

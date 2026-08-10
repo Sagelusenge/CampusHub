@@ -1,29 +1,69 @@
 import { baseDeDonnees } from '../config/base-de-donnees.js';
 import { ErreurApi } from '../utils/erreur-api.js';
 import { metaPagination, pagination } from '../utils/sql.js';
+import { envoyerDecisionAffiliationEtudiant, envoyerNouvelleAffiliationGestionnaires } from './email.service.js';
 
-export async function creerDemandeAffiliation(etudiantId, donnees) {
-  const [[universites], [filieres], [existantes]] = await Promise.all([
+export async function validerChoixAffiliation(donnees) {
+  const [[universites], [filieres]] = await Promise.all([
     baseDeDonnees.execute(`SELECT id FROM universites WHERE code_universite = ? AND statut_verification = 'VERIFIEE' LIMIT 1`, [donnees.codeUniversite.toUpperCase()]),
     baseDeDonnees.execute(`SELECT id, universite_id FROM filieres WHERE code_filiere = ? AND est_active = 1 LIMIT 1`, [donnees.codeFiliere.toUpperCase()]),
-    baseDeDonnees.execute(`SELECT id FROM demandes_affiliation_etudiante WHERE etudiant_id = ? AND statut IN ('EN_ATTENTE','ACCEPTEE') LIMIT 1`, [etudiantId]),
   ]);
   if (!universites[0]) throw new ErreurApi(404, 'Université vérifiée introuvable.');
   if (!filieres[0] || filieres[0].universite_id !== universites[0].id) throw new ErreurApi(400, 'Cette filière ne dépend pas de l’université choisie.');
-  if (existantes[0]) throw new ErreurApi(409, 'Vous avez déjà une demande active.');
-  await baseDeDonnees.execute(
-    `INSERT INTO demandes_affiliation_etudiante
-      (id, code_demande, etudiant_id, universite_id, filiere_id, matricule_etudiant, message_etudiant)
-     VALUES (0, '', ?, ?, ?, ?, ?)`,
-    [etudiantId, universites[0].id, filieres[0].id, donnees.matriculeEtudiant ?? null, donnees.message ?? null],
+  return { universiteId: universites[0].id, filiereId: filieres[0].id };
+}
+
+export async function notifierDemandeAffiliation(etudiantId) {
+  const [demandes] = await baseDeDonnees.execute(
+    `SELECT d.code_demande, d.matricule_etudiant, d.universite_id,
+      e.nom_affichage AS nom_etudiant, u.nom AS nom_universite, f.nom AS nom_filiere
+     FROM demandes_affiliation_etudiante d
+     JOIN utilisateurs e ON e.id = d.etudiant_id
+     JOIN universites u ON u.id = d.universite_id
+     LEFT JOIN filieres f ON f.id = d.filiere_id
+     WHERE d.etudiant_id = ? AND d.statut = 'EN_ATTENTE'
+     ORDER BY d.id DESC LIMIT 1`,
+    [etudiantId],
+  );
+  const demande = demandes[0];
+  if (!demande) return false;
+  const [gestionnaires] = await baseDeDonnees.execute(
+    `SELECT ut.email FROM membres_universite m
+     JOIN utilisateurs ut ON ut.id = m.utilisateur_id
+     WHERE m.universite_id = ? AND m.est_proprietaire = 1 AND ut.statut_compte = 'ACTIF'`,
+    [demande.universite_id],
   );
   await baseDeDonnees.execute(
     `INSERT INTO notifications (id, code_notification, destinataire_id, acteur_id, type_notification, titre, message)
      SELECT 0, '', m.utilisateur_id, ?, 'AFFILIATION', 'Nouvelle demande étudiante',
        'Un étudiant souhaite être confirmé dans votre université.'
      FROM membres_universite m WHERE m.universite_id = ? AND m.est_proprietaire = 1`,
-    [etudiantId, universites[0].id],
+    [etudiantId, demande.universite_id],
   );
+  try {
+    await envoyerNouvelleAffiliationGestionnaires({
+      ...demande,
+      emails_gestionnaires: gestionnaires.map((item) => item.email).filter(Boolean),
+    });
+  } catch (erreur) {
+    console.error('Échec de l’e-mail de nouvelle affiliation :', erreur.code || erreur.message);
+  }
+  return true;
+}
+
+export async function creerDemandeAffiliation(etudiantId, donnees, options = {}) {
+  const [{ universiteId, filiereId }, [existantes]] = await Promise.all([
+    validerChoixAffiliation(donnees),
+    baseDeDonnees.execute(`SELECT id FROM demandes_affiliation_etudiante WHERE etudiant_id = ? AND statut IN ('EN_ATTENTE','ACCEPTEE') LIMIT 1`, [etudiantId]),
+  ]);
+  if (existantes[0]) throw new ErreurApi(409, 'Vous avez déjà une demande active.');
+  await baseDeDonnees.execute(
+    `INSERT INTO demandes_affiliation_etudiante
+      (id, code_demande, etudiant_id, universite_id, filiere_id, matricule_etudiant, message_etudiant)
+     VALUES (0, '', ?, ?, ?, ?, ?)`,
+    [etudiantId, universiteId, filiereId, donnees.matriculeEtudiant ?? null, donnees.message ?? null],
+  );
+  if (options.notifier !== false) await notifierDemandeAffiliation(etudiantId);
   const [lignes] = await baseDeDonnees.execute(
     'SELECT code_demande, statut, date_creation FROM demandes_affiliation_etudiante WHERE etudiant_id = ? ORDER BY id DESC LIMIT 1',
     [etudiantId],
@@ -49,7 +89,7 @@ export async function listerDemandesUniversite(gestionnaireId) {
       f.code_filiere, f.nom AS nom_filiere
      FROM membres_universite m
      JOIN demandes_affiliation_etudiante d ON d.universite_id = m.universite_id
-     JOIN utilisateurs e ON e.id = d.etudiant_id
+     JOIN utilisateurs e ON e.id = d.etudiant_id AND e.date_verification_email IS NOT NULL
      LEFT JOIN filieres f ON f.id = d.filiere_id
      WHERE m.utilisateur_id = ? ORDER BY FIELD(d.statut, 'EN_ATTENTE','ACCEPTEE','REJETEE'), d.date_creation DESC`,
     [gestionnaireId],
@@ -59,11 +99,17 @@ export async function listerDemandesUniversite(gestionnaireId) {
 
 export async function traiterDemandeAffiliation(code, gestionnaireId, donnees) {
   const connexion = await baseDeDonnees.getConnection();
+  let resultatFinal;
   try {
     await connexion.beginTransaction();
     const [demandes] = await connexion.execute(
-      `SELECT d.* FROM demandes_affiliation_etudiante d
+      `SELECT d.*, e.email AS email_etudiant, e.nom_affichage AS nom_etudiant,
+         u.nom AS nom_universite, f.nom AS nom_filiere
+       FROM demandes_affiliation_etudiante d
        JOIN membres_universite m ON m.universite_id = d.universite_id
+       JOIN utilisateurs e ON e.id = d.etudiant_id
+       JOIN universites u ON u.id = d.universite_id
+       LEFT JOIN filieres f ON f.id = d.filiere_id
        WHERE d.code_demande = ? AND m.utilisateur_id = ? FOR UPDATE`,
       [code.toUpperCase(), gestionnaireId],
     );
@@ -101,10 +147,15 @@ export async function traiterDemandeAffiliation(code, gestionnaireId, donnees) {
         donnees.statut === 'ACCEPTEE' ? 'Votre université a confirmé votre statut étudiant.' : (donnees.reponse || 'Votre demande n’a pas été acceptée.')],
     );
     await connexion.commit();
-    const [lignes] = await connexion.execute('SELECT * FROM demandes_affiliation_etudiante WHERE id = ?', [demande.id]);
-    return lignes[0];
+    resultatFinal = { ...demande, statut: donnees.statut, reponse_universite: donnees.reponse ?? null };
   } catch (erreur) { await connexion.rollback(); throw erreur; }
   finally { connexion.release(); }
+  try {
+    await envoyerDecisionAffiliationEtudiant(resultatFinal);
+  } catch (erreur) {
+    console.error('Échec de l’e-mail de décision d’affiliation :', erreur.code || erreur.message);
+  }
+  return resultatFinal;
 }
 
 export async function listerEtudiantsUniversite(gestionnaireId, filtres) {

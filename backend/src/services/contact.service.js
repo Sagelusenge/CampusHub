@@ -1,8 +1,20 @@
 import { baseDeDonnees } from '../config/base-de-donnees.js';
 import { ErreurApi } from '../utils/erreur-api.js';
+import { envoyerNouveauContactAdministration, envoyerSuiviContact } from './email.service.js';
+
+async function envoyerEmailSansBloquer(action, envoyer) {
+  try {
+    await envoyer();
+    return true;
+  } catch (erreur) {
+    console.error(`Échec de l’e-mail ${action} :`, erreur.code || erreur.message);
+    return false;
+  }
+}
 
 export async function creerContact(donnees) {
   const connexion = await baseDeDonnees.getConnection();
+  let contact;
   try {
     await connexion.beginTransaction();
     await connexion.execute(`INSERT INTO demandes_contact (id, code_contact, nom, email, sujet, message)
@@ -14,8 +26,13 @@ export async function creerContact(donnees) {
       FROM utilisateurs WHERE role = 'ADMINISTRATEUR' AND statut_compte = 'ACTIF'`,
     [`${donnees.nom} vous a écrit au sujet de « ${donnees.sujet} ».`]);
     await connexion.commit();
-    return contacts[0];
+    [contact] = contacts;
   } catch (erreur) { await connexion.rollback(); throw erreur; } finally { connexion.release(); }
+  const emailAdminEnvoye = await envoyerEmailSansBloquer(
+    'de nouveau contact',
+    () => envoyerNouveauContactAdministration(contact),
+  );
+  return { ...contact, email_admin_envoye: emailAdminEnvoye };
 }
 
 export async function listerContacts(statut) {
@@ -33,5 +50,10 @@ export async function traiterContact(code, donnees, administrateurId) {
   [donnees.statut, donnees.reponse ?? null, administrateurId, donnees.statut, code.toUpperCase()]);
   if (!resultat.affectedRows) throw new ErreurApi(404, 'Demande de contact introuvable.');
   const [lignes] = await baseDeDonnees.execute('SELECT * FROM demandes_contact WHERE code_contact = ?', [code.toUpperCase()]);
-  return lignes[0];
+  const contact = lignes[0];
+  const emailExpediteurEnvoye = await envoyerEmailSansBloquer(
+    `de suivi du contact ${contact.code_contact}`,
+    () => envoyerSuiviContact(contact),
+  );
+  return { ...contact, email_expediteur_envoye: emailExpediteurEnvoye };
 }
