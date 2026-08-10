@@ -6,6 +6,20 @@
 USE campushub;
 SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- Compatibilite avec les bases creees avant l'ajout de la gestion
+-- institutionnelle des etudiants. La vue publique ci-dessous utilise deja
+-- cette colonne, tandis que la migration 25 ajoute les champs de suivi
+-- complementaires.
+SET @ddl_profil_statut_institution = IF(
+  (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE()
+   AND table_name = 'profils_etudiants' AND column_name = 'statut_institution') = 0,
+  "ALTER TABLE profils_etudiants ADD COLUMN statut_institution ENUM('ACTIF','SUSPENDU','BLOQUE','RETIRE') NOT NULL DEFAULT 'ACTIF' AFTER est_visible",
+  'SELECT 1'
+);
+PREPARE stmt_profil_statut_institution FROM @ddl_profil_statut_institution;
+EXECUTE stmt_profil_statut_institution;
+DEALLOCATE PREPARE stmt_profil_statut_institution;
+
 SET @ddl_offre_url_document = IF(
   (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE()
    AND table_name = 'offres_etablissements' AND column_name = 'url_document') = 0,
