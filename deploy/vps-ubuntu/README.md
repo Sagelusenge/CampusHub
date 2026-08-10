@@ -101,7 +101,7 @@ docker compose --env-file .env.runtime ps
 docker compose --env-file .env.runtime logs -f --tail=100 app
 ```
 
-Au premier démarrage seulement, MySQL exécute automatiquement les scripts `database/01` à `database/25`. Caddy obtient ensuite le certificat HTTPS. Vérifiez :
+Au premier démarrage seulement, MySQL exécute automatiquement les scripts `database/01` à `database/26`. Caddy obtient ensuite le certificat HTTPS. Vérifiez :
 
 ```bash
 curl -fsS "https://$(grep '^CAMPUSHUB_DOMAIN=' .env.runtime | cut -d= -f2-)/api/v1/sante"
@@ -127,13 +127,16 @@ cp /opt/campushub/deploy/aws-lightsail/.env.runtime .env.runtime
 docker compose -p aws-lightsail --env-file .env.runtime build app
 ```
 
-Pour cette version, appliquez la migration 25 si la base existait déjà :
+Pour cette version, appliquez les migrations 25 et 26 si la base existait déjà :
 
 ```bash
 source .env.runtime
 docker compose -p aws-lightsail --env-file .env.runtime exec -T mysql \
   mysql -uroot -p"$MYSQL_ROOT_PASSWORD" campushub \
   < /opt/campushub-next/database/25_gestion_etudiants_audit.sql
+docker compose -p aws-lightsail --env-file .env.runtime exec -T mysql \
+  mysql -uroot -p"$MYSQL_ROOT_PASSWORD" campushub \
+  < /opt/campushub-next/database/26_abonnement_annuel_unique.sql
 ```
 
 Remplacez ensuite l’ancien dossier et redémarrez :

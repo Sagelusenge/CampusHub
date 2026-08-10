@@ -320,10 +320,10 @@ function InstitutionProfessionalReport() {
           ]} />
           <ReportFields items={[
             { label: 'État de vérification', value: labelStatus(universite?.statut_verification) },
-            { label: 'Pack actif', value: data.subscription?.nom_plan || 'Aucun pack actif' },
-            { label: 'Échéance du pack', value: formatDate(data.subscription?.date_fin) },
+            { label: 'Abonnement', value: data.subscription?.nom_plan || 'Aucun abonnement actif' },
+            { label: 'Échéance annuelle', value: formatDate(data.subscription?.date_fin) },
             { label: 'Jours restants', value: data.subscription ? `${formatNumber(data.subscription.jours_restants)} jour(s)` : '0 jour' },
-            { label: 'Badge certifié', value: data.subscription?.est_certifiee ? 'Actif' : 'Non actif' },
+            { label: 'Tarif annuel', value: '10 USD' },
             { label: 'Inscriptions en ligne reçues', value: formatNumber(data.enrollments.length) },
           ]} />
         </ReportSection>

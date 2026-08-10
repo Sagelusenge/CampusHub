@@ -29,11 +29,6 @@ export async function rechercherUniversites(filtres) {
       filtres.service ?? null,
     ],
   );
-  const [certifiees] = await baseDeDonnees.query(
-    `SELECT DISTINCT universite_id FROM certifications_universite
-     WHERE statut = 'ACTIF' AND date_fin > CURRENT_TIMESTAMP`,
-  );
-  const idsCertifies = new Set(certifiees.map((item) => Number(item.universite_id)));
   let etablissements = resultats[0];
   const idsInitiaux = etablissements.map((item) => item.id);
   if (idsInitiaux.length) {
@@ -62,7 +57,6 @@ export async function rechercherUniversites(filtres) {
   const rechercheTexte = filtres.recherche?.toLowerCase();
   const universites = etablissements.map((universite) => ({
     ...universite,
-    est_certifiee: idsCertifies.has(Number(universite.id)),
     campus: campus.filter((item) => Number(item.universite_id) === Number(universite.id)),
   })).filter((item) => !rechercheCampus || item.campus.some((site) =>
     `${site.code_campus} ${site.nom} ${site.ville} ${site.province}`.toLowerCase().includes(rechercheCampus)))
@@ -100,9 +94,7 @@ export async function obtenirUniversiteParCode(code) {
        (SELECT COUNT(*) FROM profils_etudiants pe WHERE pe.universite_id = u.id AND pe.statut_institution = 'ACTIF') AS nombre_etudiants,
        (SELECT COUNT(*) FROM abonnements_universites au WHERE au.universite_id = u.id) AS nombre_abonnes,
        (SELECT MIN(fi.frais_minimum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_minimum,
-       (SELECT MAX(fi.frais_maximum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_maximum,
-       EXISTS(SELECT 1 FROM certifications_universite cu
-         WHERE cu.universite_id = u.id AND cu.statut = 'ACTIF' AND cu.date_fin > CURRENT_TIMESTAMP) AS est_certifiee
+       (SELECT MAX(fi.frais_maximum) FROM filieres fi WHERE fi.universite_id = u.id AND fi.est_active = 1) AS frais_maximum
      FROM universites u WHERE u.code_universite = ? LIMIT 1`,
     [code.toUpperCase()],
   );

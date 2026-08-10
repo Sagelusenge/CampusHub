@@ -74,8 +74,8 @@ const sections = [
         answer: 'Il peut modifier le logo, la couverture, la présentation, la localisation, les campus, facultés ou sections, filières ou options, services, infrastructures, conditions d’admission et partenaires.',
       },
       {
-        question: 'Comment fonctionnent les packs et le badge certifié ?',
-        answer: 'Le pack est un abonnement mensuel qui active les services institutionnels. Le badge certifié est commandé séparément et améliore la confiance et la visibilité de la fiche. Sa présence ne remplace pas un abonnement actif.',
+        question: 'Comment fonctionne l’abonnement des établissements ?',
+        answer: 'CampusHub propose un abonnement institutionnel unique à 10 USD par an. Après validation de la preuve de paiement, l’établissement bénéficie de toutes les fonctions de gestion pendant 365 jours et reçoit une alerte avant l’échéance.',
       },
       {
         question: 'Comment publier une offre ?',

@@ -12,10 +12,10 @@
 3. Exécuter, dans l'ordre, `01_structure.sql`, `02_automatismes.sql`, `03_procedures.sql` et `04_vues.sql`.
 4. Exécuter ensuite `05_donnees_test.sql` si vous souhaitez des données fictives.
 5. Exécuter `07_abonnements_affiliations_localisations.sql` pour les abonnements, affiliations et villes proposées.
-6. Exécuter `08_packs_et_certification.sql` pour les trois packs et le badge séparé.
+6. Exécuter `08_packs_et_certification.sql` pour la compatibilité de l’historique des paiements.
 7. Exécuter `09_messagerie_privee.sql` pour les conversations et messages privés.
 8. Exécuter `10_recherche_et_contact.sql` pour la recherche personnalisée et les contacts.
-9. Exécuter ensuite les scripts `11` à `25` dans l’ordre pour les cartes, stories, outils IA, comptes de démonstration, offres, réseau, inscriptions en ligne, partenaires, vérification e-mail, messagerie enrichie, couvertures, gestion des étudiants et audit.
+9. Exécuter ensuite les scripts `11` à `26` dans l’ordre pour les cartes, stories, outils IA, comptes de démonstration, offres, réseau, inscriptions en ligne, partenaires, vérification e-mail, messagerie enrichie, couvertures, gestion des étudiants, audit et abonnement annuel unique.
 10. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
 
 ## Création depuis le client MySQL
@@ -47,6 +47,7 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/22_message
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/23_medias_messagerie.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/24_couvertures_etablissements.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/25_gestion_etudiants_audit.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/26_abonnement_annuel_unique.sql;
 ```
 
 Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquement des établissements fictifs clairement nommés « Démonstration » pour tester le conseiller sans faire passer ces données pour des institutions réelles.
@@ -60,7 +61,7 @@ Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquemen
 - Administration : `signalements`, `notifications`, `journal_audit`.
 - Abonnements : `plans_abonnement`, `paiements_abonnement`, `abonnements_universite`.
 - Affiliations : `demandes_affiliation_etudiante`, `suggestions_localisation`.
-- Certification : `certifications_universite` (badge indépendant de l'abonnement).
+- Offre commerciale : un abonnement institutionnel unique à 10 USD pour 365 jours.
 - Messagerie : `conversations`, `participants_conversation`, `messages_prives`.
 - Recherche personnalisée : `recherches_utilisateurs`.
 - Contact public : `demandes_contact`.

@@ -18,17 +18,7 @@ export async function soumettrePaiement(donnees) {
   const utilisateur = utilisateurs[0]; const plan = plans[0];
   if (!utilisateur || utilisateur.role !== 'UNIVERSITE') throw new ErreurApi(404, 'Compte institutionnel introuvable.');
   if (!plan) throw new ErreurApi(404, 'Pack d’abonnement introuvable.');
-  if (donnees.typePaiement === 'CERTIFICATION') {
-    const [eligibles] = await baseDeDonnees.execute(
-      `SELECT m.universite_id FROM membres_universite m
-       JOIN abonnements_universite a ON a.universite_id = m.universite_id
-       WHERE m.utilisateur_id = ? AND m.est_proprietaire = 1
-         AND a.statut = 'ACTIF' AND a.date_fin > CURRENT_TIMESTAMP LIMIT 1`,
-      [utilisateur.id],
-    );
-    if (!eligibles[0]) throw new ErreurApi(403, 'Un abonnement actif et une fiche universitaire sont requis pour commander le badge.');
-  }
-  const montant = donnees.typePaiement === 'CERTIFICATION' ? 7 : plan.prix_total;
+  const montant = plan.prix_total;
   await baseDeDonnees.execute(
     `INSERT INTO paiements_abonnement
       (id, code_paiement, utilisateur_id, plan_id, type_paiement, montant, moyen_paiement, reference_paiement, url_preuve)
@@ -43,7 +33,7 @@ export async function soumettrePaiement(donnees) {
 
 export async function listerPaiements(filtres) {
   const { page, limite, decalage } = pagination(filtres.page, filtres.limite);
-  const where = filtres.statut ? 'WHERE pa.statut = ?' : '';
+  const where = filtres.statut ? "WHERE pa.type_paiement = 'ABONNEMENT' AND pa.statut = ?" : "WHERE pa.type_paiement = 'ABONNEMENT'";
   const valeurs = filtres.statut ? [filtres.statut] : [];
   const [[lignes], [compte]] = await Promise.all([
     baseDeDonnees.query(
@@ -71,18 +61,15 @@ export async function traiterPaiement(code, adminId, donnees) {
     const paiement = paiements[0];
     if (!paiement) throw new ErreurApi(404, 'Paiement introuvable.');
     if (paiement.statut !== 'EN_ATTENTE') throw new ErreurApi(409, 'Ce paiement a déjà été traité.');
+    if (paiement.type_paiement !== 'ABONNEMENT') throw new ErreurApi(409, 'Ce type de paiement n’est plus disponible.');
     await connexion.execute(
       `UPDATE paiements_abonnement SET statut = ?, commentaire_admin = ?, traite_par_id = ?, date_traitement = CURRENT_TIMESTAMP WHERE id = ?`,
       [donnees.statut, donnees.commentaire ?? null, adminId, paiement.id],
     );
-    if (donnees.statut === 'VALIDE' && paiement.type_paiement === 'ABONNEMENT') {
-      await activerAbonnement(connexion, paiement);
-    } else if (donnees.statut === 'VALIDE' && paiement.type_paiement === 'CERTIFICATION') {
-      await activerCertification(connexion, paiement);
-    }
+    if (donnees.statut === 'VALIDE') await activerAbonnement(connexion, paiement);
     const valide = donnees.statut === 'VALIDE';
     const message = valide
-      ? (paiement.type_paiement === 'CERTIFICATION' ? 'Votre badge certifié est actif pour 30 jours.' : 'Votre pack est actif pour 30 jours.')
+      ? 'Votre abonnement CampusHub est actif pour une année.'
       : (donnees.commentaire || 'Veuillez vérifier votre preuve de paiement.');
     await connexion.execute(
       `INSERT INTO notifications (id, code_notification, destinataire_id, type_notification, titre, message)
@@ -125,25 +112,6 @@ async function activerAbonnement(connexion, paiement) {
   );
 }
 
-async function activerCertification(connexion, paiement) {
-  const [membres] = await connexion.execute(
-    'SELECT universite_id FROM membres_universite WHERE utilisateur_id = ? AND est_proprietaire = 1 LIMIT 1', [paiement.utilisateur_id],
-  );
-  if (!membres[0]) throw new ErreurApi(409, 'La fiche universitaire doit exister avant l’activation du badge.');
-  const [precedentes] = await connexion.execute(
-    `SELECT date_fin FROM certifications_universite
-     WHERE universite_id = ? AND statut = 'ACTIF' ORDER BY date_fin DESC LIMIT 1`, [membres[0].universite_id],
-  );
-  const debut = precedentes[0]?.date_fin && new Date(precedentes[0].date_fin) > new Date() ? precedentes[0].date_fin : new Date();
-  const fin = new Date(new Date(debut).getTime() + 30 * 86400000);
-  await connexion.execute(
-    `INSERT INTO certifications_universite
-      (id, code_certification, utilisateur_id, universite_id, paiement_id, prix, date_debut, date_fin)
-     VALUES (0, '', ?, ?, ?, 7.00, ?, ?)`,
-    [paiement.utilisateur_id, membres[0].universite_id, paiement.id, debut, fin],
-  );
-}
-
 async function obtenirPaiement(code, connexion = baseDeDonnees) {
   const [lignes] = await connexion.execute('SELECT * FROM paiements_abonnement WHERE code_paiement = ?', [code.toUpperCase()]);
   return lignes[0];
@@ -151,7 +119,6 @@ async function obtenirPaiement(code, connexion = baseDeDonnees) {
 
 export async function obtenirMonAbonnement(utilisateurId) {
   await baseDeDonnees.execute("UPDATE abonnements_universite SET statut = 'EXPIRE' WHERE statut = 'ACTIF' AND date_fin < CURRENT_TIMESTAMP");
-  await baseDeDonnees.execute("UPDATE certifications_universite SET statut = 'EXPIRE' WHERE statut = 'ACTIF' AND date_fin < CURRENT_TIMESTAMP");
   const [lignes] = await baseDeDonnees.execute(
     'SELECT * FROM vue_abonnements_universites WHERE utilisateur_id = ? ORDER BY date_fin DESC LIMIT 1', [utilisateurId],
   );
@@ -160,7 +127,6 @@ export async function obtenirMonAbonnement(utilisateurId) {
 
 export async function listerAbonnements() {
   await baseDeDonnees.execute("UPDATE abonnements_universite SET statut = 'EXPIRE' WHERE statut = 'ACTIF' AND date_fin < CURRENT_TIMESTAMP");
-  await baseDeDonnees.execute("UPDATE certifications_universite SET statut = 'EXPIRE' WHERE statut = 'ACTIF' AND date_fin < CURRENT_TIMESTAMP");
   const [lignes] = await baseDeDonnees.query('SELECT * FROM vue_abonnements_universites ORDER BY statut, date_fin');
   return lignes;
 }

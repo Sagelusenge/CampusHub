@@ -101,7 +101,8 @@ for migration in \
   22_messagerie_avancee.sql \
   23_medias_messagerie.sql \
   24_couvertures_etablissements.sql \
-  25_gestion_etudiants_audit.sql; do
+  25_gestion_etudiants_audit.sql \
+  26_abonnement_annuel_unique.sql; do
   sudo docker compose -p aws-lightsail --env-file .env.runtime exec -T mysql \
     mysql -uroot -p"$MYSQL_ROOT_PASSWORD" campushub \
     < "$REMOTE_DIRECTORY/database/$migration"
