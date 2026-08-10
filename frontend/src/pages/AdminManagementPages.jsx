@@ -1,10 +1,11 @@
 import { Building2, Check, Eye, FileClock, RefreshCw, Search, ShieldAlert, UserRoundCheck, Users, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { DashboardPageHeader } from '../components/DashboardShell.jsx';
 import { Spinner } from '../components/Spinner.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
+import { ListPagination } from '../components/ListPagination.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 function useRemoteList(loader) {
@@ -90,13 +91,40 @@ export function AdminAuditPage() {
   const { token } = useAuth();
   const loader = useCallback(async () => (await apiRequest('/administration/audit?page=1&limite=100', { token })).donnees || [], [token]);
   const list = useRemoteList(loader);
-  return <ManagementPage title="Journal d’audit" description="Traçabilité des consultations et opérations sensibles, avec valeurs avant/après et adresse IP." icon={FileClock} list={list} columns={['Action','Entité','Utilisateur','Détails','Date']} renderRow={(item) => <tr key={item.code_audit || item.id}><td><strong>{item.action}</strong><small className="cell-subtitle">{item.code_audit}</small></td><td><span className="role-chip">{item.type_entite}</span><small className="cell-subtitle">ID {item.identifiant_entite || '—'}</small></td><td>{item.nom_affichage || 'Système / anonyme'}<small className="cell-subtitle">{item.code_utilisateur || item.adresse_ip || ''}</small></td><td className="audit-details-cell"><details><summary>Consulter les données</summary><pre>{formatAuditDetails(item)}</pre></details></td><td>{formatDateTime(item.date_creation)}</td></tr>} />;
+  const [actionFilter, setActionFilter] = useState('');
+  const [entityFilter, setEntityFilter] = useState('');
+  const [groupMode, setGroupMode] = useState('JOUR');
+  const actions = useMemo(() => [...new Set(list.data.map((item) => item.action).filter(Boolean))].sort(), [list.data]);
+  const entities = useMemo(() => [...new Set(list.data.map((item) => item.type_entite).filter(Boolean))].sort(), [list.data]);
+  const visible = useMemo(() => list.data.filter((item) => (!actionFilter || item.action === actionFilter) && (!entityFilter || item.type_entite === entityFilter)), [actionFilter, entityFilter, list.data]);
+  const groupBy = useCallback((item) => {
+    if (groupMode === 'ACTION') return item.action || 'Autre action';
+    if (groupMode === 'ENTITE') return item.type_entite || 'Autre entité';
+    if (groupMode === 'JOUR') return item.date_creation ? new Date(item.date_creation).toLocaleDateString('fr-FR', { dateStyle: 'long' }) : 'Date inconnue';
+    return '';
+  }, [groupMode]);
+  return <ManagementPage title="Journal d’audit" description="Traçabilité des consultations et opérations sensibles, avec valeurs avant/après et adresse IP." icon={FileClock} list={{ ...list, data: visible }} groupBy={groupMode === 'AUCUN' ? null : groupBy} extra={<div className="management-filters"><select className="compact-select" value={actionFilter} onChange={(event) => setActionFilter(event.target.value)}><option value="">Toutes les actions</option>{actions.map((action) => <option key={action}>{action}</option>)}</select><select className="compact-select" value={entityFilter} onChange={(event) => setEntityFilter(event.target.value)}><option value="">Toutes les entités</option>{entities.map((entity) => <option key={entity}>{entity}</option>)}</select><select className="compact-select" value={groupMode} onChange={(event) => setGroupMode(event.target.value)}><option value="JOUR">Grouper par jour</option><option value="ACTION">Grouper par action</option><option value="ENTITE">Grouper par entité</option><option value="AUCUN">Sans groupement</option></select></div>} columns={['Action','Entité','Utilisateur','Détails','Date']} renderRow={(item) => <tr key={item.code_audit || item.id}><td><strong>{item.action}</strong><small className="cell-subtitle">{item.code_audit}</small></td><td><span className="role-chip">{item.type_entite}</span><small className="cell-subtitle">ID {item.identifiant_entite || '—'}</small></td><td>{item.nom_affichage || 'Système / anonyme'}<small className="cell-subtitle">{item.code_utilisateur || item.adresse_ip || ''}</small></td><td className="audit-details-cell"><details><summary>Consulter les données</summary><pre>{formatAuditDetails(item)}</pre></details></td><td>{formatDateTime(item.date_creation)}</td></tr>} />;
 }
 
-function ManagementPage({ title, description, icon: Icon, list, columns, renderRow, extra, message }) {
+function ManagementPage({ title, description, icon: Icon, list, columns, renderRow, extra, message, groupBy }) {
   const [search, setSearch] = useState('');
-  const filtered = list.data.filter((item) => JSON.stringify(item).toLowerCase().includes(search.toLowerCase()));
-  return <div><DashboardPageHeader title={title} description={description} actions={<button className="secondary-action" onClick={list.refresh}><RefreshCw /> Actualiser</button>} />{message && <div className="alert alert--success"><Check /> {message}</div>}{list.error && <div className="alert alert--error">{list.error}</div>}<section className="app-panel management-panel"><div className="management-toolbar"><label><Search /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher dans la liste…" /></label>{extra}</div>{list.loading ? <div className="content-loading"><Spinner /> Chargement…</div> : filtered.length ? <div className="table-scroll"><table className="data-table"><thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{filtered.map(renderRow)}</tbody></table></div> : <div className="management-empty"><span><Icon /></span><h3>Aucun élément</h3><p>La liste est actuellement vide.</p></div>}</section></div>;
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
+  const filtered = useMemo(() => list.data.filter((item) => JSON.stringify(item).toLocaleLowerCase('fr-FR').includes(search.toLocaleLowerCase('fr-FR'))), [list.data, search]);
+  const ordered = useMemo(() => {
+    if (!groupBy) return filtered;
+    const groupOrder = new Map();
+    filtered.forEach((item) => { const group = String(groupBy(item)); if (!groupOrder.has(group)) groupOrder.set(group, groupOrder.size); });
+    return [...filtered].sort((first, second) => groupOrder.get(String(groupBy(first))) - groupOrder.get(String(groupBy(second))));
+  }, [filtered, groupBy]);
+  const pageCount = Math.max(1, Math.ceil(ordered.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const visible = ordered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage(1);
+  }, [list.data, pageSize]);
+  return <div><DashboardPageHeader title={title} description={description} actions={<button className="secondary-action" onClick={list.refresh}><RefreshCw /> Actualiser</button>} />{message && <div className="alert alert--success"><Check /> {message}</div>}{list.error && <div className="alert alert--error">{list.error}</div>}<section className="app-panel management-panel"><div className="management-toolbar"><label><Search /><input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Rechercher dans la liste…" /></label>{extra}</div>{list.loading ? <div className="content-loading"><Spinner /> Chargement…</div> : ordered.length ? <><div className="table-scroll"><table className="data-table"><thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{visible.map((item, index) => { const group = groupBy?.(item); const previousGroup = index > 0 ? groupBy?.(visible[index - 1]) : null; return <Fragment key={item.code_audit || item.code_utilisateur || item.code_universite || item.code_signalement || item.id || index}>{groupBy && group !== previousGroup && <tr className="table-group-row"><td colSpan={columns.length}>{group}</td></tr>}{renderRow(item)}</Fragment>; })}</tbody></table></div><ListPagination page={currentPage} pageSize={pageSize} total={ordered.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} /></> : <div className="management-empty"><span><Icon /></span><h3>Aucun élément</h3><p>La liste est actuellement vide.</p></div>}</section></div>;
 }
 
 function Identity({ title, subtitle, icon: Icon }) { return <div className="table-identity"><span>{Icon ? <Icon /> : title?.slice(0,2).toUpperCase()}</span><div><strong>{title}</strong><small>{subtitle}</small></div></div>; }

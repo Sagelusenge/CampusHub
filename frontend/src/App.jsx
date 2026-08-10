@@ -45,6 +45,7 @@ import { InstitutionPartnersPage } from './pages/InstitutionPartnersPage.jsx';
 import { FinalistOrientationPage } from './pages/FinalistOrientationPage.jsx';
 import { FaqPage } from './pages/FaqPage.jsx';
 import { ProfessionalReportsPage } from './pages/ProfessionalReportsPage.jsx';
+import { ScrollToTop } from './components/ScrollToTop.jsx';
 
 const protectAdmin = <ProtectedRoute roles={['ADMINISTRATEUR']}><DashboardShell role="admin" /></ProtectedRoute>;
 const protectInstitution = <ProtectedRoute roles={['UNIVERSITE']}><InstitutionProvider><DashboardShell role="institution" /></InstitutionProvider></ProtectedRoute>;
@@ -79,7 +80,7 @@ function ConnectedHome({ children }) {
 }
 
 export function App() {
-  return <Routes>
+  return <><ScrollToTop /><Routes>
     <Route path="/" element={<ConnectedHome><HomePage /></ConnectedHome>} />
     <Route path="/universites" element={<UniversitiesPage />} />
     <Route path="/universites/:code" element={<UniversityDetailPage />} />
@@ -161,5 +162,5 @@ export function App() {
     </Route>
 
     <Route path="*" element={<NotFoundPage />} />
-  </Routes>;
+  </Routes></>;
 }

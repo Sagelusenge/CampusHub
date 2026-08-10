@@ -280,6 +280,26 @@
 
 .report-status-grid small{color:#53687e;font-size:6.5pt;font-weight:700}
 .report-status-grid strong{color:var(--report-blue);font-size:11pt}
+.report-progress-grid{margin-top:2.5mm}
+.report-progress-grid .trend-positive{color:#087b70}
+.report-progress-grid .trend-negative{color:#b23e4b}
+
+.report-trend-chart{
+  margin-bottom:2.5mm;
+  padding:2.5mm 3mm 2mm;
+  border:1px solid #b8c7d5;
+  background:linear-gradient(180deg,#f8fbfd,#fff);
+}
+.report-chart-legend{display:flex;justify-content:flex-end;gap:4mm;margin-bottom:2mm;color:#53687e;font-size:6.4pt;font-weight:700}
+.report-chart-legend span{display:flex;align-items:center;gap:1.3mm}
+.report-chart-legend i{width:2.4mm;height:2.4mm;border-radius:50%}
+.report-chart-bars{height:32mm;padding:1mm 2mm 0;display:grid;grid-template-columns:repeat(6,1fr);align-items:end;gap:2mm;border-bottom:1px solid #91a6ba;background:repeating-linear-gradient(to top,transparent 0,transparent 9.5mm,#dce5ed 10mm)}
+.report-chart-month{height:100%;display:grid;grid-template-rows:1fr auto;align-items:end;gap:1mm;text-align:center}
+.report-chart-month>div{height:100%;display:flex;align-items:end;justify-content:center;gap:1mm}
+.report-chart-month>div>span{position:relative;width:4.2mm;height:var(--bar-height);min-height:1.7mm;display:block;border-radius:1mm 1mm 0 0;background:var(--bar-color)}
+.report-chart-month b{position:absolute;left:50%;bottom:calc(100% + .5mm);transform:translateX(-50%);color:#304b64;font-size:5.5pt;font-weight:700}
+.report-chart-month small{color:#52677d;font-size:6pt;font-weight:700;text-transform:capitalize}
+.report-chart-empty{padding:5mm;border:1px dashed #b8c7d5;color:#687b8e;background:#f8fafc;text-align:center;font-size:7pt;font-style:italic}
 
 .report-observation{
   margin-top:2.5mm;
@@ -380,6 +400,8 @@
   .report-fields>div{grid-template-columns:120px minmax(0,1fr)}
   .report-metrics{grid-template-columns:1fr 1fr}
   .report-status-grid{grid-template-columns:1fr 1fr}
+  .report-chart-bars{min-width:520px}
+  .report-trend-chart{overflow-x:auto}
   .report-table{min-width:600px}
   .report-section{overflow-x:auto}
   .report-signatures{gap:26px;margin-inline:0}

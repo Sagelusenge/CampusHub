@@ -25,6 +25,15 @@ const formatDate = (value) => value
 
 const formatNumber = (value) => Number(value || 0).toLocaleString('fr-FR');
 
+const percentageChange = (current, previous) => {
+  const currentValue = Number(current || 0);
+  const previousValue = Number(previous || 0);
+  if (!previousValue) return currentValue ? 100 : 0;
+  return Math.round(((currentValue - previousValue) / previousValue) * 100);
+};
+
+const formatTrend = (value) => `${value > 0 ? '+' : ''}${value}%`;
+
 const labelStatus = (value) => String(value || 'NON RENSEIGNÉ')
   .replaceAll('_', ' ')
   .toLocaleLowerCase('fr-FR')
@@ -110,11 +119,6 @@ function FormalReport({
 
       {children}
 
-      <section className="report-certification">
-        <BadgeCheck />
-        <p>Les informations de ce rapport sont générées à partir des données enregistrées dans CampusHub au moment de l’édition. Toute modification ultérieure nécessite une nouvelle génération du document.</p>
-      </section>
-
       <section className="report-signatures">
         {signatures.map((signature) => <div key={signature}><span>{signature}</span><i /><small>Nom, signature et date</small></div>)}
       </section>
@@ -142,6 +146,12 @@ function ReportMetrics({ items }) {
 
 function ReportFields({ items }) {
   return <dl className="report-fields">{items.map(({ label, value, wide }) => <div className={wide ? 'report-field--wide' : ''} key={label}><dt>{label}</dt><dd>{value || 'Non renseigné'}</dd></div>)}</dl>;
+}
+
+function ReportTrendChart({ data, series }) {
+  if (!data.length) return <div className="report-chart-empty">Aucune donnée disponible pour tracer la progression.</div>;
+  const maxima = Object.fromEntries(series.map((serie) => [serie.key, Math.max(1, ...data.map((item) => Number(item[serie.key] || 0)))]));
+  return <div className="report-trend-chart"><div className="report-chart-legend">{series.map((serie) => <span key={serie.key}><i style={{ background: serie.color }} />{serie.label}</span>)}</div><div className="report-chart-bars">{data.map((item) => <div className="report-chart-month" key={item.mois}><div>{series.map((serie) => <span key={serie.key} title={`${serie.label} : ${formatNumber(item[serie.key])}`} style={{ '--bar-height': `${Math.max(5, Number(item[serie.key] || 0) / maxima[serie.key] * 100)}%`, '--bar-color': serie.color }}><b>{formatNumber(item[serie.key])}</b></span>)}</div><small>{new Date(`${item.mois}-02`).toLocaleDateString('fr-FR', { month: 'short' })}</small></div>)}</div></div>;
 }
 
 function EmptyReportRow({ colSpan, children }) {
@@ -185,6 +195,10 @@ function AdminProfessionalReport() {
     + Number(stats.signalements_a_traiter || 0)
     + Number(stats.paiements_a_verifier || 0)
     + Number(stats.villes_a_examiner || 0);
+  const latestActivity = data.activity.at(-1) || {};
+  const previousActivity = data.activity.at(-2) || {};
+  const userGrowth = percentageChange(latestActivity.nouveauxUtilisateurs, previousActivity.nouveauxUtilisateurs);
+  const revenueGrowth = percentageChange(latestActivity.revenus, previousActivity.revenus);
 
   return (
     <ReportWorkspace title="Rapport de pilotage administratif" description="Vue officielle des effectifs, validations, activités et actions prioritaires." loading={loading} error={error} onRefresh={load}>
@@ -226,6 +240,16 @@ function AdminProfessionalReport() {
         </ReportSection>
 
         <ReportSection number="3" title="Activité des six derniers mois">
+          <ReportTrendChart data={data.activity} series={[
+            { key: 'nouveauxUtilisateurs', label: 'Nouveaux utilisateurs', color: '#174b80' },
+            { key: 'revenus', label: 'Revenus validés', color: '#078d82' },
+          ]} />
+          <div className="report-status-grid report-progress-grid">
+            <div><small>Progression des inscriptions</small><strong className={userGrowth < 0 ? 'trend-negative' : 'trend-positive'}>{formatTrend(userGrowth)}</strong></div>
+            <div><small>Progression des revenus</small><strong className={revenueGrowth < 0 ? 'trend-negative' : 'trend-positive'}>{formatTrend(revenueGrowth)}</strong></div>
+            <div><small>Utilisateurs sur la période</small><strong>{formatNumber(data.activity.reduce((sum, item) => sum + Number(item.nouveauxUtilisateurs || 0), 0))}</strong></div>
+            <div><small>Revenus sur la période</small><strong>{formatNumber(data.activity.reduce((sum, item) => sum + Number(item.revenus || 0), 0))} USD</strong></div>
+          </div>
           <table className="report-table report-table--center">
             <thead><tr><th>Mois</th><th>Nouveaux utilisateurs</th><th>Revenus validés</th></tr></thead>
             <tbody>
@@ -252,27 +276,29 @@ function AdminProfessionalReport() {
 function InstitutionProfessionalReport() {
   const { token, utilisateur } = useAuth();
   const { universite } = useInstitution();
-  const [data, setData] = useState({ affiliations: [], offers: [], subscription: null, enrollments: [] });
+  const institutionCode = universite?.code_universite;
+  const [data, setData] = useState({ affiliations: [], offers: [], subscription: null, enrollments: [], statistics: { indicateurs: {}, activiteMensuelle: [], repartitionDemandes: {} } });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [affiliations, offers, subscription, enrollments] = await Promise.all([
+      const [affiliations, offers, subscription, enrollments, statistics] = await Promise.all([
         safeRequest('/affiliations/universite', token, []),
         safeRequest('/offres/moi?page=1&limite=50', token, []),
         safeRequest('/abonnements/moi', token, null),
         safeRequest('/communaute/inscriptions/moi/demandes', token, []),
+        institutionCode ? safeRequest(`/universites/${institutionCode}/statistiques`, token, { indicateurs: {}, activiteMensuelle: [], repartitionDemandes: {} }) : Promise.resolve({ indicateurs: {}, activiteMensuelle: [], repartitionDemandes: {} }),
       ]);
-      setData({ affiliations, offers, subscription, enrollments });
+      setData({ affiliations, offers, subscription, enrollments, statistics });
       setError('');
     } catch (requestError) {
       setError(requestError.message);
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, institutionCode]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -285,6 +311,10 @@ function InstitutionProfessionalReport() {
     return counts;
   }, {}), [data.affiliations]);
   const publishedOffers = data.offers.filter((item) => item.statut === 'PUBLIEE').length;
+  const monthlyActivity = data.statistics?.activiteMensuelle || [];
+  const requestDistribution = data.statistics?.repartitionDemandes || {};
+  const requestTotal = Number(requestDistribution.enAttente || 0) + Number(requestDistribution.acceptees || 0) + Number(requestDistribution.rejetees || 0);
+  const acceptanceRate = requestTotal ? Math.round(Number(requestDistribution.acceptees || 0) / requestTotal * 100) : 0;
 
   return (
     <ReportWorkspace title="Rapport institutionnel" description={`Situation académique et opérationnelle de ${universite?.nom || 'votre établissement'}.`} loading={loading} error={error} onRefresh={load}>
@@ -354,7 +384,21 @@ function InstitutionProfessionalReport() {
           </table>
         </ReportSection>
 
-        <ReportSection number="5" title="Observations de gestion">
+        <ReportSection number="5" title="Progression de l’activité" description="Évolution mensuelle calculée à partir des publications, offres et candidatures enregistrées.">
+          <ReportTrendChart data={monthlyActivity} series={[
+            { key: 'publications', label: 'Publications', color: '#078d82' },
+            { key: 'offres', label: 'Offres', color: '#d79b22' },
+            { key: 'candidatures', label: 'Candidatures', color: '#174b80' },
+          ]} />
+          <div className="report-status-grid report-progress-grid">
+            <div><small>Publications sur 6 mois</small><strong>{formatNumber(monthlyActivity.reduce((sum, item) => sum + Number(item.publications || 0), 0))}</strong></div>
+            <div><small>Offres sur 6 mois</small><strong>{formatNumber(monthlyActivity.reduce((sum, item) => sum + Number(item.offres || 0), 0))}</strong></div>
+            <div><small>Candidatures sur 6 mois</small><strong>{formatNumber(monthlyActivity.reduce((sum, item) => sum + Number(item.candidatures || 0), 0))}</strong></div>
+            <div><small>Taux d’acceptation</small><strong>{acceptanceRate}%</strong></div>
+          </div>
+        </ReportSection>
+
+        <ReportSection number="6" title="Observations de gestion">
           <div className="report-observation">
             <p>{universite?.description || 'La présentation institutionnelle n’a pas encore été renseignée.'}</p>
             <ul>

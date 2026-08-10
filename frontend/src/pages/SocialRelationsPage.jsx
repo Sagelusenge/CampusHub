@@ -1,8 +1,9 @@
 import { Check, MessageCircle, Search, UserMinus, UserPlus, Users, X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { Spinner } from '../components/Spinner.jsx';
+import { ListPagination } from '../components/ListPagination.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const initials = (name = 'CH') => name.split(' ').map((word) => word[0]).slice(0, 2).join('').toUpperCase();
@@ -14,6 +15,7 @@ export function SocialRelationsPage() {
   const [suggestions, setSuggestions] = useState([]); const [invitations, setInvitations] = useState([]);
   const [relations, setRelations] = useState([]); const [loading, setLoading] = useState(true);
   const [error, setError] = useState(''); const [message, setMessage] = useState('');
+  const [roleFilter, setRoleFilter] = useState(''); const [pageSize, setPageSize] = useState(10); const [page, setPage] = useState(1);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -45,7 +47,23 @@ export function SocialRelationsPage() {
     catch (err) { setError(err.message); }
   }
 
-  const items = tab === 'invitations' ? invitations : tab === 'relations' ? relations : suggestions;
+  const sourceItems = tab === 'invitations' ? invitations : tab === 'relations' ? relations : suggestions;
+  const items = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase('fr-FR');
+    return sourceItems.filter((person) => {
+      const matchesRole = !roleFilter || person.role === roleFilter;
+      const haystack = [person.nom_affichage, person.titre, person.nom_etablissement, person.role].filter(Boolean).join(' ').toLocaleLowerCase('fr-FR');
+      return matchesRole && (!normalizedQuery || haystack.includes(normalizedQuery));
+    });
+  }, [query, roleFilter, sourceItems]);
+  const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
+  const visibleItems = items.slice((Math.min(page, pageCount) - 1) * pageSize, Math.min(page, pageCount) * pageSize);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage(1);
+  }, [tab, query, roleFilter, pageSize]);
+
   return <section className="social-relations-page">
     <div className="container social-relations-shell">
       <header><div><span className="eyebrow"><Users />Communauté académique</span><h1>Relations</h1><p>Retrouvez des étudiants, développez votre réseau et échangez directement.</p></div>
@@ -55,15 +73,19 @@ export function SocialRelationsPage() {
         <button className={tab === 'invitations' ? 'active' : ''} onClick={() => setTab('invitations')}>Invitations {invitations.length > 0 && <span>{invitations.length}</span>}</button>
         <button className={tab === 'relations' ? 'active' : ''} onClick={() => setTab('relations')}>Mes relations <span>{relations.length}</span></button>
       </div>
+      <div className="relations-controls app-panel">
+        <label>Type de profil<select value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)}><option value="">Tous les profils</option><option value="ETUDIANT">Étudiants</option><option value="UNIVERSITE">Établissements</option><option value="VISITEUR">Visiteurs</option></select></label>
+        <p><strong>{items.length}</strong> personne(s) trouvée(s)</p>
+      </div>
       {message && <div className="alert alert--success">{message}</div>}{error && <div className="alert alert--error">{error}</div>}
-      {loading ? <div className="content-loading app-panel"><Spinner />Chargement du réseau…</div> : items.length ? <div className="relations-grid">{items.map((person) => <article className="relation-card app-panel" key={person.code_relation || person.code_utilisateur}>
+      {loading ? <div className="content-loading app-panel"><Spinner />Chargement du réseau…</div> : items.length ? <><div className="relations-grid">{visibleItems.map((person) => <article className="relation-card app-panel" key={person.code_relation || person.code_utilisateur}>
         <span className="relation-card__avatar"><Avatar person={person} /></span><div><h2>{person.nom_affichage}</h2><p>{person.titre || person.nom_etablissement || (person.role === 'ETUDIANT' ? 'Étudiant CampusHub' : person.role)}</p>{person.message && <blockquote>{person.message}</blockquote>}</div>
         <footer>{tab === 'suggestions' && (!person.statut_relation || ['REFUSEE', 'ANNULEE'].includes(person.statut_relation)) && <button className="button button--small" onClick={() => invite(person)}><UserPlus />Inviter</button>}
           {tab === 'suggestions' && person.statut_relation === 'EN_ATTENTE' && <span className="relation-status">Invitation {person.sens_relation === 'RECUE' ? 'reçue' : 'envoyée'}</span>}
           {tab === 'suggestions' && person.statut_relation === 'ACCEPTEE' && <button className="secondary-action" onClick={() => chat(person)}><MessageCircle />Message</button>}
           {tab === 'invitations' && <><button className="button button--small" onClick={() => answer(person, 'ACCEPTEE')}><Check />Accepter</button><button className="secondary-action" onClick={() => answer(person, 'REFUSEE')}><X />Refuser</button></>}
           {tab === 'relations' && <><button className="button button--small" onClick={() => chat(person)}><MessageCircle />Message</button><button className="secondary-action relation-remove" onClick={() => remove(person)}><UserMinus />Retirer</button></>}</footer>
-      </article>)}</div> : <div className="management-empty app-panel"><Users /><h3>Aucun résultat</h3><p>Les nouvelles relations apparaîtront ici.</p></div>}
+      </article>)}</div><ListPagination page={Math.min(page, pageCount)} pageSize={pageSize} total={items.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} /></> : <div className="management-empty app-panel"><Users /><h3>Aucun résultat</h3><p>Les nouvelles relations apparaîtront ici.</p></div>}
     </div>
   </section>;
 }
