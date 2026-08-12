@@ -58,6 +58,9 @@ BACKUP_DIR="${REMOTE_DIRECTORY}-backups"
 sudo mkdir -p "$BACKUP_DIR"
 sudo chown ubuntu:ubuntu "$BACKUP_DIR"
 if [ -f "$COMPOSE_DIR/.env.runtime" ]; then
+  if ! grep -q '^CAMPUSHUB_IA_TOKEN=' "$COMPOSE_DIR/.env.runtime"; then
+    printf '\nCAMPUSHUB_IA_TOKEN=%s\n' "$(openssl rand -hex 32)" >> "$COMPOSE_DIR/.env.runtime"
+  fi
   cd "$COMPOSE_DIR"
   MYSQL_ROOT_PASSWORD=$(grep '^MYSQL_ROOT_PASSWORD=' .env.runtime | cut -d= -f2-)
   BACKUP_FINAL="$BACKUP_DIR/campushub-$(date +%Y%m%d-%H%M%S).sql.gz"
@@ -86,7 +89,7 @@ else
 fi
 
 cd "$NEXT/deploy/aws-lightsail"
-sudo docker compose -p aws-lightsail --env-file .env.runtime build app
+sudo docker compose -p aws-lightsail --env-file .env.runtime build app campushub-ia
 
 sudo mv "$REMOTE_DIRECTORY" "$PREVIOUS"
 sudo mv "$NEXT" "$REMOTE_DIRECTORY"
@@ -100,7 +103,7 @@ for migration in 26_abonnement_annuel_unique.sql 27_campushub_ia_locale.sql; do
     < "$REMOTE_DIRECTORY/database/$migration"
 done
 sudo docker compose -p aws-lightsail --env-file .env.runtime \
-  up -d --remove-orphans --force-recreate app caddy
+  up -d --remove-orphans --force-recreate app campushub-ia caddy
 
 DOMAIN=$(grep '^CAMPUSHUB_DOMAIN=' .env.runtime | cut -d= -f2-)
 for attempt in $(seq 1 30); do
