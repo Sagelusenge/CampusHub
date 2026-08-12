@@ -68,7 +68,7 @@ export function FinalistOrientationPage({ embedded = false }) {
 
   return <section className={`finalist-orientation ${embedded ? 'finalist-orientation--embedded' : ''}`}>
     <div className={embedded ? '' : 'container'}>
-      <DashboardPageHeader title="Orientation des finalistes" description="Découvrez les formations compatibles avec votre option, votre pourcentage et vos ambitions." actions={<Link className="secondary-action" to="/orientation"><Sparkles />CampusHub AI</Link>} />
+      <DashboardPageHeader title="Orientation des finalistes" description="Découvrez les formations compatibles avec votre option, votre pourcentage et vos ambitions." actions={<Link className="secondary-action" to="/orientation"><Sparkles />CampusHubIA</Link>} />
       <div className="finalist-intro app-panel"><span><School /></span><div><strong>Un résultat explicable, sans promesse d’admission</strong><p>L’algorithme compare votre parcours aux filières vérifiées de CampusHub. Chaque université garde ses propres critères officiels.</p></div><ShieldCheck /></div>
       {error && <div className="alert alert--error">{error}</div>}
       <div className="finalist-layout">

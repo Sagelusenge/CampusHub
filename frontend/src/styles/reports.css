@@ -351,7 +351,9 @@
   text-align:justify;
 }
 
-.contract-clauses ol{margin:0;padding-left:5mm}.contract-clauses li+li{margin-top:1.4mm}
+.contract-preamble,.contract-acceptance{margin:0 0 4mm;padding:2.8mm 3.4mm;border:1px solid #9eafbf;border-left:1.5mm solid var(--report-blue);color:#2d4359;background:#f7fafc;font-size:7.3pt;line-height:1.5;text-align:justify}
+.contract-preamble strong,.contract-acceptance strong{display:block;margin-bottom:1mm;color:#102d4e;font-size:8pt;text-transform:uppercase}.contract-preamble p,.contract-acceptance p{margin:0}
+.contract-articles{display:grid;gap:2mm}.contract-article{padding:2.5mm 3mm;border:1px solid #afbdca;background:#fff;break-inside:avoid;page-break-inside:avoid}.contract-article h3{margin:0 0 1.4mm;display:flex;align-items:center;gap:2mm;color:#102d4e;font-size:8pt;text-transform:uppercase}.contract-article h3 span{padding:1mm 1.6mm;color:#fff;background:#174b80;font-size:6.2pt;white-space:nowrap}.contract-article>div{color:#354b61;font-size:7.2pt;line-height:1.48;text-align:justify}.contract-article p,.contract-article ul{margin:0}.contract-article ul{padding-left:5mm}.contract-article li+li{margin-top:.7mm}.contract-acceptance{margin-top:2mm;border-left-color:#078d82;background:#eef7f5}
 .invoice-totals{margin-left:auto;width:70mm;border:1px solid #aebdcb}
 .invoice-totals>div{padding:1.8mm 2.5mm;display:flex;align-items:center;justify-content:space-between;gap:4mm;border-bottom:1px solid #c5d0da;color:#42586e;font-size:7pt}
 .invoice-totals>div:last-child{border-bottom:0;color:#fff;background:#174b80;font-size:8pt}
@@ -462,9 +464,37 @@
     border:0!important;
     box-shadow:none!important;
   }
-  .report-section,.report-metrics,.report-fields,.report-status-grid,.report-observation,.report-certification,.report-signatures{
+  .report-section,.report-metrics,.report-fields,.report-status-grid,.report-observation,.report-certification,.report-signatures,.contract-article,.contract-preamble,.contract-acceptance{
     break-inside:avoid;
     page-break-inside:avoid;
   }
+  .professional-report--contract .report-section{
+    margin-bottom:2.5mm;
+    break-inside:auto;
+    page-break-inside:auto;
+  }
+  .professional-report--contract .report-section>header{
+    margin-bottom:1mm;
+    padding-bottom:.7mm;
+    break-after:avoid;
+    page-break-after:avoid;
+  }
+  .professional-report--contract .contract-preamble,
+  .professional-report--contract .contract-acceptance{
+    margin-bottom:2mm;
+    padding:2mm 2.8mm;
+    line-height:1.35;
+  }
+  .professional-report--contract .contract-articles{gap:1mm}
+  .professional-report--contract .contract-article{padding:1.7mm 2.4mm}
+  .professional-report--contract .contract-article h3{margin-bottom:.7mm}
+  .professional-report--contract .contract-article>div{font-size:7pt;line-height:1.34}
+  .professional-report--contract .contract-article li+li{margin-top:.25mm}
+  .professional-report--contract .contract-acceptance{
+    break-after:avoid;
+    page-break-after:avoid;
+  }
+  .professional-report--contract .report-signatures{margin-bottom:3mm}
+  .professional-report--contract .report-signatures i{height:9mm}
   .report-table tr{break-inside:avoid;page-break-inside:avoid}
 }

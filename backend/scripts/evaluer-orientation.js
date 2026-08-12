@@ -40,7 +40,7 @@ try {
   }
 
   console.table(resultats);
-  console.log(`Évaluation CampusHub AI réussie : ${resultats.length}/${cas.length} scénarios.`);
+  console.log(`Évaluation CampusHubIA réussie : ${resultats.length}/${cas.length} scénarios.`);
 } finally {
   await baseDeDonnees.end();
 }

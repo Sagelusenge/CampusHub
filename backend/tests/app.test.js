@@ -29,8 +29,16 @@ test('la fiche institutionnelle personnelle exige une connexion', async () => {
   assert.equal(reponse.body.succes, false);
 });
 
-test('le conseiller CampusHub AI protège les dossiers personnels', async () => {
+test('le conseiller CampusHubIA protège les dossiers personnels', async () => {
   const reponse = await request(app).get('/api/v1/orientation/configuration').expect(401);
   assert.equal(reponse.body.succes, false);
   assert.match(reponse.body.erreur.message, /authentification/i);
+});
+
+test('le bot public refuse une question vide avant tout accès aux données', async () => {
+  const reponse = await request(app)
+    .post('/api/v1/assistant/question')
+    .send({ question: '' })
+    .expect(400);
+  assert.equal(reponse.body.succes, false);
 });

@@ -8,7 +8,7 @@ requête HTTP
   → middleware de validation/authentification
   → controller
   → service
-  → MySQL
+  → MySQL / CampusHubIA
 ```
 
 ## Structure
@@ -51,9 +51,10 @@ Avant le démarrage, exécutez les scripts du dossier `database` et adaptez les 
 | GET | `/api/v1/universites` | Public | Rechercher les universités |
 | GET | `/api/v1/universites/:code` | Public | Fiche détaillée |
 | POST | `/api/v1/universites` | ADMINISTRATEUR/UNIVERSITE | Créer une université |
-| GET | `/api/v1/orientation/configuration` | Connecté | État de GPT‑5.6 |
+| POST | `/api/v1/assistant/question` | Public, limité | Poser une question générale depuis l’accueil |
+| GET | `/api/v1/orientation/configuration` | Connecté | État de CampusHubIA |
 | POST | `/api/v1/orientation/recommandations` | Connecté | Créer un dossier d’orientation |
-| POST | `/api/v1/orientation/analyser-bulletin` | Connecté | Analyser une image de bulletin |
+| POST | `/api/v1/orientation/analyser-bulletin` | Connecté | Signaler que l’analyse d’image locale n’est pas encore active |
 | GET | `/api/v1/orientation/dossiers` | Connecté | Historique personnel |
 | POST | `/api/v1/copilote-institution/generer` | UNIVERSITE | Créer un brouillon institutionnel |
 | GET | `/api/v1/copilote-institution/historique` | UNIVERSITE | Historique des brouillons |
@@ -72,16 +73,21 @@ La liste complète des routes, rôles et opérations se trouve dans [docs/API.md
 - `npm run eval:orientation` exécute cinq scénarios métier contre le catalogue MySQL.
 - `npm run db:demo-ai` installe les données fictives et idempotentes du conseiller.
 
-## Activer GPT‑5.6
+## Connecter CampusHubIA
 
-Ajoutez ces variables dans `.env` :
+Lancez le service Python du dossier `My Agent`, puis ajoutez ces variables dans `.env` :
 
 ```dotenv
-OPENAI_API_KEY=votre_cle_api
-OPENAI_MODEL=gpt-5.6-luna
+CAMPUSHUB_IA_URL=http://127.0.0.1:5000
+CAMPUSHUB_IA_TOKEN=
+CAMPUSHUB_IA_MODEL=campushub-ia-local-v1
+CAMPUSHUB_IA_TIMEOUT_MS=8000
+CAMPUSHUB_WEB_ENABLED=true
+CAMPUSHUB_WEB_TIMEOUT_MS=3500
+CAMPUSHUB_WEB_MAX_SOURCES=2
 ```
 
-`gpt-5.6-luna` conserve les capacités GPT‑5.6, l’entrée image et les appels de fonctions, avec un coût inférieur à l’alias `gpt-5.6` qui cible le modèle Sol. Sans clé, l’API ne simule pas un appel OpenAI : elle annonce le mode `DEMONSTRATION` et utilise son moteur MySQL déterministe. L’analyse de bulletin reste désactivée jusqu’à la configuration de la clé.
+CampusHubIA fonctionne entièrement sur notre serveur. L’enrichissement web facultatif utilise uniquement des documents publics et renvoie leurs liens ; désactivez-le avec `CAMPUSHUB_WEB_ENABLED=false`. En production, utilisez un secret aléatoire identique pour `CAMPUSHUB_IA_TOKEN` dans Express et dans le service Python. Si le service est indisponible ou dépasse le délai, l’API bascule automatiquement sur le moteur de règles MySQL. L’analyse locale des images de bulletin reste désactivée tant qu’un modèle de vision interne n’a pas été validé.
 
 ### Responsabilité d'un controller
 

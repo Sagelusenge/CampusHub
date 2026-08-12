@@ -1,0 +1,23 @@
+Q: Qu’est-ce que CampusHub ?
+R: CampusHub est une plateforme d’orientation et de vie académique. Elle relie les visiteurs, les étudiants, les établissements vérifiés et l’administration.
+
+Q: Qu’est-ce que CampusHubIA ?
+R: CampusHubIA est l’assistant local de CampusHub. Il utilise un corpus propre au projet et les données vérifiées transmises par MySQL. Il ne dépend d’aucune API d’intelligence artificielle externe.
+
+Q: Comment CampusHubIA protège-t-il les données ?
+R: Le corpus d’entraînement contient uniquement des informations publiques sur les établissements et la plateforme. Les données privées restent dans MySQL et sont utilisées uniquement dans le contexte autorisé de la demande.
+
+Q: Comment choisir une université ?
+R: Comparez le domaine, le niveau, le budget, la localisation, les conditions d’admission et les campus. CampusHubIA classe uniquement les formations actives des établissements vérifiés.
+
+Q: Une recommandation garantit-elle une admission ?
+R: Non. Une recommandation aide à comparer les possibilités, mais seul l’établissement confirme officiellement l’admission et l’affiliation.
+
+Q: Comment un étudiant rejoint-il son université sur CampusHub ?
+R: Pendant son inscription, l’étudiant choisit un établissement et une filière. Après la confirmation de son adresse e-mail, l’établissement reçoit la demande et peut l’accepter ou la refuser.
+
+Q: Comment contacter un établissement ?
+R: Ouvrez sa fiche vérifiée pour consulter ses coordonnées, ses campus, ses formations, ses services, ses partenaires et ses offres.
+
+Q: Les informations de CampusHubIA sont-elles toujours actuelles ?
+R: Les faits utilisés dans une réponse d’orientation ou un brouillon institutionnel viennent directement du contexte MySQL au moment de la demande. Le corpus public peut aussi être resynchronisé depuis l’API CampusHub.

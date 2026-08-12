@@ -1,0 +1,6 @@
+-r requirements-runtime.txt
+torch
+numpy
+colorama
+tqdm
+requests

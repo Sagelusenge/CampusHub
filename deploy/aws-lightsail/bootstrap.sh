@@ -22,7 +22,7 @@ CAMPUSHUB_DOMAIN=__DOMAIN__
 MYSQL_ROOT_PASSWORD=$(openssl rand -hex 32)
 MYSQL_APP_PASSWORD=$(openssl rand -hex 32)
 JWT_SECRET=$(openssl rand -hex 48)
-OPENAI_API_KEY=
+CAMPUSHUB_IA_TOKEN=$(openssl rand -hex 32)
 EOF
 
 docker compose --env-file .env.runtime up -d --build

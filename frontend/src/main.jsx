@@ -20,6 +20,7 @@ import './styles/community.css';
 import './styles/finalist-orientation.css';
 import './styles/help.css';
 import './styles/reports.css';
+import './styles/assistant-widget.css';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

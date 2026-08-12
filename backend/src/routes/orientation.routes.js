@@ -7,7 +7,7 @@ import { gestionnaireAsync as ga } from '../utils/gestionnaire-async.js';
 
 export const routeOrientation = Router();
 routeOrientation.use(authentifier, autoriserRoles('VISITEUR', 'ETUDIANT'));
-routeOrientation.get('/configuration', controller.configuration);
+routeOrientation.get('/configuration', ga(controller.configuration));
 routeOrientation.get('/finalistes/configuration', controller.configurationFinalistes);
 routeOrientation.post('/finalistes/recommandations', valider(schemaOrientationFinaliste), ga(controller.recommanderFinaliste));
 routeOrientation.get('/dossiers', ga(controller.dossiers));

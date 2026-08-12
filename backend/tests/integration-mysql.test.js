@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 const actif = process.env.RUN_MYSQL_INTEGRATION === '1';
 
-test('parcours CampusHub AI complet avec MySQL', { skip: !actif, timeout: 60000 }, async (contexte) => {
+test('parcours CampusHubIA complet avec MySQL', { skip: !actif, timeout: 60000 }, async (contexte) => {
   const [{ default: request }, { app }, { baseDeDonnees }] = await Promise.all([
     import('supertest'), import('../src/app.js'), import('../src/config/base-de-donnees.js'),
   ]);
@@ -111,7 +111,7 @@ test('parcours CampusHub AI complet avec MySQL', { skip: !actif, timeout: 60000 
 
   const affiliation = await appeler('post', '/api/v1/affiliations', etudiant.jetonAcces, {
     codeUniversite: universite.code_universite, codeFiliere: filiere.code_filiere,
-    matriculeEtudiant: 'AI-INT-001', message: 'Demande de test du parcours CampusHub AI.',
+    matriculeEtudiant: 'AI-INT-001', message: 'Demande de test du parcours CampusHubIA.',
   });
   await appeler('patch', `/api/v1/affiliations/${affiliation.code_demande}`, institution.jetonAcces, {
     statut: 'ACCEPTEE', reponse: 'Affiliation de test confirmée.',

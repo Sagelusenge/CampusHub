@@ -51,13 +51,35 @@ services:
       ADMIN_NOTIFICATION_EMAIL: ${ADMIN_NOTIFICATION_EMAIL:-}
       EMAIL_VERIFICATION_TTL_MINUTES: ${EMAIL_VERIFICATION_TTL_MINUTES:-10}
       EMAIL_VERIFICATION_MAX_ATTEMPTS: ${EMAIL_VERIFICATION_MAX_ATTEMPTS:-5}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: gpt-5.6-luna
+      CAMPUSHUB_IA_URL: http://campushub-ia:5000
+      CAMPUSHUB_IA_TOKEN: ${CAMPUSHUB_IA_TOKEN}
+      CAMPUSHUB_IA_MODEL: campushub-ia-local-v1
+      CAMPUSHUB_IA_TIMEOUT_MS: 8000
+      CAMPUSHUB_WEB_ENABLED: ${CAMPUSHUB_WEB_ENABLED:-true}
+      CAMPUSHUB_WEB_TIMEOUT_MS: ${CAMPUSHUB_WEB_TIMEOUT_MS:-3500}
+      CAMPUSHUB_WEB_MAX_SOURCES: ${CAMPUSHUB_WEB_MAX_SOURCES:-2}
     volumes:
       - uploads_data:/app/backend/uploads
     depends_on:
       mysql:
         condition: service_healthy
+      campushub-ia:
+        condition: service_healthy
+
+  campushub-ia:
+    build:
+      context: "../../My Agent"
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      CAMPUSHUB_IA_TOKEN: ${CAMPUSHUB_IA_TOKEN}
+      CAMPUSHUB_IA_KNOWLEDGE_PATH: /app/data/campushub_knowledge.txt
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
   caddy:
     image: caddy:2.10-alpine

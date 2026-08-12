@@ -18,3 +18,11 @@ deploy/aws-lightsail/.env.runtime
 .idea/
 .DS_Store
 Thumbs.db
+
+# Python / CampusHubIA
+**/venv/
+**/__pycache__/
+**/*.pyc
+My Agent/*.pt
+My Agent/data/training_data*.txt
+My Agent/data/campushub_catalogue.json

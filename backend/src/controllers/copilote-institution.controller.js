@@ -2,7 +2,7 @@ import * as service from '../services/copilote-institution.service.js';
 import { envoyerSucces } from '../utils/reponse-api.js';
 
 export async function configuration(_requete, reponse) {
-  return envoyerSucces(reponse, service.configurationCopilote());
+  return envoyerSucces(reponse, await service.configurationCopilote());
 }
 
 export async function contexte(requete, reponse) {

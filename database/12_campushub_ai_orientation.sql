@@ -1,4 +1,4 @@
--- CampusHub - 12. Conseiller d'orientation GPT-5.6
+-- CampusHub - 12. Conseiller d'orientation CampusHubIA
 -- À exécuter après 11_etablissements_cartes_et_stories.sql.
 USE campushub;
 
@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS dossiers_orientation (
   analyse_bulletin JSON NULL,
   recommandations JSON NULL,
   reponse_ia MEDIUMTEXT NULL,
-  modele_ia VARCHAR(80) NOT NULL DEFAULT 'gpt-5.6-luna',
-  mode_execution ENUM('GPT_5_6', 'DEMONSTRATION') NOT NULL DEFAULT 'GPT_5_6',
+  modele_ia VARCHAR(80) NOT NULL DEFAULT 'campushub-ia-local-v1',
+  mode_execution ENUM('CAMPUSHUB_IA', 'MOTEUR_REGLES') NOT NULL DEFAULT 'CAMPUSHUB_IA',
   statut ENUM('EN_COURS', 'TERMINE', 'ARCHIVE') NOT NULL DEFAULT 'TERMINE',
   date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   date_modification DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -53,4 +53,4 @@ SELECT
 FROM dossiers_orientation
 GROUP BY DATE(date_creation), mode_execution;
 
-SELECT 'Conseiller CampusHub AI prêt' AS message;
+SELECT 'Conseiller CampusHubIA prêt' AS message;

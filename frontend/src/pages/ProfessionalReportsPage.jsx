@@ -115,10 +115,11 @@ function FormalReport({
   logo,
   status,
   children,
+  className = '',
   signatures = ['Responsable du rapport', 'Visa / cachet'],
 }) {
   return (
-    <article className="professional-report">
+    <article className={`professional-report ${className}`.trim()}>
       <header className="report-letterhead">
         <div className="report-letterhead__logo">
           {logo ? <img src={logo} alt={`Logo ${organization}`} /> : <Building2 />}
@@ -343,10 +344,14 @@ function EmptyFinancialDocument({ title, message }) {
   return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title={title} subtitle="Document administratif et financier" reference={reportReference('DOC-ADM')} status="Aucune donnée"><ReportSection number="1" title="Document indisponible"><div className="report-observation"><strong>Aucune donnée compatible</strong><p>{message}</p></div></ReportSection></FormalReport>;
 }
 
+function ContractArticle({ number, title, children }) {
+  return <article className="contract-article"><h3><span>Article {number}</span>{title}</h3><div>{children}</div></article>;
+}
+
 function SubscriptionContractDocument({ payment }) {
   if (!payment) return <EmptyFinancialDocument title="Contrat d’abonnement" message="Un paiement validé est nécessaire pour établir le contrat d’abonnement annuel." />;
   const reference = payment.code_abonnement || `CTR-${payment.code_paiement}`;
-  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Contrat d’abonnement institutionnel" subtitle="Accès annuel aux services numériques CampusHub" reference={reference} status="Contrat actif" signatures={['Le représentant de l’établissement', 'L’administration CampusHub']}>
+  return <FormalReport className="professional-report--contract" organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Contrat d’abonnement institutionnel" subtitle="Accès annuel aux services numériques CampusHub" reference={reference} status="Contrat actif" signatures={['Le représentant de l’établissement', 'L’administration CampusHub']}>
     <ReportSection number="1" title="Parties au contrat"><ReportFields items={[
       { label: 'Prestataire', value: 'CampusHub — Écosystème académique numérique' },
       { label: 'Établissement client', value: payment.nom_etablissement, wide: true },
@@ -363,7 +368,36 @@ function SubscriptionContractDocument({ payment }) {
       { label: 'Montant contractuel', value: formatCurrency(payment.montant, payment.devise) },
       { label: 'Paiement associé', value: payment.code_paiement },
     ]} /></ReportSection>
-    <ReportSection number="3" title="Engagements contractuels"><div className="report-observation contract-clauses"><ol><li>CampusHub accorde au client l’accès aux fonctions institutionnelles pendant la durée indiquée.</li><li>L’établissement s’engage à publier des informations exactes, licites et régulièrement mises à jour.</li><li>Les comptes gestionnaires restent sous la responsabilité de l’établissement client.</li><li>Le renouvellement nécessite un nouveau paiement annuel de 10 USD et une validation administrative.</li><li>CampusHub peut suspendre l’accès en cas de fraude, d’abus ou de violation des règles de la communauté.</li></ol></div></ReportSection>
+    <div className="contract-preamble"><strong>Il a été convenu ce qui suit :</strong><p>Le présent contrat définit les conditions dans lesquelles CampusHub met sa plateforme numérique à la disposition de l’établissement identifié ci-dessus. Les parties déclarent disposer de la capacité nécessaire pour prendre les engagements ci-après.</p></div>
+    <ReportSection number="3" title="Services et conditions financières">
+      <div className="contract-articles">
+        <ContractArticle number="1" title="Objet du contrat"><p>CampusHub accorde à l’établissement un droit personnel, limité, non exclusif et non cessible d’utiliser son espace institutionnel pendant la période contractuelle. Cet accès comprend la gestion de la fiche publique, des campus, formations, services, offres, publications, inscriptions, étudiants affiliés et rapports disponibles dans la formule active.</p></ContractArticle>
+        <ContractArticle number="2" title="Prise d’effet et durée"><p>Le contrat prend effet à la date de validation du paiement et reste valable pendant {formatNumber(payment.duree_jours || 365)} jours, jusqu’à la date d’échéance indiquée. Il n’est pas renouvelé automatiquement : tout renouvellement requiert un nouveau paiement et une validation de CampusHub.</p></ContractArticle>
+        <ContractArticle number="3" title="Prix et paiement"><p>Le prix de la période est fixé à {formatCurrency(payment.montant, payment.devise)}. Le paiement associé porte la référence <strong>{payment.code_paiement}</strong>. Sauf correction d’une erreur imputable à CampusHub, toute période activée et commencée reste due.</p></ContractArticle>
+      </div>
+    </ReportSection>
+    <ReportSection number="4" title="Engagements réciproques">
+      <div className="contract-articles">
+        <ContractArticle number="4" title="Engagements de CampusHub"><ul><li>maintenir un accès raisonnable et sécurisé aux fonctions souscrites, hors maintenance ou force majeure ;</li><li>protéger les données conformément aux mesures de sécurité applicables ;</li><li>informer l’établissement des changements importants affectant son service ;</li><li>fournir une assistance pour les incidents liés à la plateforme.</li></ul></ContractArticle>
+        <ContractArticle number="5" title="Engagements de l’établissement"><ul><li>fournir des informations exactes, licites, vérifiables et régulièrement actualisées ;</li><li>obtenir les autorisations nécessaires avant de publier des photos, vidéos, documents ou données personnelles ;</li><li>ne pas usurper l’identité d’un établissement ni publier de fausses accréditations ;</li><li>traiter loyalement les demandes d’étudiants et respecter les règles de la communauté.</li></ul></ContractArticle>
+        <ContractArticle number="6" title="Comptes et sécurité"><p>L’établissement demeure responsable de ses gestionnaires, de la confidentialité des identifiants et des actions réalisées depuis ses comptes. Toute perte, compromission ou utilisation suspecte doit être signalée immédiatement à CampusHub.</p></ContractArticle>
+      </div>
+    </ReportSection>
+    <ReportSection number="5" title="Données, contenus et responsabilité">
+      <div className="contract-articles">
+        <ContractArticle number="7" title="Données personnelles et confidentialité"><p>Chaque partie limite le traitement des données aux finalités de la plateforme et applique des mesures raisonnables de confidentialité. L’établissement ne doit importer que les données nécessaires et autorisées. Les mots de passe, preuves privées et conversations ne peuvent être rendus publics.</p></ContractArticle>
+        <ContractArticle number="8" title="Propriété des contenus"><p>L’établissement conserve ses droits sur les textes et médias qu’il publie et autorise CampusHub à les afficher pour fournir le service. Les logiciels, marques, interfaces et éléments propres à CampusHub restent la propriété de CampusHub.</p></ContractArticle>
+        <ContractArticle number="9" title="Exactitude et portée du service"><p>CampusHub facilite l’information, l’orientation et les échanges, mais ne délivre aucune accréditation et ne garantit ni admission, ni diplôme, ni résultat académique. L’établissement assume l’exactitude de ses frais, programmes, dates, conditions et décisions.</p></ContractArticle>
+      </div>
+    </ReportSection>
+    <ReportSection number="6" title="Suspension, fin du contrat et différends">
+      <div className="contract-articles">
+        <ContractArticle number="10" title="Suspension ou résiliation"><p>CampusHub peut suspendre l’accès en cas d’impayé, fraude, atteinte à la sécurité, contenu illicite ou violation grave du présent contrat. Sauf urgence, l’établissement est informé du motif et dispose d’un délai raisonnable pour corriger le manquement.</p></ContractArticle>
+        <ContractArticle number="11" title="Fin de la période"><p>À l’échéance, les fonctions réservées aux établissements abonnés peuvent être désactivées. Les obligations de confidentialité, de propriété intellectuelle et de responsabilité survivent à la fin du contrat selon leur nature.</p></ContractArticle>
+        <ContractArticle number="12" title="Force majeure et règlement des différends"><p>Aucune partie n’est responsable d’un retard causé par un événement raisonnablement hors de son contrôle. Les parties privilégient un règlement amiable. À défaut, le différend est soumis aux règles et juridictions compétentes de la République démocratique du Congo.</p></ContractArticle>
+      </div>
+    </ReportSection>
+    <div className="contract-acceptance"><strong>Acceptation</strong><p>La signature du présent document confirme que les parties ont lu, compris et accepté l’ensemble de ses clauses. Toute modification doit être constatée par écrit ou validée dans l’espace sécurisé CampusHub.</p></div>
   </FormalReport>;
 }
 

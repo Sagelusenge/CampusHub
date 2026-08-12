@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { CampusHubChatWidget } from './components/CampusHubChatWidget.jsx';
 import { DashboardShell } from './components/DashboardShell.jsx';
 import { PageShell } from './components/PageShell.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
@@ -77,6 +78,11 @@ function ConnectedHome({ children }) {
   if (!initialisationTerminee) return null;
   return estConnecte && destination
     ? <Navigate to={destination} replace /> : children;
+}
+
+function GlobalCampusHubAssistant() {
+  const { pathname } = useLocation();
+  return pathname.replace(/\/+$/, '') === '/connexion' ? null : <CampusHubChatWidget />;
 }
 
 export function App() {
@@ -162,5 +168,5 @@ export function App() {
     </Route>
 
     <Route path="*" element={<NotFoundPage />} />
-  </Routes></>;
+  </Routes><GlobalCampusHubAssistant /></>;
 }

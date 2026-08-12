@@ -1,21 +1,18 @@
-import crypto from 'node:crypto';
-import OpenAI from 'openai';
 import { baseDeDonnees } from '../config/base-de-donnees.js';
-import { environnement } from '../config/environnement.js';
 import { ErreurApi } from '../utils/erreur-api.js';
+import { essayerCampusHubIA, modeleCampusHubIA, verifierCampusHubIA } from './campushub-ia.service.js';
 
-const modele = environnement.OPENAI_MODEL;
-const disponible = Boolean(environnement.OPENAI_API_KEY);
-const client = disponible ? new OpenAI({ apiKey: environnement.OPENAI_API_KEY }) : null;
+const modele = modeleCampusHubIA;
 
-export function configurationCopilote() {
+export async function configurationCopilote() {
+  const etat = await verifierCampusHubIA();
   return {
-    disponible,
+    disponible: etat.disponible,
     modele,
-    mode: disponible ? 'GPT_5_6' : 'DEMONSTRATION',
-    message: disponible
-      ? 'Le copilote institutionnel utilise GPT‑5.6 avec les données de votre fiche.'
-      : 'Mode démonstration : ajoutez OPENAI_API_KEY pour activer la rédaction avec GPT‑5.6.',
+    mode: etat.disponible ? 'CAMPUSHUB_IA' : 'MOTEUR_REGLES',
+    message: etat.disponible
+      ? 'Le copilote CampusHubIA utilise localement les données de votre fiche.'
+      : 'CampusHubIA redémarre. Le moteur de règles local reste disponible.',
   };
 }
 
@@ -61,7 +58,7 @@ function selectionnerContexte(contexte, donnees) {
   return { ...contexte, filiereSelectionnee: filiere };
 }
 
-function texteDemonstration(contexte, donnees) {
+function texteRegles(contexte, donnees) {
   const nom = contexte.universite.nom;
   if (donnees.type === 'PUBLICATION') {
     return `${nom} — Information aux ${donnees.publicCible}\n\n${donnees.demande}\n\nDécouvrez nos formations et contactez directement notre établissement sur CampusHub pour vérifier les modalités d’inscription.\n\n#CampusHub #Orientation #Études`;
@@ -83,20 +80,6 @@ function texteDemonstration(contexte, donnees) {
   if (!contexte.campus.length) manquants.push('renseigner au moins un campus');
   if (!contexte.services.length) manquants.push('présenter les services disponibles');
   return `Diagnostic de la fiche ${nom}\n\nPoints déjà renseignés : ${contexte.filieres.length} formation(s), ${contexte.campus.length} campus, ${contexte.services.length} service(s) et ${contexte.conditions.length} condition(s) d’admission.\n\nPriorités : ${manquants.length ? manquants.join(' ; ') : 'la fiche contient les rubriques essentielles. Vérifiez maintenant la qualité des textes, photos et dates.'}`;
-}
-
-async function genererAvecGPT(utilisateurId, contexte, donnees) {
-  const instructions = `Tu es le copilote institutionnel de CampusHub. Tu aides un établissement à mieux présenter des informations académiques, mais tu ne publies jamais à sa place. Utilise uniquement les faits du contexte JSON. N’invente ni accréditation, ni classement, ni taux de réussite, ni prix, ni condition. Signale clairement les données manquantes. Produis un brouillon directement exploitable en français, avec un ton ${donnees.ton.toLowerCase()} adapté aux ${donnees.publicCible}.`;
-  const reponse = await client.responses.create({
-    model: modele,
-    instructions,
-    input: `Type de travail : ${donnees.type}\nDemande : ${donnees.demande}\nContexte vérifié : ${JSON.stringify(contexte)}`,
-    reasoning: { effort: 'low' },
-    text: { verbosity: 'medium' },
-    max_output_tokens: 900,
-    safety_identifier: crypto.createHash('sha256').update(`campushub-institution:${utilisateurId}`).digest('hex'),
-  });
-  return reponse.output_text;
 }
 
 async function enregistrer(utilisateurId, contexte, donnees, resultat, modeExecution) {
@@ -134,12 +117,16 @@ export async function obtenirContexteCopilote(utilisateurId) {
 
 export async function genererContenu(utilisateur, donnees) {
   const contexte = selectionnerContexte(await contexteInstitution(utilisateur.id), donnees);
-  const modeExecution = disponible ? 'GPT_5_6' : 'DEMONSTRATION';
-  const resultat = disponible
-    ? await genererAvecGPT(utilisateur.id, contexte, donnees)
-    : texteDemonstration(contexte, donnees);
+  const reponseAgent = await essayerCampusHubIA({
+    task: 'COPILOTE_INSTITUTION',
+    message: donnees.demande,
+    audience: 'UNIVERSITE',
+    context: { ...contexte, demande: donnees },
+  });
+  const modeExecution = reponseAgent ? 'CAMPUSHUB_IA' : 'MOTEUR_REGLES';
+  const resultat = reponseAgent?.response || texteRegles(contexte, donnees);
   const generation = await enregistrer(utilisateur.id, contexte, donnees, resultat, modeExecution);
-  return { ...generation, resultat, modeExecution, modele, type: donnees.type };
+  return { ...generation, resultat, modeExecution, modele, type: donnees.type, sources: reponseAgent?.sources || [] };
 }
 
 export async function listerGenerations(utilisateurId) {

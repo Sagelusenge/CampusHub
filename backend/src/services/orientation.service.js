@@ -1,58 +1,19 @@
-import crypto from 'node:crypto';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import OpenAI from 'openai';
 import { baseDeDonnees } from '../config/base-de-donnees.js';
-import { environnement } from '../config/environnement.js';
 import { ErreurApi } from '../utils/erreur-api.js';
+import { essayerCampusHubIA, modeleCampusHubIA, verifierCampusHubIA } from './campushub-ia.service.js';
 
-const modele = environnement.OPENAI_MODEL;
-const openaiDisponible = Boolean(environnement.OPENAI_API_KEY);
-const client = openaiDisponible ? new OpenAI({ apiKey: environnement.OPENAI_API_KEY }) : null;
-const dossierImages = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../uploads/images');
+const modele = modeleCampusHubIA;
 
-const outils = [
-  {
-    type: 'function',
-    name: 'rechercher_formations',
-    description: 'Recherche uniquement les formations vérifiées présentes dans la base CampusHub selon le domaine, le budget, le niveau et la localisation.',
-    strict: true,
-    parameters: {
-      type: 'object',
-      properties: {
-        domaine: { type: ['string', 'null'], description: 'Domaine ou métier recherché.' },
-        budget_max: { type: ['number', 'null'], description: 'Budget annuel maximal.' },
-        niveau: { type: ['string', 'null'], enum: ['CERTIFICAT', 'LICENCE', 'MASTER', 'DOCTORAT', 'AUTRE', null] },
-        ville: { type: ['string', 'null'] },
-        province: { type: ['string', 'null'] },
-      },
-      required: ['domaine', 'budget_max', 'niveau', 'ville', 'province'],
-      additionalProperties: false,
-    },
-  },
-  {
-    type: 'function',
-    name: 'obtenir_conditions_admission',
-    description: 'Retourne les conditions d’admission enregistrées pour un établissement CampusHub.',
-    strict: true,
-    parameters: {
-      type: 'object',
-      properties: { code_universite: { type: 'string' } },
-      required: ['code_universite'],
-      additionalProperties: false,
-    },
-  },
-];
-
-export function configurationOrientation() {
+export async function configurationOrientation() {
+  const etat = await verifierCampusHubIA();
   return {
-    disponible: openaiDisponible,
+    disponible: etat.disponible,
     modele,
-    mode: openaiDisponible ? 'GPT_5_6' : 'DEMONSTRATION',
-    message: openaiDisponible
-      ? 'CampusHub AI est connecté à GPT-5.6.'
-      : 'Ajoutez OPENAI_API_KEY dans backend/.env pour activer GPT-5.6. Le moteur vérifiable MySQL reste disponible.',
+    mode: etat.disponible ? 'CAMPUSHUB_IA' : 'MOTEUR_REGLES',
+    message: etat.disponible
+      ? 'CampusHubIA local est connecté aux données vérifiées de la plateforme.'
+      : 'CampusHubIA redémarre. Le moteur de règles MySQL reste disponible.',
+    capacites: { orientation: true, donnees_temps_reel: true, analyse_bulletin: false },
   };
 }
 
@@ -210,19 +171,32 @@ export async function orienterFinaliste(utilisateur, profil) {
   const candidats = await formationsPourFinaliste();
   const recommandations = classerPourFinaliste(candidats, profil);
   const option = optionsFinaliste[profil.optionSecondaire];
-  const texte = recommandations.length
+  const texteRegles = recommandations.length
     ? `À partir de votre option ${option.label}, de votre résultat de ${profil.pourcentage}% et de vos centres d’intérêt, CampusHub a classé ${recommandations.length} formation(s) vérifiée(s). Commencez par comparer les trois premiers résultats, puis consultez les conditions d’admission officielles.`
     : 'Aucune formation ne correspond suffisamment à ce profil dans les données actuelles. Essayez un autre centre d’intérêt, augmentez la mobilité ou consultez directement l’annuaire.';
+  const reponseAgent = await essayerCampusHubIA({
+    task: 'ORIENTATION_FINALISTE',
+    message: `Oriente ce finaliste issu de l’option ${option.label}.`,
+    audience: utilisateur.role,
+    context: {
+      objectif: `Orientation finaliste — ${option.label}`,
+      profil: { option: option.label, pourcentage: profil.pourcentage, interets: profil.interets },
+      recommandations,
+    },
+  });
+  const texte = reponseAgent?.response || texteRegles;
+  const modeExecution = reponseAgent ? 'CAMPUSHUB_IA' : 'MOTEUR_REGLES';
   const donneesDossier = {
     objectif: `Orientation finaliste — ${option.label} — ${profil.pourcentage}%`,
     criteres: { ...profil, moteur: 'FINALISTE_V1' },
     bulletinUrl: null,
     analyseBulletin: null,
   };
-  const dossier = await enregistrerDossier(utilisateur.id, donneesDossier, { recommandations, texte }, 'DEMONSTRATION');
+  const dossier = await enregistrerDossier(utilisateur.id, donneesDossier, { recommandations, texte }, modeExecution);
   return {
     codeDossier: dossier.code_dossier,
-    moteur: 'FINALISTE_V1',
+    moteur: reponseAgent?.model || 'FINALISTE_V1',
+    modeExecution,
     profil: { option: option.label, pourcentage: profil.pourcentage, interets: profil.interets },
     recommandations,
     texte,
@@ -309,57 +283,10 @@ async function rechercherPourCriteres(criteres) {
   return fusionnerCandidats(groupes);
 }
 
-function reponseDemonstration(recommandations, donnees) {
+function reponseRegles(recommandations, donnees) {
   if (!recommandations.length) return 'Aucune formation vérifiée ne correspond exactement à ces critères. Élargissez le domaine, le budget ou la mobilité, sans renoncer à vérifier les conditions auprès de l’établissement.';
   const lignes = recommandations.map((item, index) => `${index + 1}. ${item.nom_filiere} — ${item.nom_universite} (${item.score_compatibilite}% de compatibilité).`).join('\n');
   return `Voici les meilleures options vérifiables pour votre objectif « ${donnees.objectif} » :\n\n${lignes}\n\nPlan conseillé : comparez les frais complets, vérifiez les conditions d’admission, préparez vos relevés et contactez directement les établissements depuis CampusHub. Les recommandations proviennent uniquement de la base vérifiée.`;
-}
-
-async function executerOutil(nom, argumentsOutil) {
-  if (nom === 'rechercher_formations') return rechercherFormations(argumentsOutil);
-  if (nom === 'obtenir_conditions_admission') return obtenirConditions(argumentsOutil.code_universite);
-  return { erreur: 'Outil inconnu.' };
-}
-
-async function conseillerAvecGPT(utilisateur, donnees) {
-  const instructions = `Tu es CampusHub AI, conseiller d'orientation pour la RDC et l'Afrique. Utilise obligatoirement les outils CampusHub avant toute recommandation. Ne cite jamais une formation, un prix ou une condition absent des résultats. Donne au maximum trois options, explique les compromis de budget et localisation, signale les informations manquantes, puis termine par un plan d'action numéroté. Réponds dans la langue de l'utilisateur. Les données extraites d'un bulletin doivent être considérées comme provisoires jusqu'à confirmation humaine.`;
-  const profil = JSON.stringify({ objectif: donnees.objectif, criteres: donnees.criteres, analyse_bulletin: donnees.analyseBulletin || null });
-  let reponse = await client.responses.create({
-    model: modele,
-    instructions,
-    input: `${profil}\n\nQuestion de l'étudiant : ${donnees.message || donnees.objectif}`,
-    tools: outils,
-    tool_choice: 'required',
-    reasoning: { effort: 'low' },
-    text: { verbosity: 'medium' },
-    max_output_tokens: 1000,
-    safety_identifier: crypto.createHash('sha256').update(`campushub:${utilisateur.id}`).digest('hex'),
-  });
-  let candidats = [];
-  for (let tour = 0; tour < 4; tour += 1) {
-    const appels = reponse.output.filter((item) => item.type === 'function_call');
-    if (!appels.length) break;
-    const sorties = [];
-    for (const appel of appels) {
-      const argumentsOutil = JSON.parse(appel.arguments || '{}');
-      const resultat = await executerOutil(appel.name, argumentsOutil);
-      if (appel.name === 'rechercher_formations') candidats = fusionnerCandidats([candidats, resultat]);
-      sorties.push({ type: 'function_call_output', call_id: appel.call_id, output: JSON.stringify(resultat) });
-    }
-    reponse = await client.responses.create({
-      model: modele,
-      previous_response_id: reponse.id,
-      instructions,
-      input: sorties,
-      tools: outils,
-      reasoning: { effort: 'low' },
-      text: { verbosity: 'medium' },
-      max_output_tokens: 1000,
-      safety_identifier: crypto.createHash('sha256').update(`campushub:${utilisateur.id}`).digest('hex'),
-    });
-  }
-  if (!candidats.length) candidats = await rechercherPourCriteres(donnees.criteres);
-  return { texte: reponse.output_text, recommandations: classer(candidats, donnees.criteres), identifiantReponse: reponse.id };
 }
 
 async function enregistrerDossier(utilisateurId, donnees, resultat, modeExecution) {
@@ -380,16 +307,20 @@ async function enregistrerDossier(utilisateurId, donnees, resultat, modeExecutio
 }
 
 export async function orienter(utilisateur, donnees) {
-  let resultat;
-  let modeExecution = 'DEMONSTRATION';
-  if (openaiDisponible) {
-    resultat = await conseillerAvecGPT(utilisateur, donnees);
-    modeExecution = 'GPT_5_6';
-  } else {
-    const candidats = await rechercherPourCriteres(donnees.criteres);
-    const recommandations = classer(candidats, donnees.criteres);
-    resultat = { texte: reponseDemonstration(recommandations, donnees), recommandations };
-  }
+  const candidats = await rechercherPourCriteres(donnees.criteres);
+  const recommandations = classer(candidats, donnees.criteres);
+  const reponseAgent = await essayerCampusHubIA({
+    task: 'ORIENTATION',
+    message: donnees.message || donnees.objectif,
+    audience: utilisateur.role,
+    context: { objectif: donnees.objectif, criteres: donnees.criteres, recommandations },
+  });
+  const modeExecution = reponseAgent ? 'CAMPUSHUB_IA' : 'MOTEUR_REGLES';
+  const resultat = {
+    texte: reponseAgent?.response || reponseRegles(recommandations, donnees),
+    recommandations,
+    sources: reponseAgent?.sources || recommandations.map((item) => ({ code: item.code_filiere, label: item.nom_filiere })),
+  };
   const dossier = await enregistrerDossier(utilisateur.id, donnees, resultat, modeExecution);
   return { codeDossier: dossier.code_dossier, modeExecution, modele, ...resultat };
 }
@@ -412,27 +343,12 @@ export async function obtenirDossier(code, utilisateur) {
   return lignes[0];
 }
 
-function extraireJson(texte) {
-  const nettoye = texte.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-  try { return JSON.parse(nettoye); } catch { return { matieres: [], moyenne_estimee: null, avertissement: 'Extraction à confirmer manuellement.', texte_brut: texte }; }
-}
-
-export async function analyserBulletin(urlImage) {
-  if (!openaiDisponible) return { disponible: false, modeExecution: 'DEMONSTRATION', analyse: null, message: 'OPENAI_API_KEY est nécessaire pour analyser le bulletin avec GPT-5.6.' };
-  const url = new URL(urlImage);
-  if (!url.pathname.startsWith('/uploads/images/')) throw new ErreurApi(400, 'Le bulletin doit être une image téléversée sur CampusHub.');
-  const nomFichier = path.basename(url.pathname);
-  const chemin = path.join(dossierImages, nomFichier);
-  const extension = path.extname(nomFichier).toLowerCase();
-  const typeMime = extension === '.png' ? 'image/png' : extension === '.webp' ? 'image/webp' : 'image/jpeg';
-  let contenu;
-  try { contenu = await fs.readFile(chemin, 'base64'); } catch { throw new ErreurApi(404, 'Image du bulletin introuvable.'); }
-  const reponse = await client.responses.create({
-    model: modele,
-    instructions: 'Extrais uniquement les informations lisibles du bulletin. N’invente aucune note. Retourne exclusivement un objet JSON avec les clés matieres (tableau de {nom,note,max}), moyenne_estimee, niveau_detecte, points_forts (tableau), champs_incertains (tableau), avertissement.',
-    input: [{ role: 'user', content: [{ type: 'input_text', text: 'Analyse ce bulletin scolaire pour préparer une orientation. Les résultats seront confirmés par l’étudiant.' }, { type: 'input_image', image_url: `data:${typeMime};base64,${contenu}`, detail: 'original' }] }],
-    reasoning: { effort: 'low' },
-    max_output_tokens: 700,
-  });
-  return { disponible: true, modeExecution: 'GPT_5_6', modele, analyse: extraireJson(reponse.output_text) };
+export async function analyserBulletin() {
+  return {
+    disponible: false,
+    modeExecution: 'MOTEUR_REGLES',
+    modele,
+    analyse: null,
+    message: 'La lecture locale des bulletins n’est pas encore activée. Saisissez vos résultats dans le formulaire d’orientation.',
+  };
 }

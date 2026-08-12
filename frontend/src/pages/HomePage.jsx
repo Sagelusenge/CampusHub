@@ -35,15 +35,15 @@ export function HomePage() {
     <section className="section ai-home-section">
       <div className="container ai-home-card">
         <Reveal className="ai-home-card__copy">
-          <span className="pill pill--light"><Sparkles /> CampusHub AI</span>
+          <span className="pill pill--light"><Sparkles /> CampusHubIA</span>
           <h2>Votre projet d’études devient un plan concret.</h2>
-          <p>CampusHub AI croise votre objectif, votre budget et votre mobilité avec les formations vérifiées de la plateforme. Il peut aussi lire une photo de bulletin, avec votre confirmation.</p>
+          <p>CampusHubIA croise votre objectif, votre budget et votre mobilité avec les formations vérifiées de la plateforme. Notre agent fonctionne localement et s’appuie sur les données CampusHub.</p>
           <div className="ai-home-card__proof"><span><CheckCircle2 />Aucune formation inventée</span><span><CheckCircle2 />Recommandations expliquées</span><span><CheckCircle2 />Dossier sauvegardé</span></div>
-          <Link className="button button--teal button--large" to="/orientation">Essayer CampusHub AI <ArrowRight /></Link>
+          <Link className="button button--teal button--large" to="/orientation">Essayer CampusHubIA <ArrowRight /></Link>
         </Reveal>
         <Reveal className="ai-home-card__visual" delay={120}>
           <span className="ai-home-card__brain"><BrainCircuit /></span>
-          <div><Bot /><span><small>CampusHub AI</small><strong>3 formations compatibles trouvées</strong></span></div>
+          <div><Bot /><span><small>CampusHubIA</small><strong>3 formations compatibles trouvées</strong></span></div>
           <div><GraduationCap /><span><small>Option recommandée</small><strong>Génie logiciel et intelligence artificielle</strong></span><b>92%</b></div>
           <div><ShieldCheck /><span><small>Source des informations</small><strong>Catalogue CampusHub vérifié</strong></span></div>
         </Reveal>

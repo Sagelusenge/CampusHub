@@ -1,46 +1,48 @@
 # CampusHub
 
-CampusHub est une plateforme d’orientation et de vie académique pensée pour la RDC. Elle relie étudiants, visiteurs, établissements et administrateurs autour d’un catalogue vérifié, d’un réseau social universitaire, d’un conseiller d’orientation et d’un copilote institutionnel assistés par GPT‑5.6.
+CampusHub est une plateforme d’orientation et de vie académique pensée pour la RDC. Elle relie étudiants, visiteurs, établissements et administrateurs autour d’un catalogue vérifié, d’un réseau social éducatif, d’un conseiller d’orientation et d’un copilote institutionnel.
 
-## CampusHub AI
+## CampusHubIA
 
-Le conseiller transforme un objectif d’études en recommandations traçables :
+CampusHubIA est notre propre agent local. Il fonctionne sans API de modèle d’IA externe et transforme un projet d’études en recommandations traçables :
 
-- GPT‑5.6 raisonne sur le projet, le budget, le niveau et la mobilité de l’étudiant ;
-- les outils du modèle interrogent exclusivement les formations vérifiées dans MySQL ;
-- les frais, campus et conditions ne sont jamais inventés par le modèle ;
-- une photo de bulletin peut être analysée par la vision de GPT‑5.6, puis confirmée par l’utilisateur ;
-- chaque réponse et ses sources sont sauvegardées dans un dossier d’orientation ;
-- sans clé OpenAI, un mode démonstration MySQL reste utilisable et est clairement signalé.
+- le corpus est construit à partir des données publiques et vérifiées de CampusHub ;
+- MySQL fournit en direct les formations, frais, campus et conditions ;
+- le moteur comprend les échanges courants et corrige les fautes de frappe proches du vocabulaire académique ;
+- pour une question générale absente du corpus, Express peut consulter Wikipédia et affiche toujours les liens utilisés ;
+- chaque recommandation conserve ses sources et son score de compatibilité ;
+- les réponses et leur mode d’exécution sont sauvegardés dans le dossier d’orientation ;
+- si le service Python redémarre, un moteur de règles MySQL prend automatiquement le relais.
 
-Le conseiller d’orientation est réservé aux visiteurs inscrits et aux étudiants. Les universités disposent d’un copilote différent qui prépare des brouillons de publications, présente les filières, clarifie les admissions et audite la qualité de leur fiche. Il ne publie jamais automatiquement.
+Les visiteurs inscrits et les étudiants utilisent le conseiller d’orientation. Les établissements disposent d’un copilote distinct pour préparer des brouillons de publications, présenter les filières, clarifier les admissions et vérifier la qualité de leur fiche. Le copilote ne publie jamais automatiquement.
 
 ```mermaid
 flowchart LR
-  E["Projet de l’étudiant"] --> API["API Express"]
-  API --> GPT["GPT‑5.6 Responses API"]
-  GPT --> OUTILS["Outils CampusHub"]
-  OUTILS --> DB["Catalogue MySQL vérifié"]
-  DB --> GPT
-  GPT --> D["Plan expliqué et sauvegardé"]
+  U["Projet de l’étudiant"] --> API["API Express"]
+  API --> DB["Catalogue MySQL vérifié"]
+  DB --> API
+  API --> IA["CampusHubIA local"]
+  IA --> R["Plan expliqué et sauvegardé"]
+  IA -. "indisponible" .-> REGLES["Moteur de règles MySQL"]
 ```
 
 ## Architecture
 
 ```text
 CampusHub/
-├── backend/    # API REST Express, OpenAI SDK, JWT, Zod et évaluations
-├── database/   # MySQL, triggers, procédures, vues et données de démonstration
-└── frontend/   # React/Vite, espaces par rôle et interface CampusHub AI
+├── backend/      # API REST Express, JWT, Zod, MySQL et client CampusHubIA
+├── database/     # MySQL, triggers, procédures, vues et migrations
+├── frontend/     # React/Vite et espaces par rôle
+└── My Agent/     # Service Python CampusHubIA, corpus et entraînement local
 ```
 
-Le backend suit le chemin `route → middleware → controller → service → MySQL/OpenAI` pour rester simple à lire et à déboguer.
+Le backend suit le chemin `route → middleware → controller → service → MySQL/CampusHubIA` pour rester simple à lire et à déboguer. Le service IA n’est pas exposé publiquement en production ; Express l’appelle sur le réseau Docker privé avec un jeton interne.
 
 ## Installation locale
 
-Prérequis : Node.js 20+, MySQL 8+ et une clé API OpenAI pour le mode GPT‑5.6.
+Prérequis : Node.js 20+, Python 3.12+ et MySQL 8+.
 
-1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `18`. Les scripts de démonstration contiennent uniquement des établissements fictifs explicitement nommés comme tels.
+1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `27`.
 2. Configurer et lancer l’API :
 
 ```powershell
@@ -50,64 +52,52 @@ npm install
 npm run dev
 ```
 
-3. Dans `backend/.env`, renseigner au minimum MySQL et OpenAI :
+3. Synchroniser et lancer CampusHubIA :
 
-```dotenv
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=votre_mot_de_passe
-DB_NAME=campushub
-OPENAI_API_KEY=votre_cle_api
-OPENAI_MODEL=gpt-5.6-luna
+```powershell
+cd "..\My Agent"
+.\venv\Scripts\python.exe sync_campushub_data.py --api-url http://127.0.0.1:4000/api/v1
+.\venv\Scripts\python.exe server.py
 ```
 
 4. Lancer l’interface :
 
 ```powershell
-cd frontend
+cd ..\frontend
 Copy-Item .env.example .env
 npm install
 npm run dev
 ```
 
-Frontend : `http://127.0.0.1:5173` — API : `http://localhost:4000/api/v1`.
+Frontend : `http://127.0.0.1:5173` — API : `http://127.0.0.1:4000/api/v1` — CampusHubIA : `http://127.0.0.1:5000`.
 
-## Démonstration et vérification
+## Vérification
 
 ```powershell
-cd backend
-npm run db:demo-ai
-npm run eval:orientation
+cd "My Agent"
+.\venv\Scripts\python.exe -m unittest discover -s tests -v
+
+cd ..\backend
 npm run check
 npm test
 
-cd ../frontend
+cd ..\frontend
 npm run lint
 npm run build
 ```
 
-L’évaluation couvre cinq cas : informatique, santé, gestion, ville imposée et domaine absent. Elle vérifie également qu’aucun établissement non validé ne remonte dans les résultats.
-
-Routes principales du conseiller :
+Routes principales de CampusHubIA :
 
 | Méthode | Route | Usage |
 |---|---|---|
-| GET | `/api/v1/orientation/configuration` | Mode GPT‑5.6 ou démonstration |
+| POST | `/api/v1/assistant/question` | Interroger le bot disponible sur le site, hors connexion |
+| GET | `/api/v1/orientation/configuration` | État de CampusHubIA et du moteur de secours |
 | POST | `/api/v1/orientation/recommandations` | Créer et sauvegarder un plan |
-| POST | `/api/v1/orientation/analyser-bulletin` | Analyser une image avec GPT‑5.6 |
 | GET | `/api/v1/orientation/dossiers` | Retrouver son historique |
+| POST | `/api/v1/orientation/finalistes/recommandations` | Orienter un finaliste |
 | POST | `/api/v1/copilote-institution/generer` | Créer un brouillon institutionnel |
-| GET | `/api/v1/copilote-institution/historique` | Retrouver les brouillons de l’université |
+| GET | `/api/v1/copilote-institution/historique` | Retrouver les brouillons de l’établissement |
 
-Toutes ces routes sont authentifiées et séparées par rôle. Créez un compte visiteur ou étudiant pour essayer l’orientation, ou un compte université pour utiliser le copilote établissement.
+Le bot de l’accueil est public et limité en fréquence. Les autres routes sont authentifiées et séparées par rôle.
 
-## OpenAI Build Week
-
-Les choix techniques, le scénario vidéo, les évaluations et la liste de contrôle de soumission se trouvent dans [BUILD_WEEK.md](BUILD_WEEK.md). Le projet est publié sous licence MIT.
-
-Documentation détaillée : [backend](backend/README.md) · [base de données](database/README.md) · [API](backend/docs/API.md).
-
-## Déploiement AWS
-
-Le dossier [`deploy/aws-lightsail`](deploy/aws-lightsail/README.md) contient un déploiement de démonstration reproductible : instance Lightsail, MySQL 8.4, volumes persistants, HTTPS automatique, comptes de test et commande de suppression après le concours.
+Documentation détaillée : [CampusHubIA](My%20Agent/README.md) · [backend](backend/README.md) · [base de données](database/README.md) · [API](backend/docs/API.md) · [déploiement VPS](deploy/vps-ubuntu/README.md).

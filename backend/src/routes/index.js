@@ -22,10 +22,12 @@ import { routeOrientation } from './orientation.routes.js';
 import { routeCopiloteInstitution } from './copilote-institution.routes.js';
 import { routeOffres } from './offres.routes.js';
 import { routeCommunaute } from './communaute.routes.js';
+import { routeAssistantPublic } from './assistant-public.routes.js';
 
 export const routesApi = Router();
 
 routesApi.use('/sante', routeSante);
+routesApi.use('/assistant', routeAssistantPublic);
 routesApi.use('/auth', routeAuthentification);
 routesApi.use('/abonnements', routeAbonnements);
 routesApi.use('/affiliations', routeAffiliations);

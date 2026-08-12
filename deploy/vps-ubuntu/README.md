@@ -77,6 +77,7 @@ CAMPUSHUB_DOMAIN=VOTRE_DOMAINE_OU_IP.nip.io
 MYSQL_ROOT_PASSWORD=GENEREZ_UN_SECRET_DIFFERENT
 MYSQL_APP_PASSWORD=GENEREZ_UN_SECRET_DIFFERENT
 JWT_SECRET=GENEREZ_UN_SECRET_DIFFERENT
+CAMPUSHUB_IA_TOKEN=GENEREZ_UN_SECRET_DIFFERENT
 
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465
@@ -87,10 +88,9 @@ SMTP_FROM=CampusHub <votre-adresse@gmail.com>
 EMAIL_VERIFICATION_TTL_MINUTES=10
 EMAIL_VERIFICATION_MAX_ATTEMPTS=5
 
-OPENAI_API_KEY=
 ```
 
-Générez les trois secrets séparément avec `openssl rand -hex 32` (et `openssl rand -hex 48` pour JWT). Ne copiez jamais les mots de passe locaux ou les clés dans le dépôt.
+Générez les secrets séparément avec `openssl rand -hex 32` (et `openssl rand -hex 48` pour JWT). Ne copiez jamais les mots de passe locaux ou les clés dans le dépôt.
 
 ## 5. Premier démarrage
 

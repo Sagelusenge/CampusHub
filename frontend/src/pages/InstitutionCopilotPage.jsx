@@ -77,8 +77,8 @@ export function InstitutionCopilotPage() {
     <DashboardPageHeader title="Copilote établissement" description="Un assistant de travail pour mieux présenter votre université, sans jamais publier à votre place." />
     <div className="copilot-status">
       <span className={configuration?.disponible ? 'ai-status-dot ai-status-dot--live' : 'ai-status-dot'} />
-      <div><strong>{configuration?.disponible ? 'GPT‑5.6 Luna connecté' : 'Mode démonstration'}</strong><small>{configuration?.message || 'Vérification de la configuration…'}</small></div>
-      <span><Sparkles />{configuration?.modele || 'gpt-5.6-luna'}</span>
+      <div><strong>{configuration?.disponible ? 'CampusHubIA opérationnel' : 'Moteur local de secours'}</strong><small>{configuration?.message || 'Vérification de la configuration…'}</small></div>
+      <span><Sparkles />{configuration?.modele || 'campushub-ia-local-v1'}</span>
     </div>
     {error && <div className="alert alert--error">{error}</div>}
 
@@ -105,6 +105,6 @@ export function InstitutionCopilotPage() {
       </aside>
     </div>
 
-    {resultat && <section className="app-panel copilot-result"><header><div><span className="eyebrow eyebrow--accent">Brouillon à valider</span><h2>{outils.find((item) => item.type === resultat.type)?.titre || 'Résultat du copilote'}</h2><p>{resultat.code_generation} • {resultat.modeExecution === 'GPT_5_6' ? 'GPT‑5.6 Luna' : 'Mode démonstration'}</p></div><button type="button" className="secondary-action" onClick={copier}>{copied ? <><Check />Copié</> : <><Copy />Copier le texte</>}</button></header><div className="copilot-result__text">{resultat.resultat}</div><footer><CheckCircle2 />Ce contenu reste un brouillon. Vérifiez les dates, les frais et les conditions avant de le publier.</footer></section>}
+    {resultat && <section className="app-panel copilot-result"><header><div><span className="eyebrow eyebrow--accent">Brouillon à valider</span><h2>{outils.find((item) => item.type === resultat.type)?.titre || 'Résultat du copilote'}</h2><p>{resultat.code_generation} • {resultat.modeExecution === 'CAMPUSHUB_IA' ? 'CampusHubIA local' : 'Moteur de règles local'}</p></div><button type="button" className="secondary-action" onClick={copier}>{copied ? <><Check />Copié</> : <><Copy />Copier le texte</>}</button></header><div className="copilot-result__text">{resultat.resultat}</div><footer><CheckCircle2 />Ce contenu reste un brouillon. Vérifiez les dates, les frais et les conditions avant de le publier.</footer></section>}
   </section>;
 }

@@ -50,8 +50,8 @@ const sections = [
         answer: 'Indiquez votre option du secondaire, votre pourcentage, vos centres d’intérêt et, si nécessaire, votre budget ou votre ville. CampusHub classe ensuite les formations compatibles parmi les établissements vérifiés.',
       },
       {
-        question: 'À quoi sert CampusHub AI ?',
-        answer: 'CampusHub AI explique les possibilités d’études et aide à comprendre les résultats d’orientation. Les propositions restent fondées sur les formations et informations disponibles dans CampusHub ; elles ne remplacent pas la décision de l’étudiant.',
+        question: 'À quoi sert CampusHubIA ?',
+        answer: 'CampusHubIA est notre agent local entraîné sur les informations CampusHub. Il explique les possibilités d’études à partir des formations vérifiées et des données MySQL actualisées ; ses propositions ne remplacent pas la décision de l’étudiant ni la confirmation de l’établissement.',
       },
       {
         question: 'Que peut contenir mon profil étudiant ?',

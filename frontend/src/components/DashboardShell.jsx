@@ -96,7 +96,7 @@ function institutionNavigation(isSchool) {
 const studentNavigation = [
   { to: '/espace-etudiant', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/espace-etudiant/reseau', label: 'Réseau CampusHub', icon: Newspaper },
-  { to: '/espace-etudiant/orientation', label: 'CampusHub AI', icon: Bot },
+  { to: '/espace-etudiant/orientation', label: 'CampusHubIA', icon: Bot },
   { to: '/espace-etudiant/orientation-finaliste', label: 'Orientation finaliste', icon: BookOpen },
   { to: '/espace-etudiant/messages', label: 'Messages', icon: MessageCircle },
   { to: '/espace-etudiant/affiliation', label: 'Mon affiliation', icon: Building2 },
@@ -147,7 +147,7 @@ const titles = {
   '/espace-universite/notifications': 'Notifications',
   '/espace-etudiant': 'Tableau de bord',
   '/espace-etudiant/reseau': 'Réseau CampusHub',
-  '/espace-etudiant/orientation': 'CampusHub AI',
+  '/espace-etudiant/orientation': 'CampusHubIA',
   '/espace-etudiant/orientation-finaliste': 'Orientation finaliste',
   '/espace-etudiant/messages': 'Messages',
   '/espace-etudiant/affiliation': 'Mon affiliation',
