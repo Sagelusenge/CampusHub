@@ -2,6 +2,8 @@
 
 CampusHub est une plateforme d’orientation et de vie académique pensée pour la RDC. Elle relie étudiants, visiteurs, établissements et administrateurs autour d’un catalogue vérifié, d’un réseau social éducatif, d’un conseiller d’orientation et d’un copilote institutionnel.
 
+Chaque nouveau compte institutionnel confirmé bénéficie d’un essai gratuit unique de 30 jours. La continuité du service repose ensuite sur un abonnement annuel simple de 10 USD.
+
 ## CampusHubIA
 
 CampusHubIA est notre propre agent local. Il fonctionne sans API de modèle d’IA externe et transforme un projet d’études en recommandations traçables :

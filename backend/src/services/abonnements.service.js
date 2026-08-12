@@ -1,6 +1,84 @@
 import { baseDeDonnees } from '../config/base-de-donnees.js';
 import { ErreurApi } from '../utils/erreur-api.js';
 import { metaPagination, pagination } from '../utils/sql.js';
+import { envoyerActivationEssai, envoyerDecisionPaiement } from './email.service.js';
+
+export async function activerEssaiGratuit(utilisateurId, connexion = baseDeDonnees) {
+  const [comptes] = await connexion.execute(
+    `SELECT id, email, nom_affichage, role, essai_gratuit_utilise
+     FROM utilisateurs WHERE id = ? FOR UPDATE`,
+    [utilisateurId],
+  );
+  const compte = comptes[0];
+  if (!compte || compte.role !== 'UNIVERSITE') return { cree: false, abonnement: null };
+
+  if (compte.essai_gratuit_utilise) {
+    const [existants] = await connexion.execute(
+      `SELECT a.*, p.code_plan, p.nom AS nom_plan, p.prix_total,
+         GREATEST(DATEDIFF(a.date_fin, CURRENT_TIMESTAMP), 0) AS jours_restants
+       FROM abonnements_universite a
+       JOIN plans_abonnement p ON p.id = a.plan_id
+       WHERE a.utilisateur_id = ? AND a.type_abonnement = 'ESSAI'
+       ORDER BY a.date_fin DESC LIMIT 1`,
+      [utilisateurId],
+    );
+    return { cree: false, abonnement: existants[0] ?? null, compte };
+  }
+
+  const [plans] = await connexion.execute(
+    'SELECT id FROM plans_abonnement WHERE est_actif = 1 ORDER BY id LIMIT 1',
+  );
+  if (!plans[0]) throw new ErreurApi(503, 'Le plan annuel CampusHub est momentanément indisponible.');
+
+  const debut = new Date();
+  const fin = new Date(debut.getTime() + 30 * 86_400_000);
+  await connexion.execute(
+    `INSERT INTO abonnements_universite
+      (id, code_abonnement, utilisateur_id, universite_id, plan_id, paiement_id,
+       type_abonnement, date_debut, date_fin, certification_incluse)
+     VALUES (0, '', ?, NULL, ?, NULL, 'ESSAI', ?, ?, 0)`,
+    [utilisateurId, plans[0].id, debut, fin],
+  );
+  await connexion.execute(
+    `UPDATE utilisateurs
+     SET essai_gratuit_utilise = 1, statut_compte = 'ACTIF'
+     WHERE id = ?`,
+    [utilisateurId],
+  );
+  await connexion.execute(
+    `INSERT INTO notifications
+      (id, code_notification, destinataire_id, type_notification, titre, message)
+     VALUES (0, '', ?, 'ABONNEMENT', 'Votre essai gratuit est actif',
+       'Vous disposez de 30 jours gratuits pour découvrir toutes les fonctionnalités institutionnelles de CampusHub.')`,
+    [utilisateurId],
+  );
+
+  const [abonnements] = await connexion.execute(
+    `SELECT a.*, p.code_plan, p.nom AS nom_plan, p.prix_total,
+       GREATEST(DATEDIFF(a.date_fin, CURRENT_TIMESTAMP), 0) AS jours_restants
+     FROM abonnements_universite a
+     JOIN plans_abonnement p ON p.id = a.plan_id
+     WHERE a.utilisateur_id = ? AND a.type_abonnement = 'ESSAI'
+     ORDER BY a.date_fin DESC LIMIT 1`,
+    [utilisateurId],
+  );
+  return { cree: true, abonnement: abonnements[0], compte };
+}
+
+export async function notifierActivationEssai(resultat) {
+  if (!resultat?.cree || !resultat.compte || !resultat.abonnement) return false;
+  try {
+    await envoyerActivationEssai({
+      email: resultat.compte.email,
+      nom: resultat.compte.nom_affichage,
+      dateFin: resultat.abonnement.date_fin,
+    });
+    return true;
+  } catch (erreur) {
+    console.error('Échec de l’e-mail d’activation de l’essai :', erreur.message);
+    return false;
+  }
+}
 
 export async function listerPlans() {
   const [lignes] = await baseDeDonnees.query('SELECT * FROM plans_abonnement WHERE est_actif = 1 ORDER BY prix_total');
@@ -54,8 +132,11 @@ export async function traiterPaiement(code, adminId, donnees) {
   try {
     await connexion.beginTransaction();
     const [paiements] = await connexion.execute(
-      `SELECT pa.*, p.duree_jours FROM paiements_abonnement pa
+      `SELECT pa.*, p.duree_jours, p.nom AS nom_plan,
+         u.email, u.nom_affichage
+       FROM paiements_abonnement pa
        JOIN plans_abonnement p ON p.id = pa.plan_id
+       JOIN utilisateurs u ON u.id = pa.utilisateur_id
        WHERE pa.code_paiement = ? FOR UPDATE`, [code.toUpperCase()],
     );
     const paiement = paiements[0];
@@ -66,7 +147,9 @@ export async function traiterPaiement(code, adminId, donnees) {
       `UPDATE paiements_abonnement SET statut = ?, commentaire_admin = ?, traite_par_id = ?, date_traitement = CURRENT_TIMESTAMP WHERE id = ?`,
       [donnees.statut, donnees.commentaire ?? null, adminId, paiement.id],
     );
-    if (donnees.statut === 'VALIDE') await activerAbonnement(connexion, paiement);
+    const abonnementActive = donnees.statut === 'VALIDE'
+      ? await activerAbonnement(connexion, paiement)
+      : null;
     const valide = donnees.statut === 'VALIDE';
     const message = valide
       ? 'Votre abonnement CampusHub est actif pour une année.'
@@ -77,6 +160,19 @@ export async function traiterPaiement(code, adminId, donnees) {
       [paiement.utilisateur_id, valide ? 'Paiement validé' : 'Paiement rejeté', message],
     );
     await connexion.commit();
+    try {
+      await envoyerDecisionPaiement({
+        email: paiement.email,
+        nom: paiement.nom_affichage,
+        codePaiement: paiement.code_paiement,
+        statut: donnees.statut,
+        commentaire: donnees.commentaire,
+        montant: paiement.montant,
+        dateFin: abonnementActive?.fin ?? null,
+      });
+    } catch (erreurEmail) {
+      console.error('Échec de l’e-mail de décision du paiement :', erreurEmail.message);
+    }
     return await obtenirPaiement(code, connexion);
   } catch (erreur) { await connexion.rollback(); throw erreur; }
   finally { connexion.release(); }
@@ -101,8 +197,9 @@ async function activerAbonnement(connexion, paiement) {
   );
   await connexion.execute(
     `INSERT INTO abonnements_universite
-      (id, code_abonnement, utilisateur_id, universite_id, plan_id, paiement_id, date_debut, date_fin, certification_incluse)
-     VALUES (0, '', ?, ?, ?, ?, ?, ?, 0)`,
+      (id, code_abonnement, utilisateur_id, universite_id, plan_id, paiement_id,
+       type_abonnement, date_debut, date_fin, certification_incluse)
+     VALUES (0, '', ?, ?, ?, ?, 'PAYANT', ?, ?, 0)`,
     [paiement.utilisateur_id, membres[0]?.universite_id ?? null, paiement.plan_id, paiement.id, debut, fin],
   );
   await connexion.execute(
@@ -110,6 +207,7 @@ async function activerAbonnement(connexion, paiement) {
      WHERE id = ?`,
     [paiement.utilisateur_id],
   );
+  return { debut, fin };
 }
 
 async function obtenirPaiement(code, connexion = baseDeDonnees) {

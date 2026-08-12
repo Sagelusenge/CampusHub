@@ -67,7 +67,7 @@ const sections = [
     questions: [
       {
         question: 'Comment un établissement rejoint-il CampusHub ?',
-        answer: 'Il envoie une demande de partenariat, choisit un pack et transmet une preuve de paiement. Après le contrôle administratif, le compte est activé et le gestionnaire peut compléter la fiche de l’établissement.',
+        answer: 'Il crée son compte institutionnel et confirme son adresse e-mail. CampusHub active alors un essai gratuit unique de 30 jours afin que le gestionnaire puisse découvrir son espace et compléter sa fiche.',
       },
       {
         question: 'Que peut modifier le gestionnaire sur la fiche publique ?',
@@ -75,7 +75,7 @@ const sections = [
       },
       {
         question: 'Comment fonctionne l’abonnement des établissements ?',
-        answer: 'CampusHub propose un abonnement institutionnel unique à 10 USD par an. Après validation de la preuve de paiement, l’établissement bénéficie de toutes les fonctions de gestion pendant 365 jours et reçoit une alerte avant l’échéance.',
+        answer: 'Chaque établissement commence avec 30 jours gratuits, sans paiement immédiat. Pour continuer, CampusHub propose ensuite un abonnement institutionnel unique à 10 USD par an. Les jours gratuits restants ne sont pas perdus si le paiement est validé pendant l’essai.',
       },
       {
         question: 'Comment publier une offre ?',
@@ -119,7 +119,7 @@ const sections = [
     questions: [
       {
         question: 'Qui peut publier sur le réseau CampusHub ?',
-        answer: 'Les étudiants, visiteurs autorisés et établissements peuvent partager une publication selon leur espace. Une publication peut contenir un titre, du texte, des étiquettes et une photo chargée depuis la machine.',
+        answer: 'Les étudiants et les établissements autorisés peuvent partager une publication selon leur espace. Le visiteur est en mode découverte : il peut consulter le réseau, mais il ne peut ni publier ni créer une story.',
       },
       {
         question: 'Quelles interactions sont disponibles ?',

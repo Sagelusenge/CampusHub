@@ -286,8 +286,8 @@ FAQS: list[tuple[str, str]] = [
         "L'abonnement donne accès à la gestion de la fiche, des campus et formations, aux inscriptions et demandes étudiantes, aux publications et offres ainsi qu'aux statistiques, rapports et au support.",
     ),
     (
-        "Quand le compte d'un établissement est-il activé ?",
-        "L'administration vérifie d'abord la demande et le paiement annuel. L'activation dépend ensuite du statut du dossier et de l'abonnement enregistré dans CampusHub.",
+        "Comment fonctionne l'essai gratuit d'un établissement ?",
+        "Après la confirmation de son adresse e-mail, un établissement reçoit une seule période d'essai gratuite de 30 jours. Il peut découvrir les fonctions institutionnelles avant de poursuivre avec l'abonnement annuel de 10 USD.",
     ),
     (
         "CampusHub prévient-il avant la fin d'un abonnement ?",
@@ -379,6 +379,7 @@ TYPO_REPLACEMENTS = (
     ("notification", "notifcation"),
     ("publication", "publicaton"),
     ("orientation", "orientatoin"),
+    ("essai gratuit", "esai gratui"),
     ("CampusHub", "CampusHubb"),
     ("Comment", "Coment"),
     ("Pourquoi", "Pourqoui"),

@@ -1,5 +1,60 @@
 .checkout-layout--packs{grid-template-columns:minmax(0,1.7fr) minmax(330px,.7fr);align-items:start}.checkout-layout--packs>div>h1{margin:13px 0 6px;color:#092f69}.checkout-layout--packs>div>p{color:#647388}.plan-selector{margin:20px 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.pack-card{position:relative;min-height:295px;padding:20px 16px;display:flex;flex-direction:column;align-items:stretch;text-align:left;border:1px solid #d6dfea;border-radius:14px;color:#243e5c;background:#fff;box-shadow:0 4px 14px rgba(17,44,77,.04);transition:.2s}.pack-card:hover,.pack-card--selected{transform:translateY(-3px);border-color:#0b897d;box-shadow:0 12px 25px rgba(11,137,125,.12)}.pack-card--selected::after{content:'✓';position:absolute;right:12px;top:12px;width:25px;height:25px;display:grid;place-items:center;border-radius:50%;color:#fff;background:#0b897d;font-weight:900}.pack-card>span{color:#0b8176;font-size:11px;font-weight:800;text-transform:uppercase}.pack-card>strong{margin:12px 0;color:#092f69;font:800 30px 'Manrope'}.pack-card>strong small{margin-left:3px;color:#8591a2;font-size:9px}.pack-card ul{margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;list-style:none}.pack-card li{display:flex;align-items:start;gap:6px;color:#607086;font-size:9px;line-height:1.4}.pack-card li svg{width:13px;flex:0 0 auto;color:#0b897d}.pack-popular{position:absolute;left:14px;top:-10px;padding:5px 8px;border-radius:999px;color:#fff;background:#e59a1d;font-size:7px;font-weight:800;text-transform:uppercase}.current-subscription{margin-bottom:20px;padding:20px;display:grid;grid-template-columns:1fr auto minmax(220px,.6fr);align-items:center;gap:25px}.current-subscription small{color:#7f8b9c;font-size:9px}.current-subscription h2{margin:4px 0;color:#153655}.current-subscription p{margin:0;color:#6f7d90;font-size:10px}.subscription-count--light strong{color:#092f69}.subscription-count--light span{color:#718096}.certification-state{padding:12px;display:flex;align-items:center;gap:10px;border:1px solid #e5d8b6;border-radius:10px;color:#9a6a11;background:#fffaf0}.certification-state--active{color:#08766b;border-color:#bfe2db;background:#edfaf7}.certification-state>svg{width:24px}.certification-state span{display:flex;flex-direction:column}.certification-state strong{font-size:10px}.badge-order-card{width:100%;margin:5px 0 18px;padding:18px 20px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;text-align:left;border:1px solid #e4d5ae;border-radius:13px;color:#664c13;background:linear-gradient(100deg,#fffaf0,#fff);transition:.2s}.badge-order-card:hover,.badge-order-card--selected{border-color:#d29b29;box-shadow:0 8px 20px rgba(185,132,25,.12)}.badge-order-card:disabled{opacity:.55;cursor:not-allowed}.badge-order-card>svg{width:38px;height:38px;padding:8px;border-radius:10px;color:#a9700a;background:#ffedc3}.badge-order-card div strong{font-size:12px}.badge-order-card div p{margin:4px 0 0;color:#7c6a45;font-size:9px}.badge-order-card>span{color:#8c5e07;font:800 25px 'Manrope'}.badge-order-card>span small{display:block;font-size:8px}.pack-payment-form{margin-top:18px}.pack-payment-form>.button{margin-top:18px}
 @media(max-width:1100px){.checkout-layout--packs{grid-template-columns:1fr}.plan-selector{grid-template-columns:1fr 1fr}.current-subscription{grid-template-columns:1fr auto}.certification-state{grid-column:1/-1}}
+
+.subscription-checkout{min-height:calc(100vh - 72px);padding:64px 0 90px;background:radial-gradient(circle at 50% 0,#ddf7f2 0,transparent 31%),#f3f7fc}
+.trial-checkout{width:min(1040px,calc(100% - 32px));margin-inline:auto}
+.trial-checkout__heading{max-width:690px;margin:0 auto 28px;text-align:center}
+.trial-checkout__icon{width:68px;height:68px;margin:0 auto 17px;display:grid;place-items:center;border-radius:20px;color:#fff;background:linear-gradient(135deg,#0b887b,#0d557d);box-shadow:0 15px 34px rgba(11,136,123,.22)}
+.trial-checkout__icon svg{width:31px;height:31px}
+.trial-checkout__heading h1{margin:8px 0 10px;color:#082f67;font-size:clamp(35px,5vw,50px);letter-spacing:-.055em}
+.trial-checkout__heading p{margin:0;color:#667b90;font-size:16px;line-height:1.7}
+.trial-access-card{position:relative;max-width:760px;margin:0 auto;padding:34px;border:1px solid #aedfd7;border-radius:24px;background:linear-gradient(145deg,#fff,#f1fcfa);box-shadow:0 20px 55px rgba(16,62,92,.1)}
+.trial-access-card__badge{position:absolute;right:25px;top:24px;padding:7px 11px;display:flex;align-items:center;gap:6px;border-radius:999px;color:#08786e;background:#dff7f2;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+.trial-access-card__badge svg{width:14px}
+.trial-access-card__content{display:grid;grid-template-columns:1fr auto;align-items:end;gap:30px;padding-right:120px}
+.trial-access-card__content small,.trial-access-card__date small{display:block;color:#728397;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.trial-access-card__content>div>strong{display:block;margin:5px 0;color:#082f67;font:800 34px 'Manrope',sans-serif}
+.trial-access-card__content p{margin:0;color:#718296;font-size:12px}
+.trial-access-card__date{display:flex;align-items:center;gap:10px;padding:13px 15px;border-radius:12px;background:#fff;border:1px solid #dce8ee;white-space:nowrap}
+.trial-access-card__date>svg{color:#0b887b}
+.trial-access-card__date strong{display:block;margin-top:3px;color:#173a58;font-size:12px}
+.trial-access-card ul{margin:27px 0 25px;padding:23px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:13px 22px;border-top:1px solid #dcebe8;list-style:none}
+.trial-access-card li{display:flex;align-items:center;gap:8px;color:#49657b;font-size:12px}
+.trial-access-card li svg{width:16px;color:#0b887b}
+.trial-access-card>.button{max-width:430px;margin-inline:auto}
+.trial-access-card__security{margin:14px 0 0!important;display:flex;align-items:center;justify-content:center;gap:7px;color:#7b8a9b!important;font-size:10px!important}
+.trial-access-card__security svg{width:14px;color:#0b887b}
+.trial-renewal-divider{margin:42px 0 27px;display:flex;align-items:center;gap:18px;color:#7a899b;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.trial-renewal-divider::before,.trial-renewal-divider::after{content:'';height:1px;flex:1;background:#d8e2eb}
+.trial-renewal{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);align-items:start;gap:24px}
+.trial-renewal__plan{padding:34px;border:1px solid #dce5ee;border-radius:21px;background:#fff;box-shadow:0 13px 35px rgba(20,55,88,.06)}
+.trial-renewal__plan h2{margin:17px 0 9px;color:#082f67;font-size:28px;line-height:1.25;letter-spacing:-.035em}
+.trial-renewal__plan>p{margin:0;color:#667b90;font-size:13px;line-height:1.7}
+.trial-renewal__plan .plan-selector{margin-bottom:0;grid-template-columns:1fr}
+.trial-renewal__plan .pack-card{min-height:0;padding:21px}
+.trial-renewal__plan .pack-card ul{display:grid;grid-template-columns:1fr 1fr}
+.trial-payment-form{width:100%;padding:32px;box-shadow:0 13px 35px rgba(20,55,88,.07)}
+.trial-payment-form .form-field{display:flex;flex-direction:column;gap:7px;margin-top:17px}
+.trial-payment-form .form-field>span{color:#29465f;font-size:11px;font-weight:800}
+.trial-payment-form select,.trial-payment-form input{width:100%;min-height:48px;padding:0 13px;border:1px solid #cfdae6;border-radius:10px;color:#29465f;background:#fff}
+
+@media(max-width:850px){
+  .subscription-checkout{padding-top:42px}
+  .trial-access-card__content,.trial-renewal{grid-template-columns:1fr}
+  .trial-access-card__content{padding-right:0;padding-top:42px}
+  .trial-access-card__date{white-space:normal}
+  .trial-renewal__plan .pack-card ul{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .trial-checkout{width:min(100% - 20px,1040px)}
+  .trial-checkout__heading h1{font-size:35px}
+  .trial-access-card,.trial-renewal__plan,.trial-payment-form{padding:23px 18px;border-radius:17px}
+  .trial-access-card__badge{position:static;width:max-content;margin-bottom:16px}
+  .trial-access-card__content{padding-top:0}
+  .trial-access-card ul{grid-template-columns:1fr}
+  .trial-renewal{grid-template-columns:minmax(0,1fr)}
+  .trial-renewal-divider{text-align:center}
+}
 @media(max-width:760px){.plan-selector{grid-template-columns:1fr}.pack-card{min-height:auto}.current-subscription{grid-template-columns:1fr}.badge-order-card{grid-template-columns:auto 1fr}.badge-order-card>span{grid-column:1/-1}}
 
 .plan-selector--single{grid-template-columns:minmax(280px,680px);justify-content:center}

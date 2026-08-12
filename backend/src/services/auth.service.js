@@ -14,6 +14,7 @@ import {
   validerChoixAffiliation,
 } from './affiliations.service.js';
 import { envoyerCodeVerification } from './email.service.js';
+import { activerEssaiGratuit, notifierActivationEssai } from './abonnements.service.js';
 
 function creerJeton(utilisateur) {
   return jwt.sign(
@@ -155,7 +156,27 @@ export async function confirmerCodeVerification(email, code) {
   const utilisateur = await trouverUtilisateurParEmail(email);
   if (!utilisateur) throw new ErreurApi(400, 'Le code est invalide ou expiré.');
   if (utilisateur.date_verification_email) {
-    return { email_verifie: true, statut_compte: utilisateur.statut_compte };
+    if (utilisateur.role !== 'UNIVERSITE') {
+      return { email_verifie: true, statut_compte: utilisateur.statut_compte };
+    }
+    const connexionExistante = await baseDeDonnees.getConnection();
+    let essaiExistant;
+    try {
+      await connexionExistante.beginTransaction();
+      essaiExistant = await activerEssaiGratuit(utilisateur.id, connexionExistante);
+      await connexionExistante.commit();
+    } catch (erreur) {
+      await connexionExistante.rollback();
+      throw erreur;
+    } finally {
+      connexionExistante.release();
+    }
+    await notifierActivationEssai(essaiExistant);
+    return {
+      email_verifie: true,
+      statut_compte: 'ACTIF',
+      essai_gratuit: essaiExistant.abonnement,
+    };
   }
   const [lignes] = await baseDeDonnees.execute(
     `SELECT id, code_hash, date_expiration, nombre_tentatives
@@ -182,6 +203,7 @@ export async function confirmerCodeVerification(email, code) {
   }
 
   const connexion = await baseDeDonnees.getConnection();
+  let essaiGratuit = null;
   try {
     await connexion.beginTransaction();
     const [utilisation] = await connexion.execute(
@@ -197,6 +219,9 @@ export async function confirmerCodeVerification(email, code) {
        WHERE id = ?`,
       [utilisateur.id],
     );
+    if (utilisateur.role === 'UNIVERSITE') {
+      essaiGratuit = await activerEssaiGratuit(utilisateur.id, connexion);
+    }
     await connexion.commit();
   } catch (erreur) {
     await connexion.rollback();
@@ -211,9 +236,11 @@ export async function confirmerCodeVerification(email, code) {
       console.error('Échec de la notification d’affiliation après vérification :', erreur.code || erreur.message);
     }
   }
+  await notifierActivationEssai(essaiGratuit);
   return {
     email_verifie: true,
-    statut_compte: ['ETUDIANT', 'VISITEUR'].includes(utilisateur.role) ? 'ACTIF' : utilisateur.statut_compte,
+    statut_compte: ['ETUDIANT', 'VISITEUR', 'UNIVERSITE'].includes(utilisateur.role) ? 'ACTIF' : utilisateur.statut_compte,
+    essai_gratuit: essaiGratuit?.abonnement ?? null,
   };
 }
 
