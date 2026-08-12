@@ -148,8 +148,14 @@ async function chargerFormations() {
   return lignes;
 }
 
-function classer(formations, option, pourcentage, interets, budget) {
+function classer(formations, option, pourcentage, interets, budget, questionNormalisee) {
   const motsInterets = interets.flatMap((code) => INTERETS.find(([nom]) => nom === code)?.[1] || []);
+  const localisationDemandee = formations.find((formation) => {
+    const ville = normaliser(formation.ville);
+    const province = normaliser(formation.province);
+    return (ville.length >= 3 && questionNormalisee.includes(ville))
+      || (province.length >= 3 && questionNormalisee.includes(province));
+  });
   const classes = formations.map((formation) => {
     const texte = normaliser(`${formation.nom_filiere} ${formation.domaine} ${formation.nom_faculte}`);
     const optionCompatible = contient(texte, option.domaines);
@@ -165,6 +171,13 @@ function classer(formations, option, pourcentage, interets, budget) {
     const frais = formation.frais_minimum === null ? null : Number(formation.frais_minimum);
     if (budget && frais !== null) {
       if (frais <= budget) { score += 7; raisons.push('Frais minimum compatibles avec le budget'); } else score -= 8;
+    }
+    if (localisationDemandee) {
+      if (normaliser(formation.ville) === normaliser(localisationDemandee.ville)) {
+        score += 10; raisons.push(`Formation disponible à ${formation.ville}`);
+      } else if (normaliser(formation.province) === normaliser(localisationDemandee.province)) {
+        score += 6; raisons.push(`Formation disponible dans la province ${formation.province}`);
+      } else score -= 5;
     }
     return {
       ...formation,
@@ -233,7 +246,7 @@ export async function essayerOrientationConversationnelle({ question, historique
 
   const interets = extraireInterets(texteComplet, option);
   const budget = extraireBudget(texteComplet);
-  const recommandations = classer(await chargerFormations(), option, pourcentage, interets, budget);
+  const recommandations = classer(await chargerFormations(), option, pourcentage, interets, budget, texteComplet);
   const resultatAgent = recommandations.length ? await essayerCampusHubIA({
     task: 'ORIENTATION_FINALISTE',
     message: question,
