@@ -144,7 +144,7 @@ class CampusHubAgent:
             lines.append(f"{index}. {name} — {university}{score_text}")
             details = [location, _money(item), _text(item.get("niveau_diplome"))]
             lines.append("   " + " · ".join(value for value in details if value))
-            reasons = [str(reason) for reason in (item.get("raisons") or [])[:3] if reason]
+            reasons = [str(reason) for reason in (item.get("raisons") or [])[:5] if reason]
             if reasons:
                 lines.append("   Pourquoi : " + "; ".join(reasons) + ".")
             indicator = _text(item.get("indicateur_dossier"))
