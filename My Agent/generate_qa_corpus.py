@@ -170,12 +170,12 @@ FAQS: list[tuple[str, str]] = [
         "Connectez-vous à votre espace puis ouvrez la rubrique des inscriptions ou candidatures. Le statut indique si le dossier est reçu, en cours d'étude, accepté, refusé ou s'il exige un complément.",
     ),
     (
-        "Comment fonctionne l'orientation des finalistes ?",
-        "Le finaliste indique son option, son pourcentage, ses centres d'intérêt, son budget et sa localisation. CampusHubIA rapproche ces critères des formations actives des établissements vérifiés.",
+        "J'ai terminé en commerciale et gestion avec 54 %, quelles études puis-je faire ?",
+        "Avec une option Commerciale et gestion, vous pouvez envisager la gestion des entreprises, la comptabilité, la finance, le marketing, l'économie, le commerce, les ressources humaines, l'informatique de gestion ou le droit des affaires. CampusHubIA utilise ensuite le pourcentage, les intérêts, la ville et le budget pour classer les formations actives des universités vérifiées. Une recommandation ne garantit pas l'admission.",
     ),
     (
-        "Quels critères CampusHubIA utilise-t-il pour orienter un étudiant ?",
-        "Le conseiller examine notamment le parcours scolaire, le résultat obtenu, les domaines souhaités, le niveau visé, la localisation, le budget et les conditions d'admission disponibles.",
+        "J'ai fait l'option scientifique et obtenu 62 %, que peux-tu me proposer ?",
+        "Avec une option Scientifique, vous pouvez explorer l'informatique, les sciences, l'ingénierie, l'agronomie, l'architecture et, selon les seuils officiels, les formations de santé. CampusHubIA doit proposer plusieurs choix vérifiés, expliquer leur compatibilité et demander la ville, le budget ou les préférences manquantes pour affiner la liste.",
     ),
     (
         "Une recommandation de CampusHubIA garantit-elle l'admission ?",

@@ -1,6 +1,7 @@
 import { baseDeDonnees } from '../config/base-de-donnees.js';
 import { essayerCampusHubIA, modeleCampusHubIA } from './campushub-ia.service.js';
 import { rechercherConnaissancesWeb } from './connaissances-web.service.js';
+import { essayerOrientationConversationnelle } from './orientation-conversationnelle.service.js';
 
 const motsVides = new Set([
   'avec', 'avoir', 'cela', 'cette', 'comment', 'dans', 'des', 'elle', 'est', 'faire',
@@ -117,6 +118,8 @@ async function chercherContextePublic(question) {
 
 export async function poserQuestionPublique({ question, historique }) {
   const historiqueRecent = (historique || []).slice(-6);
+  const orientation = await essayerOrientationConversationnelle({ question, historique: historiqueRecent });
+  if (orientation) return orientation;
   const precedenteQuestion = [...historiqueRecent].reverse().find((message) => message.role === 'UTILISATEUR')?.contenu;
   const questionRecherche = extraireMots(question).length <= 2 && precedenteQuestion
     ? `${precedenteQuestion} ${question}` : question;

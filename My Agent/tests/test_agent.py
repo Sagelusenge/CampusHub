@@ -38,6 +38,43 @@ class CampusHubAgentTests(unittest.TestCase):
         self.assertIn("400 USD", result.response)
         self.assertEqual(result.source, "live_context")
 
+    def test_conversational_orientation_explains_possible_studies(self):
+        result = self.agent.respond(
+            "J’ai fini en commerciale de gestion avec 54 %, quelle université me proposes-tu ?",
+            "ORIENTATION_FINALISTE",
+            {
+                "objectif": "Orientation après l’option Commerciale et gestion",
+                "profil": {"option": "Commerciale et gestion", "pourcentage": 54},
+                "pistes": ["Gestion des entreprises", "Comptabilité", "Marketing"],
+                "recommandations": [{
+                    "code_filiere": "FIL002",
+                    "nom_filiere": "Sciences de gestion",
+                    "nom_universite": "Université Test",
+                    "ville": "Goma",
+                    "province": "Nord-Kivu",
+                    "score_compatibilite": 88,
+                    "indicateur_dossier": "FAVORABLE",
+                    "raisons": ["Parcours cohérent avec l’option Commerciale et gestion"],
+                }],
+            },
+        )
+        self.assertIn("Gestion des entreprises", result.response)
+        self.assertIn("Université Test", result.response)
+        self.assertIn("FAVORABLE", result.response)
+
+    def test_orientation_keeps_guidance_when_database_has_no_match(self):
+        result = self.agent.respond(
+            "Que puis-je faire après commerciale et gestion avec 54 % ?",
+            "ORIENTATION_FINALISTE",
+            {
+                "profil": {"option": "Commerciale et gestion", "pourcentage": 54},
+                "pistes": ["Comptabilité", "Finance"],
+                "recommandations": [],
+            },
+        )
+        self.assertIn("Comptabilité", result.response)
+        self.assertIn("ne trouve pas encore", result.response)
+
     def test_copilot_never_invents_missing_admissions(self):
         result = self.agent.respond("Crée un guide", "COPILOTE_INSTITUTION", {
             "universite": {"code_universite": "UNI001", "nom": "Université Test"},

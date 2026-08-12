@@ -95,7 +95,23 @@ class CampusHubAgent:
 
     def _orientation(self, message: str, context: dict[str, Any], finaliste: bool) -> AgentAnswer:
         recommendations = list(context.get("recommandations") or [])[:5]
+        profile = context.get("profil") or {}
+        tracks = [str(item).strip() for item in (context.get("pistes") or []) if str(item).strip()][:8]
         if not recommendations:
+            if tracks:
+                option = _text(profile.get("option"), "votre option")
+                percentage = _text(profile.get("pourcentage"), "votre résultat")
+                track_lines = "\n".join(f"• {track}" for track in tracks)
+                return AgentAnswer(
+                    f"Avec une option {option} et {percentage} %, vous pouvez envisager :\n"
+                    f"{track_lines}\n\n"
+                    "Je ne trouve pas encore de formation supérieure active correspondant exactement "
+                    "à ce profil dans les établissements vérifiés de CampusHub. Précisez votre ville, "
+                    "votre budget ou le domaine qui vous attire le plus pour élargir la recherche.",
+                    "live_context",
+                    0.97,
+                    [],
+                )
             return AgentAnswer(
                 "Je n’ai trouvé aucune formation suffisamment compatible dans les données "
                 "CampusHub actuelles. Élargissez le domaine, le budget ou la mobilité, puis "
@@ -106,19 +122,20 @@ class CampusHubAgent:
             )
 
         objective = _text(context.get("objectif"), message)
-        intro = (
-            f"CampusHubIA a comparé votre projet « {objective} » avec les formations "
-            "actives des établissements vérifiés."
-        )
+        intro = f"CampusHubIA a comparé votre projet « {objective} » avec les formations actives des établissements vérifiés."
         if finaliste:
-            profile = context.get("profil") or {}
-            intro += (
-                f" Le classement tient compte de l’option {_text(profile.get('option'), 'indiquée')}, "
-                f"du résultat de {_text(profile.get('pourcentage'), '—')} % et des centres d’intérêt."
+            intro = (
+                f"Avec une option {_text(profile.get('option'), 'indiquée')} et "
+                f"{_text(profile.get('pourcentage'), '—')} %, voici les possibilités les plus cohérentes "
+                "à explorer dans CampusHub."
             )
 
-        lines = [intro, "", "Options prioritaires :"]
-        for index, item in enumerate(recommendations[:3], start=1):
+        lines = [intro]
+        if tracks:
+            lines.extend(["", "Domaines que vous pouvez envisager :"])
+            lines.extend(f"• {track}" for track in tracks)
+        lines.extend(["", "Universités et formations prioritaires :"])
+        for index, item in enumerate(recommendations[:5], start=1):
             name = _text(item.get("nom_filiere"), "Formation")
             university = _text(item.get("nom_universite"), "Établissement CampusHub")
             location = ", ".join(filter(None, [_text(item.get("ville")), _text(item.get("province"))]))
@@ -130,6 +147,9 @@ class CampusHubAgent:
             reasons = [str(reason) for reason in (item.get("raisons") or [])[:3] if reason]
             if reasons:
                 lines.append("   Pourquoi : " + "; ".join(reasons) + ".")
+            indicator = _text(item.get("indicateur_dossier"))
+            if indicator:
+                lines.append(f"   Indication du dossier : {indicator}.")
 
         lines.extend([
             "",
