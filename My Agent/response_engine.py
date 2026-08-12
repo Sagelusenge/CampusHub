@@ -30,6 +30,31 @@ DOMAIN_WORDS = {
     "partenaire", "partenaires", "province", "universite", "universites",
 }
 
+COMMON_TERM_ALIASES = {
+    "combien": "prix",
+    "cout": "prix",
+    "coute": "prix",
+    "couter": "prix",
+    "tarif": "prix",
+    "unniversite": "universite",
+    "unniversites": "universites",
+    "universit": "universite",
+    "etablisssement": "etablissement",
+    "etablisssements": "etablissements",
+    "etudient": "etudiant",
+    "etudients": "etudiants",
+    "inscripton": "inscription",
+    "confirmatoin": "confirmation",
+    "notifcation": "notification",
+    "publicaton": "publication",
+    "orientatoin": "orientation",
+    "campushubb": "campushub",
+    "coment": "comment",
+    "pourqoui": "pourquoi",
+    "qeuls": "quels",
+    "qeulles": "quelles",
+}
+
 
 def _normalise(text: str) -> str:
     text = unicodedata.normalize("NFKD", text.casefold())
@@ -121,6 +146,7 @@ class LocalResponseEngine:
         corrected = []
         for original in _terms(text):
             word = _reduce_repeated_letters(original)
+            word = COMMON_TERM_ALIASES.get(word, word)
             if word in self._vocabulary or len(word) < 4:
                 corrected.append(word)
                 continue

@@ -28,6 +28,17 @@ La commande recrée :
 - `data/campushub_knowledge.txt`, corpus public utilisé par l’agent ;
 - `data/campushub_catalogue.json`, export de contrôle ignoré par Git.
 
+Le fichier `data/campushub_qa_2000.txt` contient exactement 2 000 paires
+questions-réponses validées sur le fonctionnement de CampusHub. Pour le
+régénérer après une modification des intentions métier :
+
+```powershell
+.\venv\Scripts\python.exe generate_qa_corpus.py
+```
+
+La synchronisation ajoute automatiquement ces 2 000 exemples au corpus, puis
+complète celui-ci avec les établissements et formations vérifiés de MySQL.
+
 Aucune donnée privée d’étudiant, aucun mot de passe et aucun message privé ne sont exportés.
 
 ## Lancer et tester localement

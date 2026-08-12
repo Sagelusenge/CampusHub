@@ -33,9 +33,12 @@ def fetch_institutions(api_url: str) -> list[dict]:
     return institutions
 
 
-def build_corpus(api_url: str, seed_path: Path) -> tuple[str, list[dict]]:
+def build_corpus(api_url: str, seed_path: Path, qa_path: Path | None = None) -> tuple[str, list[dict]]:
     institutions = fetch_institutions(api_url)
-    sections = [seed_path.read_text(encoding="utf-8").strip()] if seed_path.exists() else []
+    sections = []
+    for source in (seed_path, qa_path):
+        if source and source.exists():
+            sections.append(source.read_text(encoding="utf-8").strip())
     catalogue = []
     for summary in institutions:
         code = summary.get("code_universite")
@@ -81,11 +84,12 @@ def main() -> None:
     parser.add_argument("--output", default=str(BASE_DIR / "data" / "campushub_knowledge.txt"))
     parser.add_argument("--catalogue", default=str(BASE_DIR / "data" / "campushub_catalogue.json"))
     parser.add_argument("--seed", default=str(BASE_DIR / "data" / "campushub_seed.txt"))
+    parser.add_argument("--qa", default=str(BASE_DIR / "data" / "campushub_qa_2000.txt"))
     args = parser.parse_args()
 
     output = Path(args.output)
     catalogue_path = Path(args.catalogue)
-    corpus, catalogue = build_corpus(args.api_url, Path(args.seed))
+    corpus, catalogue = build_corpus(args.api_url, Path(args.seed), Path(args.qa))
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(corpus, encoding="utf-8")
     catalogue_path.write_text(json.dumps({
