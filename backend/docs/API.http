@@ -108,8 +108,35 @@ Content-Type: application/json
 GET {{baseUrl}}/utilisateurs?role=ETUDIANT&statut=ACTIF&page=1&limite=20
 Authorization: Bearer {{jetonAcces}}
 
+### Créer directement un utilisateur vérifié - Administrateur
+POST {{baseUrl}}/utilisateurs
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nomAffichage": "Amina Ilunga",
+  "email": "amina.ilunga@example.com",
+  "motDePasse": "MotDePasseTemporaire2@@",
+  "role": "ETUDIANT",
+  "matriculeEtudiant": "2026-INFO-014",
+  "pays": "République démocratique du Congo",
+  "province": "Nord-Kivu",
+  "ville": "Goma"
+}
+
 ### Profil public d'un utilisateur
 GET {{baseUrl}}/utilisateurs/{{codeUtilisateur}}
+
+### Modifier un utilisateur - Administrateur
+PATCH {{baseUrl}}/utilisateurs/{{codeUtilisateur}}
+Authorization: Bearer {{jetonAcces}}
+Content-Type: application/json
+
+{
+  "nomAffichage": "Amina Ilunga Lusenge",
+  "ville": "Bukavu",
+  "province": "Sud-Kivu"
+}
 
 ### Modifier le statut d'un utilisateur - Administrateur
 PATCH {{baseUrl}}/utilisateurs/{{codeUtilisateur}}/statut
@@ -117,9 +144,12 @@ Authorization: Bearer {{jetonAcces}}
 Content-Type: application/json
 
 {
-  "statutCompte": "ACTIF",
-  "statutVerification": "VERIFIE"
+  "statutCompte": "BLOQUE"
 }
+
+### Supprimer logiquement un utilisateur - Administrateur
+DELETE {{baseUrl}}/utilisateurs/{{codeUtilisateur}}
+Authorization: Bearer {{jetonAcces}}
 
 ### Suivre un utilisateur
 POST {{baseUrl}}/utilisateurs/{{codeUtilisateur}}/suivre

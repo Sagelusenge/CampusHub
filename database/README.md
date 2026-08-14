@@ -15,7 +15,7 @@
 6. Exécuter `08_packs_et_certification.sql` pour la compatibilité de l’historique des paiements.
 7. Exécuter `09_messagerie_privee.sql` pour les conversations et messages privés.
 8. Exécuter `10_recherche_et_contact.sql` pour la recherche personnalisée et les contacts.
-9. Exécuter ensuite les scripts `11` à `29` dans l’ordre pour les cartes, stories, CampusHubIA, comptes de démonstration, offres, réseau, inscriptions en ligne, partenaires, vérification e-mail, messagerie enrichie, couvertures, gestion des étudiants, audit, essai gratuit de 30 jours et formules annuelle/à vie.
+9. Exécuter ensuite les scripts `11` à `30` dans l’ordre pour les cartes, stories, CampusHubIA, comptes de démonstration, offres, réseau, inscriptions en ligne, partenaires, vérification e-mail, messagerie enrichie, couvertures, gestion des étudiants, audit, essai gratuit de 30 jours, formules annuelle/à vie et gestion administrative complète des comptes.
 10. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
 
 ## Création depuis le client MySQL
@@ -51,6 +51,7 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/26_abonnem
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/27_campushub_ia_locale.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/28_essai_gratuit_30_jours.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/29_formules_annuelle_et_vie.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/30_gestion_administrative_utilisateurs.sql;
 ```
 
 Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquement des établissements fictifs clairement nommés « Démonstration » pour tester le conseiller sans faire passer ces données pour des institutions réelles.

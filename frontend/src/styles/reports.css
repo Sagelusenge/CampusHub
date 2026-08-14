@@ -387,6 +387,7 @@
 }
 
 .report-signatures>div{text-align:center;color:#253c53}
+.report-signatures>div:only-child{grid-column:2}
 .report-signatures span{font-size:7.5pt;font-weight:700}
 .report-signatures i{display:block;height:13mm;border-bottom:1px solid #52677c}
 .report-signature-image{height:13mm;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid #52677c}
@@ -444,6 +445,7 @@
   .report-table{min-width:600px}
   .report-section{overflow-x:auto}
   .report-signatures{gap:26px;margin-inline:0}
+  .report-signatures>div:only-child{grid-column:auto}
   .report-footer{align-items:flex-start;flex-direction:column}
   .invoice-totals{width:100%}
 }

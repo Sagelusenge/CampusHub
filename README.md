@@ -44,7 +44,7 @@ Le backend suit le chemin `route → middleware → controller → service → M
 
 Prérequis : Node.js 20+, Python 3.12+ et MySQL 8+.
 
-1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `29`.
+1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `30`.
 2. Configurer et lancer l’API :
 
 ```powershell

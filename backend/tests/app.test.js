@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { app } from '../src/app.js';
+import { schemaCreationUtilisateurAdmin } from '../src/schemas/utilisateur.schema.js';
 
 test('GET / présente l’API', async () => {
   const reponse = await request(app).get('/').expect(200);
@@ -41,4 +42,37 @@ test('le bot public refuse une question vide avant tout accès aux données', as
     .send({ question: '' })
     .expect(400);
   assert.equal(reponse.body.succes, false);
+});
+
+test('la gestion administrative des utilisateurs exige une connexion', async () => {
+  const reponse = await request(app)
+    .post('/api/v1/utilisateurs')
+    .send({
+      email: 'compte.admin.test@campushub.test',
+      motDePasse: 'MotDePasseTest123!',
+      role: 'VISITEUR',
+      nomAffichage: 'Compte de test',
+    })
+    .expect(401);
+  assert.equal(reponse.body.succes, false);
+});
+
+test('un administrateur ne peut pas créer directement une université', () => {
+  const resultat = schemaCreationUtilisateurAdmin.safeParse({
+    email: 'universite.admin.test@campushub.test',
+    motDePasse: 'MotDePasseTest123!',
+    role: 'UNIVERSITE',
+    nomAffichage: 'Université de test',
+  });
+  assert.equal(resultat.success, false);
+});
+
+test('le matricule reste obligatoire pour un étudiant créé par l’administration', () => {
+  const resultat = schemaCreationUtilisateurAdmin.safeParse({
+    email: 'etudiant.admin.test@campushub.test',
+    motDePasse: 'MotDePasseTest123!',
+    role: 'ETUDIANT',
+    nomAffichage: 'Étudiant de test',
+  });
+  assert.equal(resultat.success, false);
 });

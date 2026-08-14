@@ -19,6 +19,11 @@ import { Spinner } from '../components/Spinner.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useInstitution } from '../context/InstitutionContext.jsx';
 
+const SIGNATURE_CAMPUSHUB = Object.freeze({
+  label: 'L’administration CampusHub',
+  image: '/images/signature-sagel-lusenge.png',
+});
+
 const generatedAt = () => new Date().toLocaleString('fr-FR', {
   dateStyle: 'long',
   timeStyle: 'short',
@@ -116,7 +121,7 @@ function FormalReport({
   status,
   children,
   className = '',
-  signatures = ['Responsable du rapport', 'Visa / cachet'],
+  signatures = [SIGNATURE_CAMPUSHUB],
 }) {
   return (
     <article className={`professional-report ${className}`.trim()}>
@@ -259,7 +264,7 @@ function AdminProfessionalReport() {
         subtitle="Situation consolidée de la plateforme et suivi des opérations"
         reference={reportReference('RPT-ADM')}
         status="Consolidé"
-        signatures={['Administrateur responsable', 'Direction CampusHub']}
+        signatures={[SIGNATURE_CAMPUSHUB]}
       >
         <ReportSection number="1" title="Identification du rapport">
           <ReportFields items={[
@@ -357,7 +362,7 @@ function SubscriptionContractDocument({ payment }) {
   if (!payment) return <EmptyFinancialDocument title="Contrat d’abonnement" message="Un paiement validé est nécessaire pour établir le contrat institutionnel CampusHub." />;
   const reference = payment.code_abonnement || `CTR-${payment.code_paiement}`;
   const accesVie = Boolean(payment.est_a_vie);
-  return <FormalReport className="professional-report--contract" organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Contrat d’abonnement institutionnel" subtitle={accesVie ? 'Accès à vie aux services numériques CampusHub' : 'Accès annuel renouvelable aux services numériques CampusHub'} reference={reference} status="Contrat actif" signatures={['Le représentant de l’établissement', { label: 'L’administration CampusHub', image: '/images/signature-sagel-lusenge.png' }]}>
+  return <FormalReport className="professional-report--contract" organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Contrat d’abonnement institutionnel" subtitle={accesVie ? 'Accès à vie aux services numériques CampusHub' : 'Accès annuel renouvelable aux services numériques CampusHub'} reference={reference} status="Contrat actif" signatures={['Le représentant de l’établissement', SIGNATURE_CAMPUSHUB]}>
     <ReportSection number="1" title="Parties au contrat"><ReportFields items={[
       { label: 'Prestataire', value: 'CampusHub — Écosystème académique numérique' },
       { label: 'Établissement client', value: payment.nom_etablissement, wide: true },
@@ -413,7 +418,7 @@ function SubscriptionContractDocument({ payment }) {
 function InvoiceDocument({ payment }) {
   if (!payment) return <EmptyFinancialDocument title="Facture d’abonnement" message="Sélectionnez un client possédant au moins une demande de paiement." />;
   const paid = payment.statut === 'VALIDE';
-  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Facture d’abonnement" subtitle="Services numériques institutionnels" reference={`FAC-${payment.code_paiement}`} status={paid ? 'Payée' : payment.statut === 'REJETE' ? 'Annulée' : 'À payer'} signatures={['Service administratif CampusHub', 'Client / réception']}>
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Facture d’abonnement" subtitle="Services numériques institutionnels" reference={`FAC-${payment.code_paiement}`} status={paid ? 'Payée' : payment.statut === 'REJETE' ? 'Annulée' : 'À payer'} signatures={[SIGNATURE_CAMPUSHUB]}>
     <ReportSection number="1" title="Facturation"><ReportFields items={[
       { label: 'Facturé à', value: payment.nom_etablissement, wide: true },
       { label: 'Code client', value: payment.code_utilisateur },
@@ -428,7 +433,7 @@ function InvoiceDocument({ payment }) {
 
 function ReceiptDocument({ payment }) {
   if (!payment) return <EmptyFinancialDocument title="Reçu de paiement" message="Seuls les paiements validés peuvent produire un reçu officiel." />;
-  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Reçu de paiement" subtitle={`Attestation de règlement — ${payment.est_a_vie ? 'accès à vie' : 'accès annuel'}`} reference={`REC-${payment.code_paiement}`} status="Paiement encaissé" signatures={['Agent ayant validé le paiement', 'Cachet CampusHub']}>
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Reçu de paiement" subtitle={`Attestation de règlement — ${payment.est_a_vie ? 'accès à vie' : 'accès annuel'}`} reference={`REC-${payment.code_paiement}`} status="Paiement encaissé" signatures={[SIGNATURE_CAMPUSHUB]}>
     <ReportSection number="1" title="Paiement reçu"><div className="receipt-amount"><small>Montant reçu</small><strong>{formatCurrency(payment.montant, payment.devise)}</strong><span>Reçu de {payment.nom_etablissement}</span></div></ReportSection>
     <ReportSection number="2" title="Informations de la transaction"><ReportFields items={[
       { label: 'Code du paiement', value: payment.code_paiement },
@@ -452,7 +457,7 @@ function PaymentStatementDocument({ payments, client = false, summary = {} }) {
     return result;
   }, { total: 0, validated: 0, pending: 0 });
   const title = client ? 'Relevé de paiement client' : 'Relevé global des paiements';
-  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title={title} subtitle={client ? `Historique financier de ${first?.nom_etablissement || 'l’établissement sélectionné'}` : 'Journal consolidé de tous les établissements'} reference={reportReference(client ? 'REL-CLI' : 'REL-GLB', client ? first?.code_utilisateur : 'TOUS')} status="Relevé consolidé" signatures={['Service financier CampusHub', 'Visa administratif']}>
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title={title} subtitle={client ? `Historique financier de ${first?.nom_etablissement || 'l’établissement sélectionné'}` : 'Journal consolidé de tous les établissements'} reference={reportReference(client ? 'REL-CLI' : 'REL-GLB', client ? first?.code_utilisateur : 'TOUS')} status="Relevé consolidé" signatures={[SIGNATURE_CAMPUSHUB]}>
     <ReportSection number="1" title="Périmètre du relevé"><ReportFields items={client ? [
       { label: 'Établissement', value: first?.nom_etablissement, wide: true },
       { label: 'Code client', value: first?.code_utilisateur },
@@ -471,7 +476,7 @@ function PaymentStatementDocument({ payments, client = false, summary = {} }) {
 
 function SubscriptionScheduleDocument({ payments }) {
   const subscriptions = payments.filter((item) => item.code_abonnement);
-  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Échéancier des abonnements" subtitle="Suivi des contrats actifs, expirés et proches du renouvellement" reference={reportReference('ECH-ABO')} status="Échéancier à jour" signatures={['Responsable des abonnements', 'Direction CampusHub']}>
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Échéancier des abonnements" subtitle="Suivi des contrats actifs, expirés et proches du renouvellement" reference={reportReference('ECH-ABO')} status="Échéancier à jour" signatures={[SIGNATURE_CAMPUSHUB]}>
     <ReportSection number="1" title="Synthèse des échéances"><div className="report-status-grid"><div><small>Abonnements recensés</small><strong>{formatNumber(subscriptions.length)}</strong></div><div><small>Actifs</small><strong>{formatNumber(subscriptions.filter((item) => item.statut_abonnement === 'ACTIF').length)}</strong></div><div><small>Échéance à 30 jours</small><strong>{formatNumber(subscriptions.filter((item) => Number(item.jours_restants) <= 30).length)}</strong></div><div><small>Expirés</small><strong>{formatNumber(subscriptions.filter((item) => item.statut_abonnement === 'EXPIRE').length)}</strong></div></div></ReportSection>
     <ReportSection number="2" title="Planning de renouvellement"><table className="report-table"><thead><tr><th>Établissement</th><th>Contrat</th><th>Début</th><th>Échéance</th><th>Jours restants</th><th>État</th></tr></thead><tbody>{subscriptions.map((item) => <tr key={item.code_abonnement}><td>{item.nom_etablissement}<small>{item.code_utilisateur}</small></td><td>{item.code_abonnement}</td><td>{formatDate(item.date_abonnement_debut)}</td><td>{formatDate(item.date_abonnement_fin)}</td><td>{formatNumber(item.jours_restants)}</td><td>{labelStatus(item.statut_abonnement)}</td></tr>)}{!subscriptions.length && <EmptyReportRow colSpan={6}>Aucun abonnement validé n’est encore disponible.</EmptyReportRow>}</tbody></table></ReportSection>
   </FormalReport>;

@@ -1,4 +1,4 @@
-import { Building2, Check, Eye, FileClock, RefreshCw, Search, ShieldAlert, UserRoundCheck, Users, X } from 'lucide-react';
+import { Ban, Building2, Check, Eye, FileClock, Pencil, PauseCircle, Plus, RefreshCw, Search, ShieldAlert, ShieldCheck, Trash2, UserRoundCheck, Users, X } from 'lucide-react';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
@@ -65,11 +65,90 @@ export function AdminUniversitiesPage() {
 }
 
 export function AdminUsersPage() {
-  const { token } = useAuth();
+  const { token, utilisateur } = useAuth();
   const [role, setRole] = useState('');
-  const loader = useCallback(async () => (await apiRequest(`/utilisateurs?page=1&limite=100${role ? `&role=${role}` : ''}`, { token })).donnees || [], [token, role]);
+  const [statut, setStatut] = useState('');
+  const [editor, setEditor] = useState(null);
+  const [message, setMessage] = useState('');
+  const [actionError, setActionError] = useState('');
+  const [processing, setProcessing] = useState('');
+  const loader = useCallback(async () => (await apiRequest(`/utilisateurs?page=1&limite=100${role ? `&role=${role}` : ''}${statut ? `&statut=${statut}` : ''}`, { token })).donnees || [], [token, role, statut]);
   const list = useRemoteList(loader);
-  return <ManagementPage title="Utilisateurs" description="Consultez les comptes et leur état d’accès à la plateforme." icon={Users} list={list} extra={<select className="compact-select" value={role} onChange={(event) => setRole(event.target.value)}><option value="">Tous les rôles</option><option value="ETUDIANT">Étudiants</option><option value="UNIVERSITE">Universités</option><option value="ENTREPRISE">Entreprises</option><option value="ADMINISTRATEUR">Administrateurs</option></select>} columns={['Utilisateur','Rôle','Localisation','Inscription','Statut']} renderRow={(item) => <tr key={item.code_utilisateur}><td><Identity title={item.nom_affichage} subtitle={`${item.email} • ${item.code_utilisateur}`} /></td><td><span className="role-chip">{item.role}</span></td><td>{item.ville || '—'}, {item.province || '—'}</td><td>{formatDate(item.date_creation)}</td><td><StatusBadge status={item.statut_compte} /></td></tr>} />;
+
+  async function saveUser(payload, item) {
+    setProcessing(item?.code_utilisateur || 'CREATION'); setActionError(''); setMessage('');
+    try {
+      await apiRequest(item ? `/utilisateurs/${item.code_utilisateur}` : '/utilisateurs', {
+        method: item ? 'PATCH' : 'POST', token, body: payload,
+      });
+      setMessage(item ? 'Le compte a été modifié.' : 'Le compte a été créé, vérifié et activé immédiatement.');
+      setEditor(null);
+      await list.refresh();
+    } catch (error) { setActionError(error.message); throw error; }
+    finally { setProcessing(''); }
+  }
+
+  async function changeStatus(item, statutCompte) {
+    setProcessing(item.code_utilisateur); setActionError(''); setMessage('');
+    try {
+      await apiRequest(`/utilisateurs/${item.code_utilisateur}/statut`, { method: 'PATCH', token, body: { statutCompte } });
+      setMessage(statutCompte === 'ACTIF' ? 'Le compte est de nouveau actif.' : statutCompte === 'BLOQUE' ? 'Le compte a été bloqué et ses sessions ont été révoquées.' : 'Le compte a été suspendu et ses sessions ont été révoquées.');
+      await list.refresh();
+    } catch (error) { setActionError(error.message); }
+    finally { setProcessing(''); }
+  }
+
+  async function removeUser(item) {
+    if (!window.confirm(`Supprimer le compte de ${item.nom_affichage} ? Cette suppression désactivera définitivement sa connexion.`)) return;
+    setProcessing(item.code_utilisateur); setActionError(''); setMessage('');
+    try {
+      await apiRequest(`/utilisateurs/${item.code_utilisateur}`, { method: 'DELETE', token });
+      setMessage('Le compte a été supprimé et toutes ses sessions ont été révoquées.');
+      await list.refresh();
+    } catch (error) { setActionError(error.message); }
+    finally { setProcessing(''); }
+  }
+
+  return <>
+    <ManagementPage
+      title="Gestion des utilisateurs"
+      description="Créez, modifiez et contrôlez les comptes non institutionnels. Les comptes créés ici sont automatiquement vérifiés."
+      icon={Users}
+      list={list}
+      message={message}
+      externalError={actionError}
+      actions={<button className="button" type="button" onClick={() => setEditor({ mode: 'create', item: null })}><Plus />Ajouter un utilisateur</button>}
+      extra={<div className="management-filters"><select className="compact-select" value={role} onChange={(event) => setRole(event.target.value)}><option value="">Tous les rôles</option><option value="VISITEUR">Visiteurs</option><option value="ETUDIANT">Étudiants</option><option value="UNIVERSITE">Universités</option><option value="ENTREPRISE">Entreprises</option><option value="ADMINISTRATEUR">Administrateurs</option></select><select className="compact-select" value={statut} onChange={(event) => setStatut(event.target.value)}><option value="">Tous les statuts</option><option value="ACTIF">Actifs</option><option value="SUSPENDU">Suspendus</option><option value="BLOQUE">Bloqués</option><option value="SUPPRIME">Supprimés</option></select></div>}
+      columns={['Utilisateur','Rôle','Localisation','Vérification','Statut','Actions']}
+      renderRow={(item) => {
+        const administrable = item.role !== 'UNIVERSITE';
+        const self = item.code_utilisateur === utilisateur?.code_utilisateur;
+        return <tr key={item.code_utilisateur}><td><Identity title={item.nom_affichage} subtitle={`${item.email} • ${item.code_utilisateur}`} /></td><td><span className="role-chip">{item.role}</span>{item.matricule_etudiant && <small className="cell-subtitle">Matricule : {item.matricule_etudiant}</small>}</td><td>{item.ville || '—'}, {item.province || '—'}</td><td><StatusBadge status={item.statut_verification} /></td><td><StatusBadge status={item.statut_compte} /></td><td>{administrable ? <div className="table-actions admin-user-actions">{item.statut_compte !== 'SUPPRIME' && <button className="table-action" type="button" title="Modifier" onClick={() => setEditor({ mode: 'edit', item })}><Pencil /></button>}{!self && item.statut_compte === 'ACTIF' && <><button className="table-action table-action--warning" type="button" title="Suspendre" disabled={processing === item.code_utilisateur} onClick={() => changeStatus(item, 'SUSPENDU')}><PauseCircle /></button><button className="table-action table-action--danger" type="button" title="Bloquer" disabled={processing === item.code_utilisateur} onClick={() => changeStatus(item, 'BLOQUE')}><Ban /></button></>}{!self && ['SUSPENDU','BLOQUE','EN_ATTENTE'].includes(item.statut_compte) && <button className="table-action table-action--success" type="button" title="Réactiver" disabled={processing === item.code_utilisateur} onClick={() => changeStatus(item, 'ACTIF')}><ShieldCheck /></button>}{!self && item.statut_compte !== 'SUPPRIME' && <button className="table-action table-action--danger" type="button" title="Supprimer" disabled={processing === item.code_utilisateur} onClick={() => removeUser(item)}><Trash2 /></button>}</div> : <span className="admin-user-readonly">Via Établissements</span>}</td></tr>;
+      }}
+    />
+    {editor && <AdminUserEditor item={editor.item} loading={Boolean(processing)} onClose={() => setEditor(null)} onSave={saveUser} />}
+  </>;
+}
+
+function AdminUserEditor({ item, loading, onClose, onSave }) {
+  const editing = Boolean(item);
+  const [form, setForm] = useState(() => ({
+    nomAffichage: item?.nom_affichage || '', email: item?.email || '', motDePasse: '',
+    role: item?.role || 'VISITEUR', matriculeEtudiant: item?.matricule_etudiant || '',
+    pays: item?.pays || 'République démocratique du Congo', province: item?.province || '', ville: item?.ville || '',
+  }));
+  const [error, setError] = useState('');
+  async function submit(event) {
+    event.preventDefault(); setError('');
+    const payload = {
+      nomAffichage: form.nomAffichage, email: form.email, role: form.role,
+      pays: form.pays || null, province: form.province || null, ville: form.ville || null,
+    };
+    if (form.motDePasse) payload.motDePasse = form.motDePasse;
+    if (form.role === 'ETUDIANT') payload.matriculeEtudiant = form.matriculeEtudiant;
+    try { await onSave(payload, item); } catch (submitError) { setError(submitError.message); }
+  }
+  return <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><form className="resource-modal resource-modal--large admin-user-modal" onSubmit={submit}><header className="resource-modal__heading"><div><span className="eyebrow eyebrow--accent">Administration</span><h2>{editing ? 'Modifier le compte' : 'Ajouter un utilisateur'}</h2></div><button type="button" onClick={onClose} aria-label="Fermer"><X /></button></header><div className="admin-user-modal__notice"><ShieldCheck /><p><strong>Activation immédiate</strong><span>Le compte sera actif et son adresse considérée comme vérifiée. Les universités utilisent obligatoirement le formulaire institutionnel.</span></p></div>{error && <div className="alert alert--error">{error}</div>}<div className="form-grid"><label className="editor-field"><span>Nom complet *</span><input required minLength="2" value={form.nomAffichage} onChange={(event) => setForm({ ...form, nomAffichage: event.target.value })} /></label><label className="editor-field"><span>Adresse e-mail *</span><input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label><label className="editor-field"><span>Rôle *</span><select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value })}><option value="VISITEUR">Visiteur</option><option value="ETUDIANT">Étudiant</option><option value="ENTREPRISE">Entreprise / organisation</option><option value="ADMINISTRATEUR">Administrateur</option></select></label><label className="editor-field"><span>{editing ? 'Nouveau mot de passe' : 'Mot de passe *'}</span><input required={!editing} minLength="8" type="password" value={form.motDePasse} onChange={(event) => setForm({ ...form, motDePasse: event.target.value })} placeholder={editing ? 'Laisser vide pour conserver' : '8 caractères minimum'} /></label>{form.role === 'ETUDIANT' && <label className="editor-field form-field--wide"><span>Matricule étudiant *</span><input required minLength="2" value={form.matriculeEtudiant} onChange={(event) => setForm({ ...form, matriculeEtudiant: event.target.value })} /></label>}<label className="editor-field"><span>Pays</span><input value={form.pays} onChange={(event) => setForm({ ...form, pays: event.target.value })} /></label><label className="editor-field"><span>Province / État</span><input value={form.province} onChange={(event) => setForm({ ...form, province: event.target.value })} /></label><label className="editor-field form-field--wide"><span>Ville</span><input value={form.ville} onChange={(event) => setForm({ ...form, ville: event.target.value })} /></label></div><div className="admin-user-modal__actions"><button className="secondary-action" type="button" onClick={onClose}>Annuler</button><button className="button" disabled={loading}>{loading ? <Spinner /> : <><Check />{editing ? 'Enregistrer' : 'Créer et vérifier'}</>}</button></div></form></div>;
 }
 
 export function AdminModerationPage() {
@@ -106,7 +185,7 @@ export function AdminAuditPage() {
   return <ManagementPage title="Journal d’audit" description="Traçabilité des consultations et opérations sensibles, avec valeurs avant/après et adresse IP." icon={FileClock} list={{ ...list, data: visible }} groupBy={groupMode === 'AUCUN' ? null : groupBy} extra={<div className="management-filters"><select className="compact-select" value={actionFilter} onChange={(event) => setActionFilter(event.target.value)}><option value="">Toutes les actions</option>{actions.map((action) => <option key={action}>{action}</option>)}</select><select className="compact-select" value={entityFilter} onChange={(event) => setEntityFilter(event.target.value)}><option value="">Toutes les entités</option>{entities.map((entity) => <option key={entity}>{entity}</option>)}</select><select className="compact-select" value={groupMode} onChange={(event) => setGroupMode(event.target.value)}><option value="JOUR">Grouper par jour</option><option value="ACTION">Grouper par action</option><option value="ENTITE">Grouper par entité</option><option value="AUCUN">Sans groupement</option></select></div>} columns={['Action','Entité','Utilisateur','Détails','Date']} renderRow={(item) => <tr key={item.code_audit || item.id}><td><strong>{item.action}</strong><small className="cell-subtitle">{item.code_audit}</small></td><td><span className="role-chip">{item.type_entite}</span><small className="cell-subtitle">ID {item.identifiant_entite || '—'}</small></td><td>{item.nom_affichage || 'Système / anonyme'}<small className="cell-subtitle">{item.code_utilisateur || item.adresse_ip || ''}</small></td><td className="audit-details-cell"><details><summary>Consulter les données</summary><pre>{formatAuditDetails(item)}</pre></details></td><td>{formatDateTime(item.date_creation)}</td></tr>} />;
 }
 
-function ManagementPage({ title, description, icon: Icon, list, columns, renderRow, extra, message, groupBy }) {
+function ManagementPage({ title, description, icon: Icon, list, columns, renderRow, extra, message, externalError, groupBy, actions }) {
   const [search, setSearch] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
@@ -124,7 +203,7 @@ function ManagementPage({ title, description, icon: Icon, list, columns, renderR
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [list.data, pageSize]);
-  return <div><DashboardPageHeader title={title} description={description} actions={<button className="secondary-action" onClick={list.refresh}><RefreshCw /> Actualiser</button>} />{message && <div className="alert alert--success"><Check /> {message}</div>}{list.error && <div className="alert alert--error">{list.error}</div>}<section className="app-panel management-panel"><div className="management-toolbar"><label><Search /><input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Rechercher dans la liste…" /></label>{extra}</div>{list.loading ? <div className="content-loading"><Spinner /> Chargement…</div> : ordered.length ? <><div className="table-scroll"><table className="data-table"><thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{visible.map((item, index) => { const group = groupBy?.(item); const previousGroup = index > 0 ? groupBy?.(visible[index - 1]) : null; return <Fragment key={item.code_audit || item.code_utilisateur || item.code_universite || item.code_signalement || item.id || index}>{groupBy && group !== previousGroup && <tr className="table-group-row"><td colSpan={columns.length}>{group}</td></tr>}{renderRow(item)}</Fragment>; })}</tbody></table></div><ListPagination page={currentPage} pageSize={pageSize} total={ordered.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} /></> : <div className="management-empty"><span><Icon /></span><h3>Aucun élément</h3><p>La liste est actuellement vide.</p></div>}</section></div>;
+  return <div><DashboardPageHeader title={title} description={description} actions={<div className="management-header-actions">{actions}<button className="secondary-action" onClick={list.refresh}><RefreshCw /> Actualiser</button></div>} />{message && <div className="alert alert--success"><Check /> {message}</div>}{(externalError || list.error) && <div className="alert alert--error">{externalError || list.error}</div>}<section className="app-panel management-panel"><div className="management-toolbar"><label><Search /><input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Rechercher dans la liste…" /></label>{extra}</div>{list.loading ? <div className="content-loading"><Spinner /> Chargement…</div> : ordered.length ? <><div className="table-scroll"><table className="data-table"><thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{visible.map((item, index) => { const group = groupBy?.(item); const previousGroup = index > 0 ? groupBy?.(visible[index - 1]) : null; return <Fragment key={item.code_audit || item.code_utilisateur || item.code_universite || item.code_signalement || item.id || index}>{groupBy && group !== previousGroup && <tr className="table-group-row"><td colSpan={columns.length}>{group}</td></tr>}{renderRow(item)}</Fragment>; })}</tbody></table></div><ListPagination page={currentPage} pageSize={pageSize} total={ordered.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} /></> : <div className="management-empty"><span><Icon /></span><h3>Aucun élément</h3><p>La liste est actuellement vide.</p></div>}</section></div>;
 }
 
 function Identity({ title, subtitle, icon: Icon }) { return <div className="table-identity"><span>{Icon ? <Icon /> : title?.slice(0,2).toUpperCase()}</span><div><strong>{title}</strong><small>{subtitle}</small></div></div>; }

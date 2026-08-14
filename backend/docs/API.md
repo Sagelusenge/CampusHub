@@ -42,8 +42,11 @@ Authorization: Bearer <jetonAcces>
 | GET | `/utilisateurs/moi` | Connecté | Lire son compte |
 | PATCH | `/utilisateurs/moi` | Connecté | Modifier son compte |
 | GET | `/utilisateurs` | Administrateur | Rechercher les comptes |
+| POST | `/utilisateurs` | Administrateur | Créer et vérifier immédiatement un visiteur, étudiant, administrateur ou compte entreprise |
 | GET | `/utilisateurs/:code` | Public | Lire un profil utilisateur public |
-| PATCH | `/utilisateurs/:code/statut` | Administrateur | Activer, suspendre ou vérifier un compte |
+| PATCH | `/utilisateurs/:code` | Administrateur | Modifier un compte non institutionnel |
+| PATCH | `/utilisateurs/:code/statut` | Administrateur | Activer, suspendre, bloquer ou vérifier un compte |
+| DELETE | `/utilisateurs/:code` | Administrateur | Supprimer logiquement un compte non institutionnel et révoquer ses sessions |
 | POST/DELETE | `/utilisateurs/:code/suivre` | Connecté | Suivre ou ne plus suivre un utilisateur |
 | GET | `/profils` | Public | Rechercher les portfolios étudiants |
 | GET | `/profils/:code` | Public | Lire un portfolio |

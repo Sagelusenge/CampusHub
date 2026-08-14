@@ -1,12 +1,15 @@
 import {
   changerStatutUtilisateur,
+  creerUtilisateurParAdministration,
   listerUtilisateurs,
+  modifierUtilisateurParAdministration,
   modifierMonCompte,
   nePlusSuivreUtilisateur,
   obtenirUtilisateurPublic,
   obtenirMesStatistiquesSociales,
   obtenirStatistiquesSocialesPubliques,
   suivreUtilisateur,
+  supprimerUtilisateurParAdministration,
 } from '../services/utilisateurs-gestion.service.js';
 import { envoyerSucces } from '../utils/reponse-api.js';
 
@@ -49,6 +52,32 @@ export async function lister(requete, reponse) {
   );
 }
 
+export async function creerParAdministration(requete, reponse) {
+  const utilisateur = await creerUtilisateurParAdministration(requete.validees.body);
+  requete.auditContexte = {
+    action: 'CREATION_UTILISATEUR_ADMIN',
+    typeEntite: 'UTILISATEUR',
+    identifiantEntite: utilisateur.id,
+    nouvellesValeurs: { codeUtilisateur: utilisateur.code_utilisateur, role: utilisateur.role, statut: utilisateur.statut_compte },
+  };
+  return envoyerSucces(reponse, utilisateur, 201, undefined, 'Utilisateur créé, vérifié et activé.');
+}
+
+export async function modifierParAdministration(requete, reponse) {
+  const utilisateur = await modifierUtilisateurParAdministration(
+    requete.validees.params.code,
+    requete.validees.body,
+    requete.utilisateur.id,
+  );
+  requete.auditContexte = {
+    action: 'MODIFICATION_UTILISATEUR_ADMIN',
+    typeEntite: 'UTILISATEUR',
+    identifiantEntite: utilisateur.id,
+    nouvellesValeurs: { codeUtilisateur: utilisateur.code_utilisateur, role: utilisateur.role },
+  };
+  return envoyerSucces(reponse, utilisateur, 200, undefined, 'Utilisateur modifié.');
+}
+
 // GET /api/v1/utilisateurs/:code
 export async function afficher(requete, reponse) {
   const { code } = requete.validees.params;
@@ -61,9 +90,29 @@ export async function afficher(requete, reponse) {
 export async function changerStatut(requete, reponse) {
   const { code } = requete.validees.params;
   const nouveauStatut = requete.validees.body;
-  const utilisateur = await changerStatutUtilisateur(code, nouveauStatut);
+  const utilisateur = await changerStatutUtilisateur(code, nouveauStatut, requete.utilisateur.id);
+
+  requete.auditContexte = {
+    action: `STATUT_UTILISATEUR_${nouveauStatut.statutCompte}`,
+    typeEntite: 'UTILISATEUR',
+    identifiantEntite: utilisateur.id,
+    nouvellesValeurs: { codeUtilisateur: utilisateur.code_utilisateur, statut: utilisateur.statut_compte },
+  };
 
   return envoyerSucces(reponse, utilisateur, 200, undefined, 'Statut du compte mis à jour.');
+}
+
+export async function supprimerParAdministration(requete, reponse) {
+  const resultat = await supprimerUtilisateurParAdministration(
+    requete.validees.params.code,
+    requete.utilisateur.id,
+  );
+  requete.auditContexte = {
+    action: 'SUPPRESSION_LOGIQUE_UTILISATEUR',
+    typeEntite: 'UTILISATEUR',
+    nouvellesValeurs: resultat,
+  };
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Utilisateur supprimé de la plateforme.');
 }
 
 // POST /api/v1/utilisateurs/:code/suivre
