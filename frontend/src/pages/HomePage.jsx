@@ -39,7 +39,7 @@ export function HomePage() {
           <h2>Votre projet d’études devient un plan concret.</h2>
           <p>CampusHubIA croise votre objectif, votre budget et votre mobilité avec les formations vérifiées de la plateforme. Notre agent fonctionne localement et s’appuie sur les données CampusHub.</p>
           <div className="ai-home-card__proof"><span><CheckCircle2 />Aucune formation inventée</span><span><CheckCircle2 />Recommandations expliquées</span><span><CheckCircle2 />Dossier sauvegardé</span></div>
-          <Link className="button button--teal button--large" to="/orientation">Essayer CampusHubIA <ArrowRight /></Link>
+          <button className="button button--teal button--large" type="button" onClick={() => globalThis.dispatchEvent?.(new Event('campushub:ouvrir-assistant'))}>Essayer CampusHubIA <ArrowRight /></button>
         </Reveal>
         <Reveal className="ai-home-card__visual" delay={120}>
           <span className="ai-home-card__brain"><BrainCircuit /></span>

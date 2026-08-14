@@ -37,7 +37,7 @@ export function UniversitiesPage() {
 
   useEffect(() => {
     const delai = setTimeout(() => {
-      const params = new URLSearchParams({ page: String(page), limite: '10', statut: 'VERIFIEE' });
+      const params = new URLSearchParams({ page: String(page), limite: '12', statut: 'VERIFIEE' });
       if (filters.search) params.set('recherche', filters.search);
       if (filters.province) params.set('province', filters.province);
       if (filters.ville) params.set('ville', filters.ville);
@@ -88,7 +88,7 @@ export function UniversitiesPage() {
       <h1>Trouvez votre prochain établissement.</h1>
       <p>Universités, instituts supérieurs et écoles secondaires réunis dans un catalogue fiable.</p>
       <div className="directory-search directory-search--advanced">
-        <label><Search /><input value={filters.search} onChange={update('search')} placeholder="Nom ou sigle…" /></label>
+        <label><Search /><input value={filters.search} onChange={update('search')} placeholder="Nom, sigle ou mot-clé…" /></label>
         <select value={filters.categorie} onChange={update('categorie')}><option value="">Tous les établissements</option>{Object.entries(categories).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select>
         <select value={filters.province} onChange={update('province')}><option value="">Toutes les provinces</option>{provinces.map((value) => <option key={value}>{value}</option>)}</select>
         <select value={filters.ville} onChange={update('ville')}><option value="">Toutes les villes</option>{villes.map((value) => <option key={value}>{value}</option>)}</select>
@@ -104,7 +104,7 @@ export function UniversitiesPage() {
       <div className="directory-category-summary"><span><Building2 />Universités</span><span><GraduationCap />Instituts supérieurs</span><span><MapPin />Écoles secondaires</span></div>
       {error && <div className="alert alert--error">{error}</div>}
       {loading ? <div className="content-loading"><Spinner />Chargement…</div> : items.length ? <>
-        <div className="university-grid directory-grid">{items.map((item, index) => <div key={item.code_universite}><UniversityCard university={item} index={(page - 1) * 10 + index} /></div>)}</div>
+        <div className="university-grid directory-grid">{items.map((item, index) => <div key={item.code_universite}><UniversityCard university={item} index={(page - 1) * 12 + index} /></div>)}</div>
         <nav className="directory-pagination" aria-label="Pagination des établissements">
           <button type="button" disabled={!pagination.aPagePrecedente} onClick={() => changerPage(page - 1)}><ChevronLeft />Précédent</button>
           <span>Page <strong>{pagination.page}</strong> sur <strong>{pagination.totalPages}</strong></span>

@@ -21,6 +21,8 @@ import './styles/finalist-orientation.css';
 import './styles/help.css';
 import './styles/reports.css';
 import './styles/assistant-widget.css';
+import './styles/location-picker.css';
+import './styles/organization-application.css';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

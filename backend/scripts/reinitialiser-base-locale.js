@@ -51,7 +51,8 @@ try {
   const [tables] = await connexion.execute(
     `SELECT table_name AS nom
      FROM information_schema.tables
-     WHERE table_schema = ? AND table_type = 'BASE TABLE' AND table_name <> 'compteurs_sequences'`,
+     WHERE table_schema = ? AND table_type = 'BASE TABLE'
+       AND table_name NOT IN ('compteurs_sequences', 'plans_abonnement')`,
     [environnement.DB_NAME],
   );
   await connexion.query('SET FOREIGN_KEY_CHECKS = 0');
@@ -61,6 +62,11 @@ try {
   }
   await connexion.query('SET FOREIGN_KEY_CHECKS = 1');
   await connexion.execute('UPDATE compteurs_sequences SET derniere_valeur = 0');
+  await connexion.execute(
+    `UPDATE compteurs_sequences
+     SET derniere_valeur = (SELECT COALESCE(MAX(id), 0) FROM plans_abonnement)
+     WHERE nom_sequence = 'plans_abonnement'`,
+  );
   await connexion.execute(
     "UPDATE compteurs_sequences SET derniere_valeur = ? WHERE nom_sequence = 'utilisateurs'",
     [randomInt(100_000, 900_000)],
@@ -74,6 +80,38 @@ try {
      VALUES (0, '', ?, ?, 'ADMINISTRATEUR', 'ACTIF', 'VERIFIE', 'Sagel Lusenge', CURRENT_TIMESTAMP)`,
     [email, hash],
   );
+  const [plans] = await connexion.query('SELECT id FROM plans_abonnement ORDER BY id LIMIT 1');
+  if (!plans[0]) {
+    await connexion.execute(
+      `INSERT INTO plans_abonnement
+       (id, code_plan, nom, prix_acces, prix_certification, duree_jours, avantages, est_actif)
+       VALUES (0, '', 'Abonnement annuel', 10.00, 0.00, 365, ?, 1)`,
+      [JSON.stringify([
+        'Fiche publique de l’établissement',
+        'Gestion des campus, formations et services',
+        'Inscriptions et demandes étudiantes',
+        'Offres, publications et réseau CampusHub',
+        'Statistiques, rapports et support',
+      ])],
+    );
+  } else {
+    await connexion.execute(
+      `UPDATE plans_abonnement SET est_actif = CASE WHEN id = ? THEN 1 ELSE 0 END`,
+      [plans[0].id],
+    );
+    await connexion.execute(
+      `UPDATE plans_abonnement
+       SET nom = 'Abonnement annuel', prix_acces = 10.00, prix_certification = 0.00,
+           duree_jours = 365, avantages = ?, est_actif = 1 WHERE id = ?`,
+      [JSON.stringify([
+        'Fiche publique de l’établissement',
+        'Gestion des campus, formations et services',
+        'Inscriptions et demandes étudiantes',
+        'Offres, publications et réseau CampusHub',
+        'Statistiques, rapports et support',
+      ]), plans[0].id],
+    );
+  }
 
   const [[verification]] = await connexion.query(
     `SELECT

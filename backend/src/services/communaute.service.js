@@ -151,7 +151,9 @@ export async function obtenirFormulairePublic(codeUniversite) {
   const [lignes] = await baseDeDonnees.execute(
     `SELECT f.*, u.code_universite, u.nom AS nom_etablissement, u.url_logo, u.categorie_etablissement
      FROM formulaires_inscription f JOIN universites u ON u.id = f.universite_id
-     WHERE u.code_universite = ? AND f.est_actif = 1
+     WHERE u.code_universite = ? AND f.est_actif = 1 AND u.inscriptions_ouvertes = 1
+       AND (u.date_debut_inscription IS NULL OR u.date_debut_inscription <= CURRENT_DATE)
+       AND (u.date_fin_inscription IS NULL OR u.date_fin_inscription >= CURRENT_DATE)
        AND (f.date_fermeture IS NULL OR f.date_fermeture >= CURRENT_DATE) LIMIT 1`,
     [codeUniversite.toUpperCase()],
   );
@@ -179,6 +181,12 @@ export async function enregistrerFormulaire(utilisateurId, donnees) {
        date_fermeture = VALUES(date_fermeture), est_actif = VALUES(est_actif)`,
     [institution.id, donnees.titre, donnees.description ?? null, donnees.instructions ?? null,
       JSON.stringify(donnees.champs), donnees.dateFermeture ?? null, donnees.estActif ? 1 : 0],
+  );
+  await baseDeDonnees.execute(
+    `UPDATE universites
+     SET inscriptions_ouvertes = ?, date_fin_inscription = ?
+     WHERE id = ?`,
+    [donnees.estActif ? 1 : 0, donnees.dateFermeture ?? null, institution.id],
   );
   return obtenirFormulaireGestionnaire(utilisateurId);
 }

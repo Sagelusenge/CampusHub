@@ -1,4 +1,5 @@
 import { ExternalLink, MapPin } from 'lucide-react';
+import { Circle, MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 
 const cityCoordinates = {
   goma: [-1.6792, 29.2228], bukavu: [-2.5083, 28.8608], kinshasa: [-4.325, 15.3222],
@@ -16,12 +17,16 @@ export function LocationMap({ latitude, longitude, adresse, ville, province, pay
   const fallback = cityCoordinates[cityKey] || [-2.8797, 23.656];
   const lat = hasCoordinates ? Number(latitude) : fallback[0];
   const lon = hasCoordinates ? Number(longitude) : fallback[1];
-  const delta = hasCoordinates ? 0.018 : cityCoordinates[cityKey] ? 0.055 : 7;
   const query = [adresse, ville, province, pays].filter(Boolean).join(', ') || `${lat}, ${lon}`;
-  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - delta}%2C${lat - delta}%2C${lon + delta}%2C${lat + delta}&layer=mapnik&marker=${lat}%2C${lon}`;
   const externalUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=${hasCoordinates ? 16 : cityCoordinates[cityKey] ? 13 : 5}/${lat}/${lon}`;
   return <div className="location-map">
     <div className="location-map__heading"><div><MapPin /><span><strong>{titre}</strong><small>{query}{!hasCoordinates && ' • position approximative'}</small></span></div><a href={externalUrl} target="_blank" rel="noreferrer">Ouvrir la carte <ExternalLink /></a></div>
-    <iframe title={`Carte — ${titre}`} src={mapUrl} loading="lazy" referrerPolicy="no-referrer" />
+    <div className="location-map__leaflet">
+      <MapContainer key={`${lat}-${lon}`} center={[lat, lon]} zoom={hasCoordinates ? 16 : cityCoordinates[cityKey] ? 13 : 5} scrollWheelZoom={false}>
+        <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        {hasCoordinates ? <Marker position={[lat, lon]}><Popup><strong>{titre}</strong><br />{query}</Popup></Marker>
+          : <Circle center={[lat, lon]} radius={cityCoordinates[cityKey] ? 1800 : 350000} pathOptions={{ color: '#078d82', fillOpacity: 0.13 }} />}
+      </MapContainer>
+    </div>
   </div>;
 }

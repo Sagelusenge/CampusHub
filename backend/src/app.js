@@ -41,7 +41,7 @@ app.use(helmet({
     directives: {
       scriptSrc: ["'self'", "'unsafe-inline'", 'https://translate.google.com', 'https://translate.googleapis.com'],
       connectSrc: ["'self'", 'https://translate.google.com', 'https://translate.googleapis.com'],
-      imgSrc: ["'self'", 'data:', 'blob:', 'https://translate.google.com', 'https://www.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'blob:', 'https://translate.google.com', 'https://www.gstatic.com', 'https://*.tile.openstreetmap.org'],
       frameSrc: ["'self'", 'https://www.openstreetmap.org', 'https://translate.google.com'],
     },
   },

@@ -1,8 +1,8 @@
 import {
   ArrowRight, BadgeCheck, BookOpen, Building2, Check, GraduationCap, Hash, LockKeyhole, Mail,
-  ShieldCheck, Sparkles, UserRound,
+  Search, ShieldCheck, Sparkles, UserRound,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { LocationSelector } from '../components/LocationSelector.jsx';
@@ -26,6 +26,8 @@ export function StudentRegistrationPage() {
   const [universities, setUniversities] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [loadingPrograms, setLoadingPrograms] = useState(false);
+  const [universitySearch, setUniversitySearch] = useState('');
+  const [programSearch, setProgramSearch] = useState('');
 
   useEffect(() => {
     apiRequest('/universites?statut=VERIFIEE&limite=100')
@@ -37,8 +39,17 @@ export function StudentRegistrationPage() {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
+  const normalize = (value) => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const filteredUniversities = useMemo(() => universities.filter((item) => normalize(
+    `${item.nom} ${item.sigle} ${item.ville} ${item.province}`,
+  ).includes(normalize(universitySearch))), [universities, universitySearch]);
+  const filteredPrograms = useMemo(() => programs.filter((item) => normalize(
+    `${item.nom_filiere || item.nom} ${item.nom_faculte} ${item.domaine} ${item.niveau_diplome}`,
+  ).includes(normalize(programSearch))), [programs, programSearch]);
+
   async function chooseUniversity(code) {
     setForm((current) => ({ ...current, codeUniversite: code, codeFiliere: '' }));
+    setProgramSearch('');
     setPrograms([]);
     if (!code) return;
     setLoadingPrograms(true);
@@ -122,8 +133,10 @@ export function StudentRegistrationPage() {
         <div className="registration-divider"><span>02</span><strong>Votre établissement</strong></div>
         <p className="registration-section-note">Votre choix sera envoyé à l’université uniquement après la confirmation de votre adresse e-mail.</p>
         <div className="registration-fields registration-affiliation-fields">
-          <label className="form-field form-field--wide"><span>Université ou institut supérieur *</span><div className="input-with-icon"><Building2 /><select required value={form.codeUniversite} onChange={(event) => chooseUniversity(event.target.value)}><option value="">Choisir votre établissement…</option>{universities.map((item) => <option value={item.code_universite} key={item.code_universite}>{item.nom} — {item.ville}</option>)}</select></div><small>Seuls les établissements vérifiés sont proposés.</small></label>
-          <label className="form-field form-field--wide"><span>Filière suivie *</span><div className="input-with-icon"><BookOpen /><select required disabled={!form.codeUniversite || loadingPrograms} value={form.codeFiliere} onChange={(event) => update('codeFiliere', event.target.value)}><option value="">{loadingPrograms ? 'Chargement des filières…' : form.codeUniversite ? 'Choisir votre filière…' : 'Choisissez d’abord un établissement'}</option>{programs.map((item) => <option value={item.code_filiere} key={item.code_filiere}>{item.nom_filiere || item.nom} — {item.niveau_diplome || 'Formation'}</option>)}</select></div></label>
+          <label className="form-field form-field--wide affiliation-search"><span>Rechercher l’établissement</span><div className="input-with-icon"><Search /><input value={universitySearch} onChange={(event) => setUniversitySearch(event.target.value)} placeholder="Ex. Université de Goma, UNIGOM ou Goma" /></div><small>{filteredUniversities.length} établissement(s) vérifié(s) correspondent.</small></label>
+          <label className="form-field form-field--wide"><span>Université ou institut supérieur *</span><div className="input-with-icon"><Building2 /><select required value={form.codeUniversite} onChange={(event) => chooseUniversity(event.target.value)}><option value="">Choisir votre établissement…</option>{filteredUniversities.map((item) => <option value={item.code_universite} key={item.code_universite}>{item.nom} — {item.ville}</option>)}</select></div><small>Un établissement doit être vérifié par CampusHub pour apparaître ici.</small></label>
+          {form.codeUniversite && <label className="form-field form-field--wide affiliation-search"><span>Rechercher la filière</span><div className="input-with-icon"><Search /><input value={programSearch} onChange={(event) => setProgramSearch(event.target.value)} placeholder="Ex. Informatique, droit, gestion…" /></div></label>}
+          <label className="form-field form-field--wide"><span>Filière suivie *</span><div className="input-with-icon"><BookOpen /><select required disabled={!form.codeUniversite || loadingPrograms || programs.length === 0} value={form.codeFiliere} onChange={(event) => update('codeFiliere', event.target.value)}><option value="">{loadingPrograms ? 'Chargement des filières…' : form.codeUniversite ? programs.length ? 'Choisir votre filière…' : 'Aucune filière active disponible' : 'Choisissez d’abord un établissement'}</option>{filteredPrograms.map((item) => <option value={item.code_filiere} key={item.code_filiere}>{item.nom_filiere || item.nom} — {item.niveau_diplome || 'Formation'}</option>)}</select></div>{form.codeUniversite && !loadingPrograms && programs.length === 0 && <small className="field-warning">Le gestionnaire doit publier une filière active dans une faculté ou section. Si elle vient d’être créée, vérifiez son statut dans « Facultés & filières ».</small>}</label>
         </div>
 
         <div className="registration-divider"><span>03</span><strong>Votre localisation</strong></div>

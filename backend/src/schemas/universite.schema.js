@@ -33,6 +33,9 @@ export const schemaCreationUniversite = z.object({
   pays: texteOptionnel(100),
   ville: z.string().trim().min(2).max(100),
   province: z.string().trim().min(2).max(100),
+  adresse: texteOptionnel(255),
+  latitude: z.coerce.number().min(-90).max(90).optional(),
+  longitude: z.coerce.number().min(-180).max(180).optional(),
   email: z.string().trim().email().max(190).optional(),
   telephone: texteOptionnel(40),
 });
@@ -49,6 +52,8 @@ export const schemaModificationUniversite = z.object({
   telephone: z.string().trim().max(40).nullable().optional(),
   anneeFondation: z.coerce.number().int().min(1000).max(2200).nullable().optional(),
   adresse: z.string().trim().max(255).nullable().optional(),
+  latitude: z.coerce.number().min(-90).max(90).nullable().optional(),
+  longitude: z.coerce.number().min(-180).max(180).nullable().optional(),
   pays: z.string().trim().min(2).max(100).optional(),
   ville: z.string().trim().min(2).max(100).optional(),
   province: z.string().trim().min(2).max(100).optional(),

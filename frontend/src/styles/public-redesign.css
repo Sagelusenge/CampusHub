@@ -4,7 +4,7 @@
 
 /* Annuaire paginé et page de contact centrée. */
 .contact-hero{text-align:center}.contact-hero p{margin-inline:auto}.contact-layout{max-width:1100px;margin-inline:auto}
-.directory-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.directory-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .directory-grid .university-card{display:flex;flex-direction:column}
 .directory-grid .university-card__image{height:145px}
 .directory-grid .university-card__body{padding:15px;display:flex;flex:1;flex-direction:column}

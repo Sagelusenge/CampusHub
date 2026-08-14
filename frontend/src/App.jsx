@@ -33,6 +33,7 @@ import { StudentRegistrationPage } from './pages/StudentRegistrationPage.jsx';
 import { AdminSubscriptionsPage, InstitutionSubscriptionPage } from './pages/SubscriptionsPages.jsx';
 import { UniversitiesPage } from './pages/UniversitiesPage.jsx';
 import { UniversityApplicationPage } from './pages/UniversityApplicationPage.jsx';
+import { OrganizationApplicationPage } from './pages/OrganizationApplicationPage.jsx';
 import { UniversityAffiliationsPage } from './pages/UniversityAffiliationsPage.jsx';
 import { InstitutionStudentsPage } from './pages/InstitutionStudentsPage.jsx';
 import { UniversityDetailPage } from './pages/UniversityDetailPage.jsx';
@@ -82,7 +83,10 @@ function ConnectedHome({ children }) {
 
 function GlobalCampusHubAssistant() {
   const { pathname } = useLocation();
-  return pathname.replace(/\/+$/, '') === '/connexion' ? null : <CampusHubChatWidget />;
+  const { utilisateur } = useAuth();
+  const chemin = pathname.replace(/\/+$/, '');
+  const roleSansAssistantFlottant = ['ADMINISTRATEUR', 'UNIVERSITE'].includes(utilisateur?.role);
+  return chemin === '/connexion' || roleSansAssistantFlottant ? null : <CampusHubChatWidget />;
 }
 
 export function App() {
@@ -109,6 +113,7 @@ export function App() {
     <Route path="/universites/:code/inscription-en-ligne" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT']}><OnlineEnrollmentPage /></ProtectedRoute>} />
     <Route path="/connexion" element={<ConnectedHome><LoginPage /></ConnectedHome>} />
     <Route path="/partenariat" element={<UniversityApplicationPage />} />
+    <Route path="/partenariat-organisation" element={<OrganizationApplicationPage />} />
     <Route path="/inscription-etudiant" element={<StudentRegistrationPage />} />
     <Route path="/inscription-visiteur" element={<VisitorRegistrationPage />} />
     <Route path="/orientation" element={<ProtectedRoute roles={['VISITEUR', 'ETUDIANT']}><PageShell><OrientationAIPage /></PageShell></ProtectedRoute>} />

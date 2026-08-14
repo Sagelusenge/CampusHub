@@ -1,12 +1,36 @@
 import {
-  BookOpenCheck, Building2, ChevronDown, CircleHelp, GraduationCap,
-  MessageCircleQuestion, Search, ShieldCheck, Users,
+  BookOpenCheck, Building2, ChevronDown, CircleHelp, Compass, GraduationCap,
+  Lightbulb, MessageCircleQuestion, Search, ShieldCheck, Users,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageShell } from '../components/PageShell.jsx';
 
 const sections = [
+  {
+    id: 'decouvrir',
+    title: 'Découvrir CampusHub',
+    description: 'Pourquoi la plateforme existe et comment commencer.',
+    icon: Compass,
+    questions: [
+      {
+        question: 'Pourquoi choisir CampusHub ?',
+        answer: 'CampusHub réunit dans un même environnement les établissements vérifiés, leurs formations, leurs campus, leurs offres, les inscriptions en ligne, l’orientation et un réseau académique. L’objectif est de réduire les informations dispersées ou trompeuses et de rendre chaque parcours plus clair, traçable et accessible.',
+      },
+      {
+        question: 'Comment fonctionne CampusHub, du début à l’inscription ?',
+        answer: 'Commencez par rechercher un établissement, filtrez sa catégorie et sa localisation, consultez sa fiche, ses coordonnées exactes, ses filières et ses partenaires, puis utilisez son formulaire d’inscription si les admissions sont ouvertes. CampusHubIA peut aussi poser des questions sur votre option et votre résultat afin de proposer des pistes pertinentes.',
+      },
+      {
+        question: 'Que signifie « établissement vérifié » ?',
+        answer: 'L’administration CampusHub a examiné la demande institutionnelle et les preuves disponibles avant de rendre la fiche visible. La vérification améliore la fiabilité du catalogue, mais chaque candidat doit toujours confirmer les conditions officielles directement auprès de l’établissement.',
+      },
+      {
+        question: 'Qui développe CampusHub ?',
+        answer: 'CampusHub est développé par Sagel Lusenge. Son portfolio et ses autres réalisations sont accessibles depuis le pied de page de l’application.',
+      },
+    ],
+  },
   {
     id: 'comptes',
     title: 'Comptes et accès',
@@ -183,7 +207,7 @@ export function FaqPage() {
     <section className="faq-hero">
       <div className="container faq-hero__content">
         <span className="faq-hero__icon"><CircleHelp /></span>
-        <div><span className="eyebrow">Centre d’aide CampusHub</span><h1>Une réponse claire à chaque étape.</h1><p>Comptes, affiliation, formulaires, publications, paiements et réseau : retrouvez ici le fonctionnement essentiel de la plateforme.</p></div>
+        <div><span className="eyebrow">Centre d’aide CampusHub</span><h1>Une réponse claire à chaque étape.</h1><p>Comptes, affiliation, formulaires, publications, paiements et réseau : retrouvez ici le fonctionnement essentiel de la plateforme.</p><nav className="faq-intro-actions"><a href="#decouvrir"><Compass />Comment fonctionne CampusHub ?</a><a href="#decouvrir"><Lightbulb />Pourquoi CampusHub ?</a></nav></div>
         <label className="faq-search"><Search /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Rechercher une question, une fonctionnalité…" /><span>{total} réponse{total > 1 ? 's' : ''}</span></label>
       </div>
     </section>

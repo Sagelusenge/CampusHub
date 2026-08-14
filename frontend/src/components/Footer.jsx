@@ -1,4 +1,4 @@
-import { Building2, Mail, MapPin } from 'lucide-react';
+import { Building2, ExternalLink, Mail, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Footer() {
@@ -23,6 +23,7 @@ export function Footer() {
         <div>
           <h3>CampusHub</h3>
           <Link to="/contact"><Mail size={15} /> Contacter l’administration</Link>
+          <a href="https://portfolio-sagelusenge.onrender.com/" target="_blank" rel="noreferrer">À propos du développeur <ExternalLink size={14} /></a>
           <span>Processus de vérification</span>
           <span>Confidentialité</span>
         </div>

@@ -8,8 +8,9 @@ export async function validerChoixAffiliation(donnees) {
     baseDeDonnees.execute(`SELECT id FROM universites WHERE code_universite = ? AND statut_verification = 'VERIFIEE' LIMIT 1`, [donnees.codeUniversite.toUpperCase()]),
     baseDeDonnees.execute(`SELECT id, universite_id FROM filieres WHERE code_filiere = ? AND est_active = 1 LIMIT 1`, [donnees.codeFiliere.toUpperCase()]),
   ]);
-  if (!universites[0]) throw new ErreurApi(404, 'Université vérifiée introuvable.');
-  if (!filieres[0] || filieres[0].universite_id !== universites[0].id) throw new ErreurApi(400, 'Cette filière ne dépend pas de l’université choisie.');
+  if (!universites[0]) throw new ErreurApi(404, 'Cet établissement doit d’abord être vérifié par l’administration CampusHub.');
+  if (!filieres[0]) throw new ErreurApi(400, 'Cette filière est introuvable ou inactive. Le gestionnaire doit la publier avant l’inscription de l’étudiant.');
+  if (filieres[0].universite_id !== universites[0].id) throw new ErreurApi(400, 'Cette filière appartient à un autre établissement. Recommencez la sélection.');
   return { universiteId: universites[0].id, filiereId: filieres[0].id };
 }
 

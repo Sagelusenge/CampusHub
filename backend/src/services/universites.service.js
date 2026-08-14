@@ -174,8 +174,11 @@ export async function creerUniversite(donnees, utilisateur) {
     );
     const universite = resultats[0][0];
     await connexion.execute(
-      `UPDATE universites SET pays = COALESCE(?, pays), categorie_etablissement = ?, url_logo = ?, url_couverture = ? WHERE id = ?`,
-      [donnees.pays ?? null, donnees.categorie, donnees.urlLogo ?? null, donnees.urlCouverture ?? null, universite.id],
+      `UPDATE universites SET pays = COALESCE(?, pays), categorie_etablissement = ?,
+       adresse = ?, latitude = ?, longitude = ?, url_logo = ?, url_couverture = ? WHERE id = ?`,
+      [donnees.pays ?? null, donnees.categorie, donnees.adresse ?? null,
+        donnees.latitude ?? null, donnees.longitude ?? null,
+        donnees.urlLogo ?? null, donnees.urlCouverture ?? null, universite.id],
     );
     if (utilisateur.role === 'UNIVERSITE') {
       await connexion.execute(
@@ -214,6 +217,7 @@ export async function modifierUniversite(code, donnees, utilisateur) {
     nom: 'nom', sigle: 'sigle', categorie: 'categorie_etablissement', description: 'description', urlLogo: 'url_logo',
     urlCouverture: 'url_couverture', siteWeb: 'site_web', email: 'email', telephone: 'telephone',
     anneeFondation: 'annee_fondation', adresse: 'adresse', pays: 'pays', ville: 'ville', province: 'province',
+    latitude: 'latitude', longitude: 'longitude',
     inscriptionsOuvertes: 'inscriptions_ouvertes', dateDebutInscription: 'date_debut_inscription',
     dateFinInscription: 'date_fin_inscription',
   });

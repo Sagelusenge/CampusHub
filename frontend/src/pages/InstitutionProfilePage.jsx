@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { apiRequest, uploadFile } from '../api/client.js';
 import { DashboardPageHeader } from '../components/DashboardShell.jsx';
 import { LocationSelector } from '../components/LocationSelector.jsx';
+import { LocationPicker } from '../components/LocationPicker.jsx';
 import { Spinner } from '../components/Spinner.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -11,7 +12,8 @@ import { useInstitution } from '../context/InstitutionContext.jsx';
 const empty = {
   nom: '', sigle: '', type: 'PRIVEE', categorie: 'UNIVERSITE', description: '',
   countryCode: 'CD', pays: 'Democratic Republic of the Congo', stateCode: '', ville: '', province: '',
-  email: '', telephone: '', siteWeb: '', adresse: '', urlLogo: '', urlCouverture: '', inscriptionsOuvertes: false,
+  email: '', telephone: '', siteWeb: '', adresse: '', latitude: '', longitude: '',
+  urlLogo: '', urlCouverture: '', inscriptionsOuvertes: false, dateDebutInscription: '', dateFinInscription: '',
 };
 
 export function InstitutionProfilePage() {
@@ -34,8 +36,11 @@ export function InstitutionProfilePage() {
       pays: source.pays || utilisateur?.pays || empty.pays, ville: source.ville || utilisateur?.ville || '',
       province: source.province || utilisateur?.province || '', email: source.email || utilisateur?.email || '',
       telephone: source.telephone || '', siteWeb: source.site_web || '', adresse: source.adresse || '',
+      latitude: source.latitude ?? '', longitude: source.longitude ?? '',
       urlLogo: source.url_logo || '', urlCouverture: source.url_couverture || '',
       inscriptionsOuvertes: Boolean(source.inscriptions_ouvertes),
+      dateDebutInscription: source.date_debut_inscription?.slice(0, 10) || '',
+      dateFinInscription: source.date_fin_inscription?.slice(0, 10) || '',
     });
   }, [universite, utilisateur]);
 
@@ -93,6 +98,8 @@ export function InstitutionProfilePage() {
             nom: form.nom, sigle: form.sigle || undefined, type: form.type, categorie: form.categorie,
             description: form.description || undefined, pays: form.pays, ville: form.ville, province: form.province,
             email: form.email || undefined, telephone: form.telephone || undefined,
+            adresse: form.adresse || undefined, latitude: form.latitude === '' ? undefined : Number(form.latitude),
+            longitude: form.longitude === '' ? undefined : Number(form.longitude),
             urlLogo: form.urlLogo || undefined, urlCouverture: form.urlCouverture || undefined,
           },
         });
@@ -104,7 +111,11 @@ export function InstitutionProfilePage() {
             description: form.description || null, pays: form.pays, ville: form.ville, province: form.province,
             email: form.email || null, telephone: form.telephone || null, siteWeb: form.siteWeb || null,
             adresse: form.adresse || null, urlLogo: form.urlLogo || null, urlCouverture: form.urlCouverture || null,
+            latitude: form.latitude === '' ? null : Number(form.latitude),
+            longitude: form.longitude === '' ? null : Number(form.longitude),
             inscriptionsOuvertes: form.inscriptionsOuvertes,
+            dateDebutInscription: form.dateDebutInscription || null,
+            dateFinInscription: form.dateFinInscription || null,
           },
         });
       }
@@ -149,7 +160,7 @@ export function InstitutionProfilePage() {
       <section className="app-panel form-section">
         <div className="form-section__heading"><h2>Identité</h2><p>Nom officiel, catégorie, sigle et présentation générale.</p></div>
         <div className="form-grid">
-          <Field label="Nom officiel"><input required minLength="3" value={form.nom} onChange={update('nom')} /></Field>
+          <Field label="Nom officiel"><input required minLength="3" value={form.nom} onChange={update('nom')} placeholder={form.categorie === 'INSTITUT_SUPERIEUR' ? 'Ex. Institut Supérieur de Majengo' : form.categorie === 'ECOLE_SECONDAIRE' ? 'Ex. Complexe Scolaire Amani' : 'Ex. Université de Goma'} /><small>Saisissez le nom complet tel qu’il apparaît sur les documents officiels.</small></Field>
           <Field label="Sigle"><input maxLength="20" value={form.sigle} onChange={update('sigle')} /></Field>
           <Field label="Catégorie d’établissement"><select value={form.categorie} onChange={update('categorie')}><option value="UNIVERSITE">Université</option><option value="INSTITUT_SUPERIEUR">Institut supérieur</option><option value="ECOLE_SECONDAIRE">École secondaire</option></select></Field>
           {!universite && <Field label="Statut"><select value={form.type} onChange={update('type')}><option value="PUBLIQUE">Public</option><option value="PRIVEE">Privé</option></select></Field>}
@@ -158,8 +169,10 @@ export function InstitutionProfilePage() {
       </section>
 
       <section className="app-panel form-section">
-        <div className="form-section__heading"><h2>Localisation</h2><p>Choisissez le pays, la province puis la ville.</p></div>
+        <div className="form-section__heading"><h2>Localisation</h2><p>Choisissez la zone, écrivez l’adresse puis placez le marqueur sur le bâtiment exact.</p></div>
         <LocationSelector value={form} emailContact={form.email} onChange={(changes) => setForm((current) => ({ ...current, ...changes }))} />
+        <div className="form-grid institution-address-field"><Field label="Adresse physique" wide><input value={form.adresse} onChange={update('adresse')} placeholder="Ex. 12, avenue des Universités, quartier Himbi" /></Field></div>
+        <LocationPicker latitude={form.latitude} longitude={form.longitude} adresse={form.adresse} onChange={(coordinates) => setForm((current) => ({ ...current, ...coordinates }))} />
       </section>
 
       <section className="app-panel form-section">
@@ -167,8 +180,8 @@ export function InstitutionProfilePage() {
         <div className="form-grid">
           <Field label="E-mail public"><input type="email" value={form.email} onChange={update('email')} /></Field>
           <Field label="Téléphone"><input value={form.telephone} onChange={update('telephone')} /></Field>
-          {universite && <><Field label="Site web"><input type="url" value={form.siteWeb} onChange={update('siteWeb')} placeholder="https://…" /></Field><Field label="Adresse"><input value={form.adresse} onChange={update('adresse')} /></Field></>}
-          {universite && <label className="switch-field form-field--wide"><input type="checkbox" checked={form.inscriptionsOuvertes} onChange={update('inscriptionsOuvertes')} /><span /><div><strong>Inscriptions ouvertes</strong><small>Afficher que l’établissement accepte les candidatures.</small></div></label>}
+          {universite && <Field label="Site web"><input type="url" value={form.siteWeb} onChange={update('siteWeb')} placeholder="https://…" /></Field>}
+          {universite && <><Field label="Début des inscriptions"><input type="date" value={form.dateDebutInscription} onChange={update('dateDebutInscription')} /></Field><Field label="Fin des inscriptions"><input type="date" min={form.dateDebutInscription || undefined} value={form.dateFinInscription} onChange={update('dateFinInscription')} /></Field><label className="switch-field form-field--wide"><input type="checkbox" checked={form.inscriptionsOuvertes} onChange={update('inscriptionsOuvertes')} /><span /><div><strong>Inscriptions ouvertes</strong><small>Fermez cet interrupteur dès que l’établissement n’accepte plus de candidatures.</small></div></label></>}
         </div>
       </section>
 

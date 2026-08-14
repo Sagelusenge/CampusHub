@@ -1,6 +1,6 @@
 import {
-  ArrowRight, Building2, Eye, EyeOff, GraduationCap, LockKeyhole,
-  Mail, ShieldCheck, Users,
+  ArrowRight, BriefcaseBusiness, Building2, Eye, EyeOff, GraduationCap, Handshake, LockKeyhole,
+  Mail, ShieldCheck, Users, X,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [requestChoiceOpen, setRequestChoiceOpen] = useState(false);
   const { connexion } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,7 +72,7 @@ export function LoginPage() {
             </button>
 
             <div className="form-divider"><span>Nouvel établissement ?</span></div>
-            <Link className="button button--outline button--full" to="/partenariat">Envoyer une demande</Link>
+            <button className="button button--outline button--full" type="button" onClick={() => setRequestChoiceOpen(true)}>Envoyer une demande</button>
             <div className="auth-role-options">
               <Link className="auth-role-card" to="/inscription-etudiant"><span><GraduationCap /></span><div><strong>Je suis étudiant</strong><small>Créer mon espace</small></div><ArrowRight /></Link>
               <Link className="auth-role-card" to="/inscription-visiteur"><span><Users /></span><div><strong>Je suis visiteur</strong><small>Rejoindre le réseau</small></div><ArrowRight /></Link>
@@ -79,6 +80,7 @@ export function LoginPage() {
           </form>
         </div>
       </section>
+      {requestChoiceOpen && <div className="request-choice-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setRequestChoiceOpen(false); }}><section className="request-choice-modal" role="dialog" aria-modal="true" aria-labelledby="request-choice-title"><button className="request-choice-close" type="button" onClick={() => setRequestChoiceOpen(false)} aria-label="Fermer"><X /></button><span className="eyebrow eyebrow--accent">Choisissez votre parcours</span><h2 id="request-choice-title">Quelle demande souhaitez-vous envoyer ?</h2><p>Les deux demandes sont examinées par l’administration avant activation ou mise en relation.</p><div><Link to="/partenariat"><span><Building2 /></span><div><strong>Établissement scolaire</strong><small>Université, institut supérieur ou école secondaire.</small></div><ArrowRight /></Link><Link to="/partenariat-organisation"><span><BriefcaseBusiness /></span><div><strong>Entreprise ou organisation</strong><small>Financement, partenariat, stage, emploi ou opportunité.</small></div><Handshake /></Link></div></section></div>}
     </PageShell>
   );
 }
