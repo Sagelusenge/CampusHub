@@ -84,7 +84,7 @@ def main() -> None:
     parser.add_argument("--output", default=str(BASE_DIR / "data" / "campushub_knowledge.txt"))
     parser.add_argument("--catalogue", default=str(BASE_DIR / "data" / "campushub_catalogue.json"))
     parser.add_argument("--seed", default=str(BASE_DIR / "data" / "campushub_seed.txt"))
-    parser.add_argument("--qa", default=str(BASE_DIR / "data" / "campushub_qa_2000.txt"))
+    parser.add_argument("--qa", default=str(BASE_DIR / "data" / "campushub_qa_8000.txt"))
     args = parser.parse_args()
 
     output = Path(args.output)

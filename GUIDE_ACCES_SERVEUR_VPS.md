@@ -314,10 +314,10 @@ Compter les questions-réponses du corpus :
 
 ```bash
 sudo docker compose -p aws-lightsail --env-file .env.runtime exec -T campushub-ia \
-  sh -lc "grep -c '^Q:' /app/data/campushub_qa_2000.txt"
+  sh -lc "grep -c '^Q:' /app/data/campushub_qa_8000.txt"
 ```
 
-Le résultat attendu pour le corpus actuel est `2000`.
+Le résultat attendu pour le corpus actuel est `8000`.
 
 ## 11. Vérifier la configuration sans afficher les secrets
 

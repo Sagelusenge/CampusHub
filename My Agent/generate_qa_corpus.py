@@ -1,4 +1,4 @@
-"""Génère le corpus supervisé de 2 000 questions-réponses CampusHubIA.
+"""Génère le corpus supervisé de 8 000 questions-réponses CampusHubIA.
 
 Le fichier produit est déterministe et peut être régénéré après une modification
 des intentions métier. Les variantes comprennent des formulations courantes et
@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DEFAULT_OUTPUT = BASE_DIR / "data" / "campushub_qa_2000.txt"
+DEFAULT_OUTPUT = BASE_DIR / "data" / "campushub_qa_8000.txt"
 
 
 FAQS: list[tuple[str, str]] = [
@@ -337,6 +337,86 @@ FAQS: list[tuple[str, str]] = [
         "Que faire sur un appareil partagé après avoir utilisé CampusHub ?",
         "Déconnectez-vous depuis la barre de navigation, fermez le navigateur et n'enregistrez pas le mot de passe sur l'appareil. Contactez le support si vous pensez qu'un tiers a accédé au compte.",
     ),
+    (
+        "Que puis-je étudier après l'option Commerciale et gestion ?",
+        "Cette option peut mener vers la gestion des entreprises, la comptabilité, la finance, le marketing, l'économie, le commerce, les ressources humaines, l'informatique de gestion ou le droit des affaires. CampusHubIA affine ensuite la liste avec le pourcentage, la localisation, le budget et les formations actives.",
+    ),
+    (
+        "Que puis-je étudier après l'option Scientifique ?",
+        "L'option Scientifique peut ouvrir vers l'informatique, les sciences, l'ingénierie, l'agronomie, l'architecture, la biologie ou certaines formations de santé. Les seuils et conditions d'admission doivent toujours être vérifiés auprès de chaque établissement.",
+    ),
+    (
+        "Que puis-je étudier après l'option Pédagogie générale ?",
+        "La Pédagogie générale peut conduire vers les sciences de l'éducation, l'enseignement, la psychologie, les lettres, les langues ou les sciences sociales. Le classement dépend aussi du résultat obtenu et des programmes réellement disponibles.",
+    ),
+    (
+        "Que puis-je étudier après une option Littéraire ?",
+        "Une option Littéraire peut être compatible avec le droit, la communication, le journalisme, les lettres, les langues, l'histoire, les sciences politiques ou les relations internationales, selon les conditions officielles des établissements.",
+    ),
+    (
+        "Que puis-je étudier après une option Technique industrielle ?",
+        "Une option Technique industrielle peut mener vers le génie électrique, l'électronique, la mécanique, la construction, l'informatique, les réseaux ou les télécommunications. Le pourcentage et les prérequis techniques influencent la compatibilité.",
+    ),
+    (
+        "Que puis-je étudier après une option Technique sociale ?",
+        "Une option Technique sociale peut être rapprochée des sciences sociales, du développement communautaire, de la psychologie, de la nutrition, de la santé publique ou de l'éducation, selon les formations actives et les exigences d'admission.",
+    ),
+    (
+        "Que puis-je étudier après une option Agriculture ?",
+        "L'option Agriculture peut orienter vers l'agronomie, les sciences de l'environnement, la médecine vétérinaire, la biologie ou le développement rural. CampusHubIA doit privilégier les formations supérieures actives et vérifiées.",
+    ),
+    (
+        "Pourquoi mon pourcentage influence-t-il les recommandations ?",
+        "Le pourcentage aide à estimer si le dossier paraît favorable par rapport à des seuils indicatifs. Il ne remplace jamais le seuil officiel, l'examen du dossier ou la décision d'admission prise par l'établissement.",
+    ),
+    (
+        "Que faire si mon pourcentage est faible ?",
+        "CampusHubIA peut proposer des parcours compatibles, signaler les formations dont le seuil reste à vérifier et suggérer d'élargir le domaine ou la localisation. Un résultat faible ne doit jamais être présenté comme une interdiction automatique d'étudier.",
+    ),
+    (
+        "CampusHubIA tient-il compte de ma ville ou de ma province ?",
+        "Oui. Lorsqu'une ville ou une province est indiquée, CampusHubIA favorise les formations disponibles dans cette zone. Si la mobilité est possible, l'utilisateur peut aussi comparer des établissements situés ailleurs.",
+    ),
+    (
+        "CampusHubIA tient-il compte de mon budget ?",
+        "Oui. Un budget en dollars peut être comparé aux frais minimums enregistrés. Les frais affichés restent indicatifs et l'étudiant doit confirmer le coût total, les frais annexes et les modalités de paiement auprès de l'établissement.",
+    ),
+    (
+        "Pourquoi une recommandation indique-t-elle À vérifier ?",
+        "La mention À vérifier signifie qu'un seuil, une condition, un coût ou une information d'admission doit encore être confirmé. Elle évite de transformer une estimation de compatibilité en promesse d'admission.",
+    ),
+    (
+        "Comment affiner une recommandation d'orientation ?",
+        "Ajoutez votre option, votre pourcentage, le domaine préféré, la ville ou province, le budget maximum et votre capacité à vous déplacer. CampusHubIA peut alors recalculer un classement plus pertinent.",
+    ),
+    (
+        "CampusHubIA comprend-il une question d'orientation avec des fautes ?",
+        "Le moteur corrige plusieurs fautes courantes dans les options, les pourcentages et le mot université. Si le sens reste ambigu, il demande une précision au lieu d'inventer un parcours.",
+    ),
+    (
+        "Pourquoi CampusHubIA propose-t-il moins de cinq universités ?",
+        "CampusHubIA affiche uniquement les correspondances réelles trouvées dans les établissements supérieurs vérifiés. S'il existe seulement deux formations compatibles, il en présente deux plutôt que d'inventer trois résultats supplémentaires.",
+    ),
+    (
+        "Comment comparer les recommandations de CampusHubIA ?",
+        "Comparez le score indicatif, les raisons proposées, le niveau, la durée, les frais, la localisation, les campus et les conditions d'admission. Ouvrez ensuite chaque fiche vérifiée avant de choisir.",
+    ),
+    (
+        "Que faire si aucune recommandation ne correspond à mon profil ?",
+        "Précisez ou élargissez le domaine, le budget et la zone géographique, puis relancez la recherche. Vous pouvez aussi parcourir l'annuaire des établissements sans attendre qu'une recommandation automatique soit disponible.",
+    ),
+    (
+        "Un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?",
+        "Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.",
+    ),
+    (
+        "D'où viennent les universités recommandées par CampusHubIA ?",
+        "Elles viennent de la base CampusHub. Le moteur sélectionne uniquement les établissements vérifiés, exclut les écoles secondaires d'une recherche universitaire et utilise les filières actives enregistrées.",
+    ),
+    (
+        "Quelles informations donner au chatbot pour obtenir un bon conseil ?",
+        "Indiquez votre option secondaire, votre pourcentage, les matières ou domaines qui vous intéressent, votre ville ou province, votre budget et si vous acceptez d'étudier dans une autre région.",
+    ),
 ]
 
 
@@ -366,6 +446,22 @@ QUESTION_TEMPLATES = [
     "Question d'un établissement : {lower}",
     "Avec quelques fautes, {typo}",
     "Recherche rapide CampusHubb : {typo}",
+]
+
+
+QUESTION_CONTEXTS = [
+    "{formulation}",
+    "Je découvre CampusHub et j'ai besoin d'une réponse simple : {formulation}",
+    "Question posée depuis mon téléphone, merci de me guider : {formulation}",
+]
+
+
+EXTRA_QUESTION_TEMPLATES = [
+    "Réponse courte souhaitée : {lower}",
+    "Donnez-moi les étapes essentielles : {lower}",
+    "Je prépare mon dossier et je demande : {lower}",
+    "Merci de répondre avec un exemple : {lower}",
+    "Formulation avec une petite faute : {typo}",
 ]
 
 
@@ -407,10 +503,12 @@ def with_typo(question: str) -> str:
 
 
 def generate_pairs() -> list[tuple[str, str]]:
-    if len(FAQS) != 80:
-        raise ValueError(f"80 intentions sont requises, {len(FAQS)} trouvées.")
+    if len(FAQS) != 100:
+        raise ValueError(f"100 intentions sont requises, {len(FAQS)} trouvées.")
     if len(QUESTION_TEMPLATES) != 25:
-        raise ValueError("25 variantes sont requises pour produire exactement 2 000 paires.")
+        raise ValueError("25 formulations de base sont requises.")
+    if len(QUESTION_CONTEXTS) != 3 or len(EXTRA_QUESTION_TEMPLATES) != 5:
+        raise ValueError("Trois contextes et cinq formulations supplémentaires sont requis.")
 
     pairs: list[tuple[str, str]] = []
     for question, answer in FAQS:
@@ -420,11 +518,15 @@ def generate_pairs() -> list[tuple[str, str]]:
             "lower": clean[:1].lower() + clean[1:] + " ?",
             "typo": with_typo(clean[:1].lower() + clean[1:]) + " ?",
         }
-        for template in QUESTION_TEMPLATES:
+        formulations = [template.format(**values) for template in QUESTION_TEMPLATES]
+        for formulation in formulations:
+            for context_template in QUESTION_CONTEXTS:
+                pairs.append((context_template.format(formulation=formulation), answer))
+        for template in EXTRA_QUESTION_TEMPLATES:
             pairs.append((template.format(**values), answer))
 
-    if len(pairs) != 2000:
-        raise ValueError(f"2 000 paires attendues, {len(pairs)} générées.")
+    if len(pairs) != 8000:
+        raise ValueError(f"8 000 paires attendues, {len(pairs)} générées.")
     questions = [question.casefold() for question, _ in pairs]
     if len(set(questions)) != len(questions):
         raise ValueError("Le corpus contient des questions dupliquées.")
@@ -442,7 +544,7 @@ def write_corpus(output: Path) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Génère 2 000 questions-réponses CampusHubIA")
+    parser = argparse.ArgumentParser(description="Génère 8 000 questions-réponses CampusHubIA")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     args = parser.parse_args()
     write_corpus(Path(args.output))
