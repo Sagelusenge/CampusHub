@@ -90,10 +90,11 @@ function extraireOption(texte) {
   return OPTIONS.find((option) => contient(texte, option.aliases)) || null;
 }
 
-function extrairePourcentage(texte) {
+function extrairePourcentage(texte, questionActuelle = '') {
   const explicite = texte.match(/\b(\d{1,3}(?:[.,]\d{1,2})?)\s*(?:%|pourcent(?:age)?\b)/);
   const avec = texte.match(/\bavec\s+(\d{1,3}(?:[.,]\d{1,2})?)\b/);
-  const nombreTrouve = explicite?.[1] || avec?.[1];
+  const reponseCourte = normaliser(questionActuelle).match(/(?:^|\s)(\d{1,3}(?:[.,]\d{1,2})?)\s*(?:sur 100)?$/);
+  const nombreTrouve = explicite?.[1] || avec?.[1] || reponseCourte?.[1];
   if (!nombreTrouve) return null;
   const valeur = Number(String(nombreTrouve).replace(',', '.'));
   return Number.isFinite(valeur) && valeur >= 0 && valeur <= 100 ? valeur : null;
@@ -117,11 +118,13 @@ function extraireInterets(texte, option) {
   return parOption[option?.code] || [];
 }
 
-function estDemandeOrientation(question, texteComplet, option, pourcentage) {
-  const questionNormalisee = normaliser(question);
-  const intention = /\b(orient|orientation|propos|conseill|choisir|choix|etud|universit|filiere|faculte|faire|debouche)\w*/.test(questionNormalisee);
+function estDemandeOrientation(texteComplet, option, pourcentage) {
+  const intention = /\b(orient|orientation|propos|conseill|choisir|choix|etud|universit|filiere|faculte|faire|debouche)\w*/.test(texteComplet);
   const profilScolaire = /\b(fini|termine|diplome|exetat|option|humanite|secondaire|pourcent|resultat)\w*/.test(texteComplet);
-  return (intention && (option || pourcentage !== null || profilScolaire)) || Boolean(option && pourcentage !== null);
+  const rechercheEtablissement = /\b(cherche|recherche|trouve|besoin|voudrais|veux)\w*.*\b(universit|institut|etablissement|formation|filiere)\w*/.test(texteComplet);
+  const domaineDemande = INTERETS.some(([, mots]) => contient(texteComplet, mots));
+  return (intention && (option || pourcentage !== null || profilScolaire || rechercheEtablissement || domaineDemande))
+    || Boolean(option && pourcentage !== null);
 }
 
 function seuilIndicatif(texte) {
@@ -222,12 +225,19 @@ export async function essayerOrientationConversationnelle({ question, historique
     .map((message) => message.contenu);
   const texteComplet = normaliser([...messagesUtilisateur, question].join(' '));
   const option = extraireOption(texteComplet);
-  const pourcentage = extrairePourcentage(texteComplet);
-  if (!estDemandeOrientation(question, texteComplet, option, pourcentage)) return null;
+  const pourcentage = extrairePourcentage(texteComplet, question);
+  if (!estDemandeOrientation(texteComplet, option, pourcentage)) return null;
 
   if (!option) {
+    const interets = extraireInterets(texteComplet, null);
+    const libellesInterets = {
+      INFORMATIQUE: 'l’informatique', SANTE: 'la santé', INGENIERIE: 'l’ingénierie',
+      GESTION: 'la gestion', DROIT: 'le droit', EDUCATION: 'l’éducation',
+      AGRICULTURE: 'l’agriculture', COMMUNICATION: 'la communication', SCIENCES: 'les sciences',
+    };
+    const domaine = interets[0] ? ` J’ai bien noté votre intérêt pour ${libellesInterets[interets[0]]}.` : '';
     return {
-      reponse: 'Je peux vous orienter. Indiquez d’abord votre option des humanités, par exemple Commerciale et gestion, Scientifique, Pédagogie, Littéraire, Technique ou Agriculture, ainsi que votre pourcentage obtenu.',
+      reponse: `Je peux vous aider à choisir un établissement.${domaine} Quelle option avez-vous faite au secondaire et quel pourcentage avez-vous obtenu ? Par exemple : « Commerciale et gestion, 54 % ». Je chercherai ensuite les universités et instituts supérieurs vérifiés qui proposent une formation adaptée.`,
       modele: modeleCampusHubIA,
       modeExecution: 'ORIENTATION_CONVERSATIONNELLE',
       confiance: 0.96,

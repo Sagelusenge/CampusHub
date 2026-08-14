@@ -477,9 +477,9 @@ input, select, textarea { color: var(--ink); }
 .app-brand__text small { color: #9db1cc; font-size: 10px; }
 .app-navigation { flex: 1; overflow-y: auto; padding: 24px 13px; scrollbar-width: thin; }
 .app-navigation__label { display: block; padding: 0 12px 11px; color: #6f8aaa; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
-.app-navigation a,.app-sidebar__bottom a,.app-sidebar__bottom button { width: 100%; min-height: 46px; padding: 0 13px; display: flex; align-items: center; gap: 12px; border: 0; border-radius: 9px; color: #b7c7db; background: transparent; font-size: 13px; font-weight: 600; text-align: left; white-space: nowrap; transition: .18s ease; }
-.app-navigation a svg,.app-sidebar__bottom svg { width: 19px; flex: 0 0 auto; }
-.app-navigation a:hover,.app-sidebar__bottom a:hover,.app-sidebar__bottom button:hover { color: #fff; background: rgba(255,255,255,.07); }
+.app-navigation a,.app-navigation__action,.app-sidebar__bottom a,.app-sidebar__bottom button { width: 100%; min-height: 46px; padding: 0 13px; display: flex; align-items: center; gap: 12px; border: 0; border-radius: 9px; color: #b7c7db; background: transparent; font-size: 13px; font-weight: 600; text-align: left; white-space: nowrap; transition: .18s ease; }
+.app-navigation a svg,.app-navigation__action svg,.app-sidebar__bottom svg { width: 19px; flex: 0 0 auto; }
+.app-navigation a:hover,.app-navigation__action:hover,.app-sidebar__bottom a:hover,.app-sidebar__bottom button:hover { color: #fff; background: rgba(255,255,255,.07); }
 .app-navigation a.active { color: #fff; background: #174a7b; box-shadow: inset 3px 0 #49d0bf; }
 .app-sidebar__bottom { padding: 13px; border-top: 1px solid rgba(255,255,255,.08); }
 .app-sidebar__bottom button:hover { color: #ffbcbc; }
@@ -487,8 +487,8 @@ input, select, textarea { color: var(--ink); }
 .sidebar-collapse svg { width: 14px; }
 .sidebar-mobile-close,.mobile-menu-trigger,.sidebar-backdrop { display: none; }
 .app-shell--collapsed .app-brand { padding-inline: 19px; }
-.app-shell--collapsed .app-brand__text,.app-shell--collapsed .app-navigation__label,.app-shell--collapsed .app-navigation a span,.app-shell--collapsed .app-sidebar__bottom span { width: 0; opacity: 0; overflow: hidden; }
-.app-shell--collapsed .app-navigation a,.app-shell--collapsed .app-sidebar__bottom a,.app-shell--collapsed .app-sidebar__bottom button { justify-content: center; padding-inline: 0; }
+.app-shell--collapsed .app-brand__text,.app-shell--collapsed .app-navigation__label,.app-shell--collapsed .app-navigation a span,.app-shell--collapsed .app-navigation__action span,.app-shell--collapsed .app-sidebar__bottom span { width: 0; opacity: 0; overflow: hidden; }
+.app-shell--collapsed .app-navigation a,.app-shell--collapsed .app-navigation__action,.app-shell--collapsed .app-sidebar__bottom a,.app-shell--collapsed .app-sidebar__bottom button { justify-content: center; padding-inline: 0; }
 .app-main { min-width: 0; }
 .app-topbar { position: sticky; top: 0; z-index: 70; height: 76px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; gap: 22px; background: rgba(255,255,255,.96); border-bottom: 1px solid #dce3ee; backdrop-filter: blur(12px); }
 .app-topbar__start { display: flex; align-items: center; gap: 13px; }

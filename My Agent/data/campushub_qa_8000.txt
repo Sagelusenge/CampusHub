@@ -23278,245 +23278,245 @@ R: Précisez ou élargissez le domaine, le budget et la zone géographique, puis
 Q: Formulation avec une petite faute : que faire si aucune recommaandation ne correspond à mon profil ?
 R: Précisez ou élargissez le domaine, le budget et la zone géographique, puis relancez la recherche. Vous pouvez aussi parcourir l'annuaire des établissements sans attendre qu'une recommandation automatique soit disponible.
 
-Q: Un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Pouvez-vous m'expliquer ceci : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Pouvez-vous m'expliquer ceci : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Pouvez-vous m'expliquer ceci : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Pouvez-vous m'expliquer ceci : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Pouvez-vous m'expliquer ceci : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Pouvez-vous m'expliquer ceci : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: J'aimerais savoir : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: J'aimerais savoir : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : J'aimerais savoir : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : J'aimerais savoir : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : J'aimerais savoir : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : J'aimerais savoir : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Dites-moi, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Dites-moi, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Dites-moi, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Dites-moi, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Dites-moi, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Dites-moi, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je voudrais comprendre : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je voudrais comprendre : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Je voudrais comprendre : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Je voudrais comprendre : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Je voudrais comprendre : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Je voudrais comprendre : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Expliquez-moi clairement : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Expliquez-moi clairement : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Expliquez-moi clairement : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Expliquez-moi clairement : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Expliquez-moi clairement : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Expliquez-moi clairement : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Comment répondre à cette question : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Comment répondre à cette question : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Comment répondre à cette question : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Comment répondre à cette question : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Comment répondre à cette question : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Comment répondre à cette question : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Aidez-moi à comprendre : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Aidez-moi à comprendre : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Aidez-moi à comprendre : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Aidez-moi à comprendre : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Aidez-moi à comprendre : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Aidez-moi à comprendre : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Sur CampusHub, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Sur CampusHub, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Sur CampusHub, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Sur CampusHub, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Sur CampusHub, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Sur CampusHub, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Dans l'application, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Dans l'application, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Dans l'application, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Dans l'application, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Dans l'application, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Dans l'application, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Concernant CampusHub, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Concernant CampusHub, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Concernant CampusHub, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Concernant CampusHub, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Concernant CampusHub, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Concernant CampusHub, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Pourriez-vous préciser : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Pourriez-vous préciser : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Pourriez-vous préciser : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Pourriez-vous préciser : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Pourriez-vous préciser : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Pourriez-vous préciser : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je cherche une information : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je cherche une information : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Je cherche une information : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Je cherche une information : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Je cherche une information : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Je cherche une information : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: J'ai une question : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: J'ai une question : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : J'ai une question : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : J'ai une question : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : J'ai une question : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : J'ai une question : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Pouvez-vous me renseigner : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Pouvez-vous me renseigner : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Pouvez-vous me renseigner : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Pouvez-vous me renseigner : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Pouvez-vous me renseigner : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Pouvez-vous me renseigner : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: En pratique, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: En pratique, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : En pratique, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : En pratique, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : En pratique, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : En pratique, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Concrètement, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Concrètement, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Concrètement, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Concrètement, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Concrètement, un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Concrètement, combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je ne comprends pas bien : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je ne comprends pas bien : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Je ne comprends pas bien : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Je ne comprends pas bien : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Je ne comprends pas bien : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Je ne comprends pas bien : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Pouvez-vous me guider : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Pouvez-vous me guider : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Pouvez-vous me guider : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Pouvez-vous me guider : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Pouvez-vous me guider : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Pouvez-vous me guider : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Quelle est la règle pour ceci : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Quelle est la règle pour ceci : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Quelle est la règle pour ceci : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Quelle est la règle pour ceci : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Quelle est la règle pour ceci : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Quelle est la règle pour ceci : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question d'un visiteur : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question d'un visiteur : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Question d'un visiteur : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Question d'un visiteur : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Question d'un visiteur : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Question d'un visiteur : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question d'un étudiant : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question d'un étudiant : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Question d'un étudiant : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Question d'un étudiant : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Question d'un étudiant : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Question d'un étudiant : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question d'un établissement : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question d'un établissement : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Question d'un établissement : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Question d'un établissement : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Question d'un établissement : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Question d'un établissement : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Avec quelques fautes, un visiteur peut-il utiliser les conseils d'orientatoin de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Avec quelques fautes, combien d'unniversités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Avec quelques fautes, un visiteur peut-il utiliser les conseils d'orientatoin de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Avec quelques fautes, combien d'unniversités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Avec quelques fautes, un visiteur peut-il utiliser les conseils d'orientatoin de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Avec quelques fautes, combien d'unniversités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Recherche rapide CampusHubb : un visiteur peut-il utiliser les conseils d'orientatoin de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Recherche rapide CampusHubb : combien d'unniversités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Recherche rapide CampusHubb : un visiteur peut-il utiliser les conseils d'orientatoin de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je découvre CampusHub et j'ai besoin d'une réponse simple : Recherche rapide CampusHubb : combien d'unniversités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Question posée depuis mon téléphone, merci de me guider : Recherche rapide CampusHubb : un visiteur peut-il utiliser les conseils d'orientatoin de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Question posée depuis mon téléphone, merci de me guider : Recherche rapide CampusHubb : combien d'unniversités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Réponse courte souhaitée : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Réponse courte souhaitée : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Donnez-moi les étapes essentielles : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Donnez-moi les étapes essentielles : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Je prépare mon dossier et je demande : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Je prépare mon dossier et je demande : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Merci de répondre avec un exemple : un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Merci de répondre avec un exemple : combien d'universités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
-Q: Formulation avec une petite faute : un visiteur peut-il utiliser les conseils d'orientatoin de CampusHubIA ?
-R: Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.
+Q: Formulation avec une petite faute : combien d'unniversités et d'instituts supérieurs avez-vous dans le système ?
+R: CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.
 
 Q: D'où viennent les universités recommandées par CampusHubIA ?
 R: Elles viennent de la base CampusHub. Le moteur sélectionne uniquement les établissements vérifiés, exclut les écoles secondaires d'une recherche universitaire et utilise les filières actives enregistrées.

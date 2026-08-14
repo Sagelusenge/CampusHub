@@ -406,8 +406,8 @@ FAQS: list[tuple[str, str]] = [
         "Précisez ou élargissez le domaine, le budget et la zone géographique, puis relancez la recherche. Vous pouvez aussi parcourir l'annuaire des établissements sans attendre qu'une recommandation automatique soit disponible.",
     ),
     (
-        "Un visiteur peut-il utiliser les conseils d'orientation de CampusHubIA ?",
-        "Oui. Le visiteur peut poser des questions générales au chatbot. Les dossiers d'orientation personnels, leur historique et certaines démarches restent réservés aux utilisateurs connectés selon leur rôle.",
+        "Combien d'universités et d'instituts supérieurs avez-vous dans le système ?",
+        "CampusHubIA calcule ce nombre directement depuis la base de données. Il additionne les universités et les instituts supérieurs vérifiés, sans inclure les écoles secondaires, puis fournit le total et le détail à jour.",
     ),
     (
         "D'où viennent les universités recommandées par CampusHubIA ?",

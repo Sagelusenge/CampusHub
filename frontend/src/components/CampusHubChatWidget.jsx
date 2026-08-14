@@ -1,5 +1,5 @@
 import { Bot, ExternalLink, MessageCircle, Send, Sparkles, X } from 'lucide-react';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 
@@ -12,8 +12,8 @@ const messageAccueil = {
 
 const questionsRapides = [
   'Salut, ça va ?',
-  'Comment choisir une université ?',
-  'Comment fonctionne CampusHub ?',
+  'Je cherche une université qui propose l’informatique',
+  'Combien d’universités et d’instituts supérieurs avez-vous ?',
 ];
 
 export function CampusHubChatWidget() {
@@ -27,6 +27,18 @@ export function CampusHubChatWidget() {
   const champRef = useRef(null);
   const prefixeId = useId();
   const sequenceId = useRef(0);
+  const sessionId = useRef(0);
+
+  const fermerEtReinitialiser = useCallback(() => {
+    sessionId.current += 1;
+    sequenceId.current = 0;
+    setOuvert(false);
+    setMessages([messageAccueil]);
+    setQuestion('');
+    setDerniereQuestion('');
+    setChargement(false);
+    setErreur('');
+  }, []);
 
   function nouvelId(type) {
     sequenceId.current += 1;
@@ -42,11 +54,18 @@ export function CampusHubChatWidget() {
 
   useEffect(() => {
     function fermerAvecEchap(event) {
-      if (event.key === 'Escape') setOuvert(false);
+      if (event.key === 'Escape') fermerEtReinitialiser();
+    }
+    function ouvrirDepuisNavigation() {
+      setOuvert(true);
     }
     window.addEventListener('keydown', fermerAvecEchap);
-    return () => window.removeEventListener('keydown', fermerAvecEchap);
-  }, []);
+    window.addEventListener('campushub:ouvrir-assistant', ouvrirDepuisNavigation);
+    return () => {
+      window.removeEventListener('keydown', fermerAvecEchap);
+      window.removeEventListener('campushub:ouvrir-assistant', ouvrirDepuisNavigation);
+    };
+  }, [fermerEtReinitialiser]);
 
   async function envoyer(event, questionProposee, nouvelleQuestion = true) {
     event?.preventDefault();
@@ -61,6 +80,7 @@ export function CampusHubChatWidget() {
     setDerniereQuestion(texte);
     setErreur('');
     setChargement(true);
+    const sessionEnCours = sessionId.current;
     try {
       const resultat = await apiRequest('/assistant/question', {
         method: 'POST',
@@ -69,6 +89,7 @@ export function CampusHubChatWidget() {
           historique: historiqueAvantQuestion.map(({ role, contenu }) => ({ role, contenu })),
         },
       });
+      if (sessionEnCours !== sessionId.current) return;
       setMessages((courants) => [...courants, {
         id: nouvelId('a'),
         role: 'ASSISTANT',
@@ -76,9 +97,9 @@ export function CampusHubChatWidget() {
         sources: resultat.donnees.sources || [],
       }]);
     } catch (error) {
-      setErreur(error.message);
+      if (sessionEnCours === sessionId.current) setErreur(error.message);
     } finally {
-      setChargement(false);
+      if (sessionEnCours === sessionId.current) setChargement(false);
     }
   }
 
@@ -87,7 +108,7 @@ export function CampusHubChatWidget() {
       <header className="campushub-chat__header">
         <span className="campushub-chat__avatar"><Bot /></span>
         <div><strong>CampusHubIA</strong><small><i />Assistant en ligne</small></div>
-        <button type="button" onClick={() => setOuvert(false)} aria-label="Fermer la discussion"><X /></button>
+        <button type="button" onClick={fermerEtReinitialiser} aria-label="Fermer la discussion"><X /></button>
       </header>
 
       <div className="campushub-chat__messages" aria-live="polite">
@@ -116,7 +137,7 @@ export function CampusHubChatWidget() {
       <footer>CampusHubIA peut se tromper : confirmez toujours les conditions auprès de l’établissement.</footer>
     </section>}
 
-    <button className="campushub-chat__launcher" type="button" onClick={() => setOuvert((etat) => !etat)} aria-expanded={ouvert} aria-label={ouvert ? 'Fermer CampusHubIA' : 'Poser une question à CampusHubIA'}>
+    <button className="campushub-chat__launcher" type="button" onClick={() => ouvert ? fermerEtReinitialiser() : setOuvert(true)} aria-expanded={ouvert} aria-label={ouvert ? 'Fermer CampusHubIA' : 'Poser une question à CampusHubIA'}>
       {ouvert ? <X /> : <MessageCircle />}
       {!ouvert && <span><strong>Une question ?</strong><small>Demandez à CampusHubIA</small></span>}
     </button>

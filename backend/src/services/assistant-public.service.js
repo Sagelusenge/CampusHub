@@ -58,6 +58,36 @@ function estConversationCourte(question) {
     || /\b(ca va|comment vas tu|comment allez vous|tu vas bien|qui es tu|quel est ton nom|je m'appelle)\b/.test(texte);
 }
 
+function estQuestionNombreEtablissements(question) {
+  const texte = normaliser(question).replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const demandeNombre = /\b(combien|nombre|total)\b/.test(texte);
+  const cible = /\b(universit\w*|institut\w*|etablissement\w*)\b/.test(texte);
+  return demandeNombre && cible;
+}
+
+async function compterEtablissementsSuperieurs() {
+  const [lignes] = await baseDeDonnees.execute(
+    `SELECT
+       SUM(CASE WHEN categorie_etablissement = 'UNIVERSITE' THEN 1 ELSE 0 END) AS universites,
+       SUM(CASE WHEN categorie_etablissement = 'INSTITUT_SUPERIEUR' THEN 1 ELSE 0 END) AS instituts_superieurs,
+       COUNT(*) AS total
+     FROM universites
+     WHERE statut_verification = 'VERIFIEE'
+       AND categorie_etablissement IN ('UNIVERSITE', 'INSTITUT_SUPERIEUR')`,
+  );
+  const statistiques = lignes[0] || {};
+  const universites = Number(statistiques.universites || 0);
+  const instituts = Number(statistiques.instituts_superieurs || 0);
+  const total = Number(statistiques.total || 0);
+  return {
+    reponse: `CampusHub compte actuellement ${total} établissement${total > 1 ? 's' : ''} supérieur${total > 1 ? 's' : ''} vérifié${total > 1 ? 's' : ''} dans son annuaire : ${universites} université${universites > 1 ? 's' : ''} et ${instituts} institut${instituts > 1 ? 's' : ''} supérieur${instituts > 1 ? 's' : ''}. Ce nombre vient directement de la base de données et se met à jour automatiquement.`,
+    modele: modeleCampusHubIA,
+    modeExecution: 'STATISTIQUES_MYSQL_TEMPS_REEL',
+    confiance: 1,
+    sources: [{ code: 'ANNUAIRE', label: 'Voir les établissements', url: '/universites' }],
+  };
+}
+
 async function chercherContextePublic(question) {
   const mots = extraireMots(question);
   const filtre = mots.length
@@ -118,6 +148,7 @@ async function chercherContextePublic(question) {
 
 export async function poserQuestionPublique({ question, historique }) {
   const historiqueRecent = (historique || []).slice(-6);
+  if (estQuestionNombreEtablissements(question)) return compterEtablissementsSuperieurs();
   const orientation = await essayerOrientationConversationnelle({ question, historique: historiqueRecent });
   if (orientation) return orientation;
   const precedenteQuestion = [...historiqueRecent].reverse().find((message) => message.role === 'UTILISATEUR')?.contenu;
