@@ -15,7 +15,7 @@
 6. Exécuter `08_packs_et_certification.sql` pour la compatibilité de l’historique des paiements.
 7. Exécuter `09_messagerie_privee.sql` pour les conversations et messages privés.
 8. Exécuter `10_recherche_et_contact.sql` pour la recherche personnalisée et les contacts.
-9. Exécuter ensuite les scripts `11` à `28` dans l’ordre pour les cartes, stories, CampusHubIA, comptes de démonstration, offres, réseau, inscriptions en ligne, partenaires, vérification e-mail, messagerie enrichie, couvertures, gestion des étudiants, audit, abonnement annuel unique et essai gratuit de 30 jours.
+9. Exécuter ensuite les scripts `11` à `29` dans l’ordre pour les cartes, stories, CampusHubIA, comptes de démonstration, offres, réseau, inscriptions en ligne, partenaires, vérification e-mail, messagerie enrichie, couvertures, gestion des étudiants, audit, essai gratuit de 30 jours et formules annuelle/à vie.
 10. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
 
 ## Création depuis le client MySQL
@@ -49,6 +49,8 @@ SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/24_couvert
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/25_gestion_etudiants_audit.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/26_abonnement_annuel_unique.sql;
 SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/27_campushub_ia_locale.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/28_essai_gratuit_30_jours.sql;
+SOURCE C:/Users/sagel/Downloads/CampusHub/Projet Realisation/database/29_formules_annuelle_et_vie.sql;
 ```
 
 Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquement des établissements fictifs clairement nommés « Démonstration » pour tester le conseiller sans faire passer ces données pour des institutions réelles.
@@ -62,7 +64,7 @@ Le script `13_donnees_demo_campushub_ai.sql` est facultatif. Il ajoute uniquemen
 - Administration : `signalements`, `notifications`, `journal_audit`.
 - Abonnements : `plans_abonnement`, `paiements_abonnement`, `abonnements_universite`.
 - Affiliations : `demandes_affiliation_etudiante`, `suggestions_localisation`.
-- Offre commerciale : 30 jours d’essai gratuits, accordés une seule fois par compte institutionnel, puis un abonnement unique à 10 USD pour 365 jours.
+- Offre commerciale : 30 jours d’essai gratuits, puis une tranche annuelle renouvelable de 20 USD ou un paiement unique de 200 USD donnant un accès à vie.
 - Messagerie : `conversations`, `participants_conversation`, `messages_prives`.
 - Recherche personnalisée : `recherches_utilisateurs`.
 - Contact public : `demandes_contact`.

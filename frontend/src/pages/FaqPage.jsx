@@ -99,7 +99,7 @@ const sections = [
       },
       {
         question: 'Comment fonctionne l’abonnement des établissements ?',
-        answer: 'Chaque établissement commence avec 30 jours gratuits, sans paiement immédiat. Pour continuer, CampusHub propose ensuite un abonnement institutionnel unique à 10 USD par an. Les jours gratuits restants ne sont pas perdus si le paiement est validé pendant l’essai.',
+        answer: 'Chaque établissement commence avec 30 jours gratuits, sans paiement immédiat. Il choisit ensuite entre une tranche annuelle de 20 USD, renouvelable chaque année, et un paiement unique de 200 USD donnant un accès à vie. Les jours gratuits restants ne sont pas perdus si le paiement est validé pendant l’essai.',
       },
       {
         question: 'Comment publier une offre ?',

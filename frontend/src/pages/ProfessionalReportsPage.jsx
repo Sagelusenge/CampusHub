@@ -62,7 +62,7 @@ function safeRequest(path, token, fallback) {
 
 const ADMIN_REPORT_TYPES = [
   { value: 'PILOTAGE', label: 'Pilotage', description: 'Indicateurs et progression', icon: FileBarChart },
-  { value: 'CONTRAT', label: 'Contrat', description: 'Contrat d’abonnement annuel', icon: ScrollText },
+  { value: 'CONTRAT', label: 'Contrat', description: 'Contrat institutionnel CampusHub', icon: ScrollText },
   { value: 'FACTURE', label: 'Facture', description: 'Facture d’un établissement', icon: FileText },
   { value: 'RECU', label: 'Reçu', description: 'Preuve d’un paiement validé', icon: Receipt },
   { value: 'RELEVE_CLIENT', label: 'Relevé client', description: 'Historique par établissement', icon: CreditCard },
@@ -148,7 +148,12 @@ function FormalReport({
       {children}
 
       <section className="report-signatures">
-        {signatures.map((signature) => <div key={signature}><span>{signature}</span><i /><small>Nom, signature et date</small></div>)}
+        {signatures.map((signature) => {
+          const bloc = typeof signature === 'string' ? { label: signature } : signature;
+          return <div key={bloc.label}><span>{bloc.label}</span>{bloc.image
+            ? <div className="report-signature-image"><img src={bloc.image} alt="Signature" /></div>
+            : <><i /><small>{bloc.note || 'Nom, signature et date'}</small></>}</div>;
+        })}
       </section>
 
       <footer className="report-footer">
@@ -349,9 +354,10 @@ function ContractArticle({ number, title, children }) {
 }
 
 function SubscriptionContractDocument({ payment }) {
-  if (!payment) return <EmptyFinancialDocument title="Contrat d’abonnement" message="Un paiement validé est nécessaire pour établir le contrat d’abonnement annuel." />;
+  if (!payment) return <EmptyFinancialDocument title="Contrat d’abonnement" message="Un paiement validé est nécessaire pour établir le contrat institutionnel CampusHub." />;
   const reference = payment.code_abonnement || `CTR-${payment.code_paiement}`;
-  return <FormalReport className="professional-report--contract" organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Contrat d’abonnement institutionnel" subtitle="Accès annuel aux services numériques CampusHub" reference={reference} status="Contrat actif" signatures={['Le représentant de l’établissement', 'L’administration CampusHub']}>
+  const accesVie = Boolean(payment.est_a_vie);
+  return <FormalReport className="professional-report--contract" organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Contrat d’abonnement institutionnel" subtitle={accesVie ? 'Accès à vie aux services numériques CampusHub' : 'Accès annuel renouvelable aux services numériques CampusHub'} reference={reference} status="Contrat actif" signatures={['Le représentant de l’établissement', { label: 'L’administration CampusHub', image: '/images/signature-sagel-lusenge.png' }]}>
     <ReportSection number="1" title="Parties au contrat"><ReportFields items={[
       { label: 'Prestataire', value: 'CampusHub — Écosystème académique numérique' },
       { label: 'Établissement client', value: payment.nom_etablissement, wide: true },
@@ -361,10 +367,10 @@ function SubscriptionContractDocument({ payment }) {
       { label: 'Localisation', value: [payment.ville, payment.province].filter(Boolean).join(', ') },
     ]} /></ReportSection>
     <ReportSection number="2" title="Objet et durée"><ReportFields items={[
-      { label: 'Formule', value: payment.nom_plan || 'Abonnement annuel CampusHub' },
-      { label: 'Durée contractuelle', value: `${formatNumber(payment.duree_jours || 365)} jours` },
+      { label: 'Formule', value: payment.nom_plan || 'Accès CampusHub' },
+      { label: 'Durée contractuelle', value: accesVie ? 'À vie — sans renouvellement' : `${formatNumber(payment.duree_jours || 365)} jours` },
       { label: 'Date de prise d’effet', value: formatDate(payment.date_abonnement_debut) },
-      { label: 'Date d’échéance', value: formatDate(payment.date_abonnement_fin) },
+      { label: 'Date d’échéance', value: accesVie ? 'Aucune échéance annuelle' : formatDate(payment.date_abonnement_fin) },
       { label: 'Montant contractuel', value: formatCurrency(payment.montant, payment.devise) },
       { label: 'Paiement associé', value: payment.code_paiement },
     ]} /></ReportSection>
@@ -372,8 +378,8 @@ function SubscriptionContractDocument({ payment }) {
     <ReportSection number="3" title="Services et conditions financières">
       <div className="contract-articles">
         <ContractArticle number="1" title="Objet du contrat"><p>CampusHub accorde à l’établissement un droit personnel, limité, non exclusif et non cessible d’utiliser son espace institutionnel pendant la période contractuelle. Cet accès comprend la gestion de la fiche publique, des campus, formations, services, offres, publications, inscriptions, étudiants affiliés et rapports disponibles dans la formule active.</p></ContractArticle>
-        <ContractArticle number="2" title="Prise d’effet et durée"><p>Le contrat prend effet à la date de validation du paiement et reste valable pendant {formatNumber(payment.duree_jours || 365)} jours, jusqu’à la date d’échéance indiquée. Il n’est pas renouvelé automatiquement : tout renouvellement requiert un nouveau paiement et une validation de CampusHub.</p></ContractArticle>
-        <ContractArticle number="3" title="Prix et paiement"><p>Le prix de la période est fixé à {formatCurrency(payment.montant, payment.devise)}. Le paiement associé porte la référence <strong>{payment.code_paiement}</strong>. Sauf correction d’une erreur imputable à CampusHub, toute période activée et commencée reste due.</p></ContractArticle>
+        <ContractArticle number="2" title="Prise d’effet et durée"><p>{accesVie ? 'Le contrat prend effet à la date de validation du paiement et accorde un accès permanent, sans échéance de renouvellement, sous réserve du respect continu des présentes clauses.' : `Le contrat prend effet à la date de validation du paiement et reste valable pendant ${formatNumber(payment.duree_jours || 365)} jours, jusqu’à la date d’échéance indiquée. Il n’est pas renouvelé automatiquement : chaque nouvelle tranche annuelle requiert un nouveau paiement et une validation de CampusHub.`}</p></ContractArticle>
+        <ContractArticle number="3" title="Prix et paiement"><p>Le prix de la formule choisie est fixé à {formatCurrency(payment.montant, payment.devise)}. Le paiement associé porte la référence <strong>{payment.code_paiement}</strong>. {accesVie ? 'Ce montant constitue un paiement unique pour l’accès à vie.' : 'Ce montant correspond à une tranche annuelle renouvelable de douze mois.'} Sauf correction d’une erreur imputable à CampusHub, tout accès activé reste dû.</p></ContractArticle>
       </div>
     </ReportSection>
     <ReportSection number="4" title="Engagements réciproques">
@@ -393,7 +399,7 @@ function SubscriptionContractDocument({ payment }) {
     <ReportSection number="6" title="Suspension, fin du contrat et différends">
       <div className="contract-articles">
         <ContractArticle number="10" title="Suspension ou résiliation"><p>CampusHub peut suspendre l’accès en cas d’impayé, fraude, atteinte à la sécurité, contenu illicite ou violation grave du présent contrat. Sauf urgence, l’établissement est informé du motif et dispose d’un délai raisonnable pour corriger le manquement.</p></ContractArticle>
-        <ContractArticle number="11" title="Fin de la période"><p>À l’échéance, les fonctions réservées aux établissements abonnés peuvent être désactivées. Les obligations de confidentialité, de propriété intellectuelle et de responsabilité survivent à la fin du contrat selon leur nature.</p></ContractArticle>
+        <ContractArticle number="11" title="Fin de la période"><p>{accesVie ? 'L’accès à vie ne comporte pas d’échéance annuelle. Il peut néanmoins être suspendu ou résilié dans les cas prévus au présent contrat, notamment en cas de fraude, de contenu illicite ou de violation grave.' : 'À l’échéance de la tranche annuelle, les fonctions réservées aux établissements abonnés peuvent être désactivées. Les obligations de confidentialité, de propriété intellectuelle et de responsabilité survivent à la fin du contrat selon leur nature.'}</p></ContractArticle>
         <ContractArticle number="12" title="Force majeure et règlement des différends"><p>Aucune partie n’est responsable d’un retard causé par un événement raisonnablement hors de son contrôle. Les parties privilégient un règlement amiable. À défaut, le différend est soumis aux règles et juridictions compétentes de la République démocratique du Congo.</p></ContractArticle>
         <ContractArticle number="13" title="Assistance et gestion des incidents"><p>L’établissement signale tout incident par les canaux officiels en joignant les éléments utiles au diagnostic. CampusHub accuse réception, classe la priorité selon l’impact observé et met en œuvre des moyens raisonnables de correction. Une maintenance planifiée peut entraîner une indisponibilité temporaire après information préalable lorsque cela est possible.</p></ContractArticle>
         <ContractArticle number="14" title="Restitution, export et conservation des données"><p>Pendant la période active, l’établissement peut exporter les rapports et données rendus disponibles dans son espace. À la fin du contrat, CampusHub peut conserver les informations pendant la durée légalement ou techniquement nécessaire, puis les anonymiser ou les supprimer conformément à sa politique de conservation et aux obligations applicables.</p></ContractArticle>
@@ -415,14 +421,14 @@ function InvoiceDocument({ payment }) {
       { label: 'Date d’émission', value: formatDate(payment.date_creation) },
       { label: 'Référence transaction', value: payment.reference_paiement },
     ]} /></ReportSection>
-    <ReportSection number="2" title="Détail de la facture"><table className="report-table"><thead><tr><th>Désignation</th><th>Période</th><th>Quantité</th><th>Prix unitaire</th><th>Total</th></tr></thead><tbody><tr><td>{payment.nom_plan || 'Abonnement annuel CampusHub'}</td><td>{payment.duree_jours || 365} jours</td><td>1</td><td>{formatCurrency(payment.montant, payment.devise)}</td><td>{formatCurrency(payment.montant, payment.devise)}</td></tr></tbody></table></ReportSection>
+    <ReportSection number="2" title="Détail de la facture"><table className="report-table"><thead><tr><th>Désignation</th><th>Période</th><th>Quantité</th><th>Prix unitaire</th><th>Total</th></tr></thead><tbody><tr><td>{payment.nom_plan || 'Accès CampusHub'}</td><td>{payment.est_a_vie ? 'À vie' : `${payment.duree_jours || 365} jours`}</td><td>1</td><td>{formatCurrency(payment.montant, payment.devise)}</td><td>{formatCurrency(payment.montant, payment.devise)}</td></tr></tbody></table></ReportSection>
     <ReportSection number="3" title="Récapitulatif"><div className="invoice-totals"><div><span>Sous-total</span><strong>{formatCurrency(payment.montant, payment.devise)}</strong></div><div><span>Taxes</span><strong>0,00 {payment.devise || 'USD'}</strong></div><div><span>Total</span><strong>{formatCurrency(payment.montant, payment.devise)}</strong></div><div><span>Solde restant</span><strong>{formatCurrency(paid ? 0 : payment.montant, payment.devise)}</strong></div></div></ReportSection>
   </FormalReport>;
 }
 
 function ReceiptDocument({ payment }) {
   if (!payment) return <EmptyFinancialDocument title="Reçu de paiement" message="Seuls les paiements validés peuvent produire un reçu officiel." />;
-  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Reçu de paiement" subtitle="Attestation de règlement de l’abonnement annuel" reference={`REC-${payment.code_paiement}`} status="Paiement encaissé" signatures={['Agent ayant validé le paiement', 'Cachet CampusHub']}>
+  return <FormalReport organization="CampusHub" organizationType="Administration centrale de la plateforme" title="Reçu de paiement" subtitle={`Attestation de règlement — ${payment.est_a_vie ? 'accès à vie' : 'accès annuel'}`} reference={`REC-${payment.code_paiement}`} status="Paiement encaissé" signatures={['Agent ayant validé le paiement', 'Cachet CampusHub']}>
     <ReportSection number="1" title="Paiement reçu"><div className="receipt-amount"><small>Montant reçu</small><strong>{formatCurrency(payment.montant, payment.devise)}</strong><span>Reçu de {payment.nom_etablissement}</span></div></ReportSection>
     <ReportSection number="2" title="Informations de la transaction"><ReportFields items={[
       { label: 'Code du paiement', value: payment.code_paiement },
@@ -432,7 +438,7 @@ function ReceiptDocument({ payment }) {
       { label: 'Client', value: payment.nom_etablissement, wide: true },
       { label: 'Code client', value: payment.code_utilisateur },
       { label: 'Validé par', value: payment.traite_par || 'Administration CampusHub' },
-      { label: 'Objet', value: payment.nom_plan || 'Abonnement annuel CampusHub', wide: true },
+      { label: 'Objet', value: payment.nom_plan || 'Accès CampusHub', wide: true },
     ]} /></ReportSection>
   </FormalReport>;
 }
@@ -557,9 +563,9 @@ function InstitutionProfessionalReport() {
           <ReportFields items={[
             { label: 'État de vérification', value: labelStatus(universite?.statut_verification) },
             { label: 'Abonnement', value: data.subscription?.nom_plan || 'Aucun abonnement actif' },
-            { label: 'Échéance annuelle', value: formatDate(data.subscription?.date_fin) },
-            { label: 'Jours restants', value: data.subscription ? `${formatNumber(data.subscription.jours_restants)} jour(s)` : '0 jour' },
-            { label: 'Tarif annuel', value: '10 USD' },
+            { label: 'Échéance', value: data.subscription?.est_a_vie ? 'Accès à vie' : formatDate(data.subscription?.date_fin) },
+            { label: 'Durée restante', value: data.subscription?.est_a_vie ? 'Illimitée' : (data.subscription ? `${formatNumber(data.subscription.jours_restants)} jour(s)` : '0 jour') },
+            { label: 'Formules proposées', value: '20 USD/an ou 200 USD à vie' },
             { label: 'Inscriptions en ligne reçues', value: formatNumber(data.enrollments.length) },
           ]} />
         </ReportSection>

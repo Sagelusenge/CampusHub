@@ -28,7 +28,7 @@ export async function activerEssaiGratuit(utilisateurId, connexion = baseDeDonne
   const [plans] = await connexion.execute(
     'SELECT id FROM plans_abonnement WHERE est_actif = 1 ORDER BY id LIMIT 1',
   );
-  if (!plans[0]) throw new ErreurApi(503, 'Le plan annuel CampusHub est momentanément indisponible.');
+  if (!plans[0]) throw new ErreurApi(503, 'La formule CampusHub est momentanément indisponible.');
 
   const debut = new Date();
   const fin = new Date(debut.getTime() + 30 * 86_400_000);
@@ -91,11 +91,27 @@ export async function listerPlans() {
 export async function soumettrePaiement(donnees) {
   const [[utilisateurs], [plans]] = await Promise.all([
     baseDeDonnees.execute('SELECT id, role FROM utilisateurs WHERE code_utilisateur = ? LIMIT 1', [donnees.codeUtilisateur.toUpperCase()]),
-    baseDeDonnees.execute('SELECT id, code_plan, prix_total FROM plans_abonnement WHERE code_plan = ? AND est_actif = 1 LIMIT 1', [donnees.codePlan.toUpperCase()]),
+    baseDeDonnees.execute('SELECT id, code_plan, prix_total, est_a_vie FROM plans_abonnement WHERE code_plan = ? AND est_actif = 1 LIMIT 1', [donnees.codePlan.toUpperCase()]),
   ]);
   const utilisateur = utilisateurs[0]; const plan = plans[0];
   if (!utilisateur || utilisateur.role !== 'UNIVERSITE') throw new ErreurApi(404, 'Compte institutionnel introuvable.');
   if (!plan) throw new ErreurApi(404, 'Pack d’abonnement introuvable.');
+  const [[permanents], [paiementsEnAttente]] = await Promise.all([
+    baseDeDonnees.execute(
+      `SELECT a.id FROM abonnements_universite a
+       JOIN plans_abonnement p ON p.id = a.plan_id
+       WHERE a.utilisateur_id = ? AND a.statut = 'ACTIF' AND p.est_a_vie = 1 LIMIT 1`,
+      [utilisateur.id],
+    ),
+    baseDeDonnees.execute(
+      `SELECT id FROM paiements_abonnement
+       WHERE utilisateur_id = ? AND plan_id = ? AND type_paiement = 'ABONNEMENT'
+         AND statut = 'EN_ATTENTE' LIMIT 1`,
+      [utilisateur.id, plan.id],
+    ),
+  ]);
+  if (permanents[0]) throw new ErreurApi(409, 'Ce compte dispose déjà d’un accès à vie. Aucun autre paiement n’est nécessaire.');
+  if (paiementsEnAttente[0]) throw new ErreurApi(409, 'Une preuve de paiement pour cette formule est déjà en attente de validation.');
   const montant = plan.prix_total;
   await baseDeDonnees.execute(
     `INSERT INTO paiements_abonnement
@@ -116,7 +132,7 @@ export async function listerPaiements(filtres) {
   const [[lignes], [compte]] = await Promise.all([
     baseDeDonnees.query(
       `SELECT pa.*, u.code_utilisateur, u.nom_affichage, u.email,
-        p.code_plan, p.nom AS nom_plan, p.prix_acces
+        p.code_plan, p.nom AS nom_plan, p.prix_acces, p.est_a_vie
        FROM paiements_abonnement pa
        JOIN utilisateurs u ON u.id = pa.utilisateur_id
        JOIN plans_abonnement p ON p.id = pa.plan_id
@@ -132,7 +148,7 @@ export async function traiterPaiement(code, adminId, donnees) {
   try {
     await connexion.beginTransaction();
     const [paiements] = await connexion.execute(
-      `SELECT pa.*, p.duree_jours, p.nom AS nom_plan,
+      `SELECT pa.*, p.duree_jours, p.est_a_vie, p.nom AS nom_plan,
          u.email, u.nom_affichage
        FROM paiements_abonnement pa
        JOIN plans_abonnement p ON p.id = pa.plan_id
@@ -152,7 +168,7 @@ export async function traiterPaiement(code, adminId, donnees) {
       : null;
     const valide = donnees.statut === 'VALIDE';
     const message = valide
-      ? 'Votre abonnement CampusHub est actif pour une année.'
+      ? (paiement.est_a_vie ? 'Votre accès CampusHub à vie est maintenant actif.' : 'Votre abonnement CampusHub est actif pour une année.')
       : (donnees.commentaire || 'Veuillez vérifier votre preuve de paiement.');
     await connexion.execute(
       `INSERT INTO notifications (id, code_notification, destinataire_id, type_notification, titre, message)
@@ -169,6 +185,8 @@ export async function traiterPaiement(code, adminId, donnees) {
         commentaire: donnees.commentaire,
         montant: paiement.montant,
         dateFin: abonnementActive?.fin ?? null,
+        nomPlan: paiement.nom_plan,
+        estAVie: Boolean(paiement.est_a_vie),
       });
     } catch (erreurEmail) {
       console.error('Échec de l’e-mail de décision du paiement :', erreurEmail.message);
@@ -190,11 +208,21 @@ async function activerAbonnement(connexion, paiement) {
     `SELECT date_fin FROM abonnements_universite WHERE utilisateur_id = ? AND statut = 'ACTIF' ORDER BY date_fin DESC LIMIT 1`,
     [paiement.utilisateur_id],
   );
-  const debut = precedents[0]?.date_fin && new Date(precedents[0].date_fin) > new Date() ? precedents[0].date_fin : new Date();
-  const fin = new Date(new Date(debut).getTime() + paiement.duree_jours * 86400000);
+  const debut = paiement.est_a_vie
+    ? new Date()
+    : (precedents[0]?.date_fin && new Date(precedents[0].date_fin) > new Date() ? precedents[0].date_fin : new Date());
+  const fin = paiement.est_a_vie
+    ? '9999-12-31 23:59:59'
+    : new Date(new Date(debut).getTime() + paiement.duree_jours * 86400000);
   const [membres] = await connexion.execute(
     'SELECT universite_id FROM membres_universite WHERE utilisateur_id = ? AND est_proprietaire = 1 LIMIT 1', [paiement.utilisateur_id],
   );
+  if (paiement.est_a_vie) {
+    await connexion.execute(
+      "UPDATE abonnements_universite SET statut = 'SUSPENDU' WHERE utilisateur_id = ? AND statut = 'ACTIF'",
+      [paiement.utilisateur_id],
+    );
+  }
   await connexion.execute(
     `INSERT INTO abonnements_universite
       (id, code_abonnement, utilisateur_id, universite_id, plan_id, paiement_id,
@@ -216,7 +244,7 @@ async function obtenirPaiement(code, connexion = baseDeDonnees) {
 }
 
 export async function obtenirMonAbonnement(utilisateurId) {
-  await baseDeDonnees.execute("UPDATE abonnements_universite SET statut = 'EXPIRE' WHERE statut = 'ACTIF' AND date_fin < CURRENT_TIMESTAMP");
+  await baseDeDonnees.execute("UPDATE abonnements_universite a JOIN plans_abonnement p ON p.id = a.plan_id SET a.statut = 'EXPIRE' WHERE a.statut = 'ACTIF' AND p.est_a_vie = 0 AND a.date_fin < CURRENT_TIMESTAMP");
   const [lignes] = await baseDeDonnees.execute(
     'SELECT * FROM vue_abonnements_universites WHERE utilisateur_id = ? ORDER BY date_fin DESC LIMIT 1', [utilisateurId],
   );
@@ -224,7 +252,7 @@ export async function obtenirMonAbonnement(utilisateurId) {
 }
 
 export async function listerAbonnements() {
-  await baseDeDonnees.execute("UPDATE abonnements_universite SET statut = 'EXPIRE' WHERE statut = 'ACTIF' AND date_fin < CURRENT_TIMESTAMP");
+  await baseDeDonnees.execute("UPDATE abonnements_universite a JOIN plans_abonnement p ON p.id = a.plan_id SET a.statut = 'EXPIRE' WHERE a.statut = 'ACTIF' AND p.est_a_vie = 0 AND a.date_fin < CURRENT_TIMESTAMP");
   const [lignes] = await baseDeDonnees.query('SELECT * FROM vue_abonnements_universites ORDER BY statut, date_fin');
   return lignes;
 }
@@ -243,7 +271,7 @@ export async function obtenirRapportsFinanciers(filtres = {}, utilisateurId = nu
        pa.reference_paiement, pa.statut, pa.commentaire_admin,
        pa.date_creation, pa.date_traitement,
        ut.code_utilisateur, ut.nom_affichage, ut.email, univ.telephone,
-       p.code_plan, p.nom AS nom_plan, p.duree_jours,
+       p.code_plan, p.nom AS nom_plan, p.duree_jours, p.est_a_vie,
        a.code_abonnement, a.date_debut AS date_abonnement_debut,
        a.date_fin AS date_abonnement_fin, a.statut AS statut_abonnement,
        GREATEST(DATEDIFF(a.date_fin, CURRENT_TIMESTAMP), 0) AS jours_restants,

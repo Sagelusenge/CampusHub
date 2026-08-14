@@ -59,5 +59,6 @@
 
 .plan-selector--single{grid-template-columns:minmax(280px,680px);justify-content:center}
 .plan-selector--single .pack-card{min-height:230px;padding:25px}
+.plan-selector--compact{grid-template-columns:repeat(2,minmax(280px,1fr));max-width:920px;margin-inline:auto}
 .current-subscription--annual{grid-template-columns:1fr auto}
-@media(max-width:760px){.current-subscription--annual{grid-template-columns:1fr}}
+@media(max-width:760px){.plan-selector--compact{grid-template-columns:1fr}.current-subscription--annual{grid-template-columns:1fr}}

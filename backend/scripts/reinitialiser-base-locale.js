@@ -80,38 +80,61 @@ try {
      VALUES (0, '', ?, ?, 'ADMINISTRATEUR', 'ACTIF', 'VERIFIE', 'Sagel Lusenge', CURRENT_TIMESTAMP)`,
     [email, hash],
   );
-  const [plans] = await connexion.query('SELECT id FROM plans_abonnement ORDER BY id LIMIT 1');
-  if (!plans[0]) {
+  const avantagesAnnuels = JSON.stringify([
+    'Accès complet et illimité pendant 12 mois',
+    'Fiche publique et carte de l’établissement',
+    'Campus, formations, services et inscriptions',
+    'Offres, publications et réseau CampusHub',
+    'Rapports professionnels et support',
+  ]);
+  const avantagesVie = JSON.stringify([
+    'Paiement unique sans renouvellement annuel',
+    'Accès permanent à toutes les fonctions institutionnelles',
+    'Fiche publique, carte, campus et formations',
+    'Inscriptions, offres, publications et réseau',
+    'Rapports professionnels et support prioritaire',
+  ]);
+  let [plansAnnuels] = await connexion.query('SELECT id FROM plans_abonnement WHERE est_a_vie = 0 ORDER BY id LIMIT 1');
+  if (!plansAnnuels[0]) {
     await connexion.execute(
       `INSERT INTO plans_abonnement
-       (id, code_plan, nom, prix_acces, prix_certification, duree_jours, avantages, est_actif)
-       VALUES (0, '', 'Abonnement annuel', 10.00, 0.00, 365, ?, 1)`,
-      [JSON.stringify([
-        'Fiche publique de l’établissement',
-        'Gestion des campus, formations et services',
-        'Inscriptions et demandes étudiantes',
-        'Offres, publications et réseau CampusHub',
-        'Statistiques, rapports et support',
-      ])],
+       (id, code_plan, nom, prix_acces, prix_certification, duree_jours, est_a_vie, avantages, est_actif)
+       VALUES (0, '', 'Accès annuel', 20.00, 0.00, 365, 0, ?, 1)`,
+      [avantagesAnnuels],
     );
-  } else {
-    await connexion.execute(
-      `UPDATE plans_abonnement SET est_actif = CASE WHEN id = ? THEN 1 ELSE 0 END`,
-      [plans[0].id],
-    );
-    await connexion.execute(
-      `UPDATE plans_abonnement
-       SET nom = 'Abonnement annuel', prix_acces = 10.00, prix_certification = 0.00,
-           duree_jours = 365, avantages = ?, est_actif = 1 WHERE id = ?`,
-      [JSON.stringify([
-        'Fiche publique de l’établissement',
-        'Gestion des campus, formations et services',
-        'Inscriptions et demandes étudiantes',
-        'Offres, publications et réseau CampusHub',
-        'Statistiques, rapports et support',
-      ]), plans[0].id],
-    );
+    [plansAnnuels] = await connexion.query('SELECT id FROM plans_abonnement WHERE est_a_vie = 0 ORDER BY id LIMIT 1');
   }
+  await connexion.execute(
+    `UPDATE plans_abonnement SET nom = 'Accès annuel', prix_acces = 20.00,
+       prix_certification = 0.00, duree_jours = 365, est_a_vie = 0,
+       avantages = ?, est_actif = 1 WHERE id = ?`,
+    [avantagesAnnuels, plansAnnuels[0].id],
+  );
+  let [plansVie] = await connexion.query('SELECT id FROM plans_abonnement WHERE est_a_vie = 1 ORDER BY id LIMIT 1');
+  if (!plansVie[0]) {
+    await connexion.execute(
+      `INSERT INTO plans_abonnement
+       (id, code_plan, nom, prix_acces, prix_certification, duree_jours, est_a_vie, avantages, est_actif)
+       VALUES (0, '', 'Accès à vie', 200.00, 0.00, 365, 1, ?, 1)`,
+      [avantagesVie],
+    );
+    [plansVie] = await connexion.query('SELECT id FROM plans_abonnement WHERE est_a_vie = 1 ORDER BY id LIMIT 1');
+  }
+  await connexion.execute(
+    `UPDATE plans_abonnement SET nom = 'Accès à vie', prix_acces = 200.00,
+       prix_certification = 0.00, duree_jours = 365, est_a_vie = 1,
+       avantages = ?, est_actif = 1 WHERE id = ?`,
+    [avantagesVie, plansVie[0].id],
+  );
+  await connexion.execute(
+    'UPDATE plans_abonnement SET est_actif = CASE WHEN id IN (?, ?) THEN 1 ELSE 0 END',
+    [plansAnnuels[0].id, plansVie[0].id],
+  );
+  await connexion.execute(
+    `UPDATE compteurs_sequences
+     SET derniere_valeur = (SELECT COALESCE(MAX(id), 0) FROM plans_abonnement)
+     WHERE nom_sequence = 'plans_abonnement'`,
+  );
 
   const [[verification]] = await connexion.query(
     `SELECT

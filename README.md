@@ -2,7 +2,7 @@
 
 CampusHub est une plateforme d’orientation et de vie académique pensée pour la RDC. Elle relie étudiants, visiteurs, établissements et administrateurs autour d’un catalogue vérifié, d’un réseau social éducatif, d’un conseiller d’orientation et d’un copilote institutionnel.
 
-Chaque nouveau compte institutionnel confirmé bénéficie d’un essai gratuit unique de 30 jours. La continuité du service repose ensuite sur un abonnement annuel simple de 10 USD.
+Chaque nouveau compte institutionnel confirmé bénéficie d’un essai gratuit unique de 30 jours. La continuité du service repose ensuite sur deux formules : une tranche annuelle renouvelable de 20 USD ou un paiement unique de 200 USD pour un accès à vie.
 
 ## CampusHubIA
 
@@ -44,7 +44,7 @@ Le backend suit le chemin `route → middleware → controller → service → M
 
 Prérequis : Node.js 20+, Python 3.12+ et MySQL 8+.
 
-1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `27`.
+1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `29`.
 2. Configurer et lancer l’API :
 
 ```powershell

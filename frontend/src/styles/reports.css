@@ -389,6 +389,8 @@
 .report-signatures>div{text-align:center;color:#253c53}
 .report-signatures span{font-size:7.5pt;font-weight:700}
 .report-signatures i{display:block;height:13mm;border-bottom:1px solid #52677c}
+.report-signature-image{height:13mm;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid #52677c}
+.report-signature-image img{width:auto;max-width:75%;max-height:18mm;object-fit:contain;filter:contrast(1.12)}
 .report-signatures small{display:block;margin-top:1mm;color:#718195;font-size:6pt}
 
 .report-footer{
@@ -496,5 +498,7 @@
   }
   .professional-report--contract .report-signatures{margin-bottom:3mm}
   .professional-report--contract .report-signatures i{height:9mm}
+  .professional-report--contract .report-signature-image{height:16mm}
+  .professional-report--contract .report-signature-image img{max-height:21mm}
   .report-table tr{break-inside:avoid;page-break-inside:avoid}
 }

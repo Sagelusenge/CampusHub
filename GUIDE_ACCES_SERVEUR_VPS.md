@@ -169,8 +169,8 @@ LIMIT 100;
 ### Voir les essais et abonnements
 
 ```sql
-SELECT code_abonnement, nom_universite, type_abonnement, statut,
-       date_debut, date_fin, jours_restants
+SELECT code_abonnement, nom_universite, nom_plan, est_a_vie,
+       type_abonnement, statut, date_debut, date_fin, jours_restants
 FROM vue_abonnements_universites
 ORDER BY date_fin DESC
 LIMIT 100;

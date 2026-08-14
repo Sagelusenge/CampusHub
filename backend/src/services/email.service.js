@@ -113,7 +113,7 @@ export async function envoyerActivationEssai({ email, nom, dateFin }) {
     from: expediteur(),
     to: email,
     subject: '[CampusHub] Vos 30 jours d’essai gratuit commencent maintenant',
-    text: `Bonjour ${nom || ''},\n\nVotre essai gratuit CampusHub est actif pendant 30 jours, jusqu’au ${fin}. Vous pouvez découvrir les outils institutionnels sans paiement. L’abonnement annuel de 10 USD reste disponible pour poursuivre après l’essai.\n\nL’équipe CampusHub`,
+    text: `Bonjour ${nom || ''},\n\nVotre essai gratuit CampusHub est actif pendant 30 jours, jusqu’au ${fin}. Vous pouvez découvrir les outils institutionnels sans paiement. Vous pourrez ensuite choisir l’accès annuel à 20 USD ou l’accès à vie à 200 USD.\n\nL’équipe CampusHub`,
     html: miseEnPageEmail({
       titre: 'Bienvenue dans votre essai gratuit',
       preheader: `Votre espace institutionnel est accessible gratuitement jusqu’au ${fin}.`,
@@ -121,29 +121,29 @@ export async function envoyerActivationEssai({ email, nom, dateFin }) {
       contenu: `<div style="padding:18px;border-radius:14px;background:#ecfaf7;border:1px solid #bce4dd">
         <strong style="display:block;color:#087f74;font-size:18px">30 jours offerts</strong>
         <span style="display:block;margin-top:5px;color:#486b70">Essai valable jusqu’au <strong>${echapperHtml(fin)}</strong>, sans paiement immédiat.</span>
-      </div><p>Vous pouvez créer votre fiche, présenter vos formations, gérer les demandes étudiantes, publier des offres et découvrir les rapports CampusHub. Ensuite, l’accès coûte <strong>10 USD par an</strong>.</p>`,
+      </div><p>Vous pouvez créer votre fiche, présenter vos formations, gérer les demandes étudiantes, publier des offres et découvrir les rapports CampusHub. Ensuite, choisissez <strong>20 USD par an</strong> ou <strong>200 USD en paiement unique pour un accès à vie</strong>.</p>`,
       action: { libelle: 'Accéder à mon espace', chemin: '/connexion' },
     }),
   });
 }
 
-export async function envoyerDecisionPaiement({ email, nom, codePaiement, statut, commentaire, montant, dateFin }) {
+export async function envoyerDecisionPaiement({ email, nom, codePaiement, statut, commentaire, montant, dateFin, nomPlan, estAVie }) {
   const valide = statut === 'VALIDE';
-  const titre = valide ? 'Votre abonnement annuel est actif' : 'Votre paiement nécessite une vérification';
+  const titre = valide ? (estAVie ? 'Votre accès CampusHub à vie est actif' : 'Votre abonnement annuel est actif') : 'Votre paiement nécessite une vérification';
   const detail = valide
-    ? `Votre paiement de ${Number(montant).toFixed(2)} USD a été validé. Votre abonnement est enregistré pour une année.`
+    ? `Votre paiement de ${Number(montant).toFixed(2)} USD a été validé. ${estAVie ? 'Votre accès institutionnel est maintenant actif à vie.' : 'Votre abonnement est enregistré pour une année.'}`
     : `La preuve de paiement ${echapperHtml(codePaiement)} n’a pas été validée. ${commentaire ? echapperHtml(commentaire) : 'Vérifiez la référence et la preuve avant un nouvel envoi.'}`;
   await obtenirTransporteur().sendMail({
     from: expediteur(),
     to: email,
     subject: `[CampusHub] ${titre}`,
-    text: `Bonjour ${nom || ''},\n\n${valide ? `Votre paiement de ${montant} USD a été validé.` : `Votre paiement ${codePaiement} n’a pas été validé. ${commentaire || ''}`}\n\nL’équipe CampusHub`,
+    text: `Bonjour ${nom || ''},\n\n${valide ? `Votre paiement de ${montant} USD pour la formule ${nomPlan || 'CampusHub'} a été validé.` : `Votre paiement ${codePaiement} n’a pas été validé. ${commentaire || ''}`}\n\nL’équipe CampusHub`,
     html: miseEnPageEmail({
       titre,
       introduction: `Bonjour <strong style="color:#173a58">${echapperHtml(nom || 'partenaire CampusHub')}</strong>, voici la mise à jour de votre paiement.`,
       contenu: `<div style="padding:17px;border-radius:13px;background:${valide ? '#ecfaf7' : '#fff4f2'};border:1px solid ${valide ? '#bce4dd' : '#f0cbc4'}">
         <strong style="color:${valide ? '#087f74' : '#a94735'}">${valide ? 'Paiement validé' : 'Paiement non validé'}</strong><br>
-        <span>${detail}</span>${valide && dateFin ? `<br><span>Échéance indicative : <strong>${echapperHtml(formatDateEmail(dateFin))}</strong></span>` : ''}
+        <span>${detail}</span>${valide && dateFin && !estAVie ? `<br><span>Échéance : <strong>${echapperHtml(formatDateEmail(dateFin))}</strong></span>` : ''}
       </div>`,
       action: { libelle: valide ? 'Ouvrir mon espace' : 'Vérifier mon abonnement', chemin: valide ? '/connexion' : '/connexion' },
     }),

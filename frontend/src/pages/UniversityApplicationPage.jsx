@@ -81,7 +81,7 @@ export function UniversityApplicationPage() {
             <div className="process-card">
               <div><span><Send size={18} /></span><p><strong>1. Envoyez votre demande</strong><small>Créez le compte officiel de l’établissement.</small></p></div>
               <div><span><Gift size={18} /></span><p><strong>2. Profitez de 30 jours gratuits</strong><small>L’essai démarre après la confirmation de l’e-mail.</small></p></div>
-              <div><span><CreditCard size={18} /></span><p><strong>3. Continuez pour 10 $ par an</strong><small>Le paiement annuel peut être effectué pendant ou après l’essai.</small></p></div>
+              <div><span><CreditCard size={18} /></span><p><strong>3. Choisissez votre formule</strong><small>20 $ par an ou 200 $ en paiement unique pour un accès à vie.</small></p></div>
             </div>
           </aside>
 
@@ -131,7 +131,7 @@ function PaymentStep({ code, trial }) {
   const [loading,setLoading]=useState(false); const [error,setError]=useState(''); const [sent,setSent]=useState(false);
   useEffect(()=>{apiRequest('/abonnements/plans').then(response=>{const items=response.donnees||[];setPlans(items);setForm(current=>({...current,codePlan:items[0]?.code_plan||''}))}).catch(err=>setError(err.message))},[]);
   const selectedPlan=plans.find(plan=>plan.code_plan===form.codePlan);
-  async function submit(event){event.preventDefault();if(!form.codePlan){setError('L’abonnement annuel est momentanément indisponible.');return;}if(!form.urlPreuve){setError('Ajoutez une preuve de paiement.');return;}setLoading(true);setError('');try{await apiRequest('/abonnements/paiements',{method:'POST',body:{codeUtilisateur:code,...form}});setSent(true)}catch(err){setError(err.message)}finally{setLoading(false)}}
+  async function submit(event){event.preventDefault();if(!form.codePlan){setError('Sélectionnez une formule CampusHub.');return;}if(!form.urlPreuve){setError('Ajoutez une preuve de paiement.');return;}setLoading(true);setError('');try{await apiRequest('/abonnements/paiements',{method:'POST',body:{codeUtilisateur:code,...form}});setSent(true)}catch(err){setError(err.message)}finally{setLoading(false)}}
   if(sent)return <section className="success-page"><div className="success-card"><div className="success-icon"><Check/></div><span className="eyebrow eyebrow--accent">Paiement transmis</span><h1>Votre activation est en cours.</h1><p>Un administrateur vérifiera la preuve. Vous recevrez ensuite l’accès pour créer la fiche de l’université.</p><div className="request-reference"><span>Compte institutionnel</span><strong>{code}</strong></div><Link className="button button--full" to="/connexion">Essayer la connexion <ArrowRight/></Link></div></section>;
   const dateFin = trial?.date_fin
     ? new Date(trial.date_fin).toLocaleDateString('fr-FR', { dateStyle: 'long' })
@@ -165,14 +165,14 @@ function PaymentStep({ code, trial }) {
 
       <section className="trial-renewal">
         <div className="trial-renewal__plan">
-          <span className="pill pill--teal"><CreditCard /> Abonnement annuel</span>
-          <h2>Continuez ensuite pour seulement 10 $ par an.</h2>
-          <p>Vous pouvez envoyer la preuve maintenant. Les jours déjà offerts ne seront pas perdus : l’abonnement annuel commencera après la période active.</p>
+          <span className="pill pill--teal"><CreditCard /> Deux formules simples</span>
+          <h2>20 $ par an ou 200 $ à vie.</h2>
+          <p>La formule annuelle correspond à une tranche renouvelable de douze mois. La formule à vie est réglée une seule fois. Vous pouvez envoyer la preuve pendant ou après l’essai.</p>
           <PlanSelector plans={plans} selected={form.codePlan} onSelect={codePlan=>setForm(current=>({...current,codePlan}))}/>
         </div>
         <form className="form-card payment-form trial-payment-form" onSubmit={submit}>
           <span className="eyebrow eyebrow--accent">Paiement facultatif</span>
-          <h2>Abonnement annuel — {Number(selectedPlan?.prix_total||0)} $</h2>
+          <h2>{selectedPlan?.est_a_vie ? 'Accès à vie' : 'Accès annuel'} — {Number(selectedPlan?.prix_total||0)} $</h2>
           <p>La preuve sera contrôlée par l’administration avant validation.</p>
           {error&&<div className="alert alert--error">{error}</div>}
           <label className="form-field"><span>Moyen de paiement</span><select value={form.moyenPaiement} onChange={e=>setForm({...form,moyenPaiement:e.target.value})}><option value="MOBILE_MONEY">Mobile Money</option><option value="CARTE">Carte</option><option value="VIREMENT">Virement</option><option value="ESPECES">Espèces</option><option value="AUTRE">Autre</option></select></label>
