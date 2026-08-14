@@ -80,7 +80,7 @@ async function compterEtablissementsSuperieurs() {
   const instituts = Number(statistiques.instituts_superieurs || 0);
   const total = Number(statistiques.total || 0);
   return {
-    reponse: `CampusHub compte actuellement ${total} établissement${total > 1 ? 's' : ''} supérieur${total > 1 ? 's' : ''} vérifié${total > 1 ? 's' : ''} dans son annuaire : ${universites} université${universites > 1 ? 's' : ''} et ${instituts} institut${instituts > 1 ? 's' : ''} supérieur${instituts > 1 ? 's' : ''}. Ce nombre vient directement de la base de données et se met à jour automatiquement.`,
+    reponse: `CampusHub compte actuellement ${total} établissement${total !== 1 ? 's' : ''} supérieur${total !== 1 ? 's' : ''} vérifié${total !== 1 ? 's' : ''} dans son annuaire : ${universites} université${universites !== 1 ? 's' : ''} et ${instituts} institut${instituts !== 1 ? 's' : ''} supérieur${instituts !== 1 ? 's' : ''}. Ce nombre vient directement de la base de données et se met à jour automatiquement.`,
     modele: modeleCampusHubIA,
     modeExecution: 'STATISTIQUES_MYSQL_TEMPS_REEL',
     confiance: 1,
