@@ -229,18 +229,30 @@ CREATE PROCEDURE sp_importer_etudiant_isig(
 )
 BEGIN
   DECLARE v_utilisateur_id BIGINT UNSIGNED;
-  SET v_utilisateur_id = (SELECT id FROM utilisateurs WHERE email = LOWER(p_email) AND role = 'ETUDIANT' LIMIT 1);
+  DECLARE v_role_existant VARCHAR(30);
+  DECLARE v_email_effectif VARCHAR(190);
+  SET v_email_effectif = LOWER(p_email);
+  SET v_utilisateur_id = (SELECT id FROM utilisateurs WHERE email = v_email_effectif LIMIT 1);
+  SET v_role_existant = (SELECT role FROM utilisateurs WHERE id = v_utilisateur_id LIMIT 1);
+
+  -- Un visiteur ayant utilisé la même adresse devient son compte étudiant.
+  -- En revanche, un compte administratif ou institutionnel n’est jamais écrasé.
+  IF v_utilisateur_id IS NOT NULL AND v_role_existant NOT IN ('VISITEUR', 'ETUDIANT') THEN
+    SET v_email_effectif = CONCAT('isig.', LOWER(p_matricule), '@campushub.test');
+    SET v_utilisateur_id = (SELECT id FROM utilisateurs WHERE email = v_email_effectif LIMIT 1);
+  END IF;
+
   IF v_utilisateur_id IS NULL THEN
     INSERT INTO utilisateurs (
       id, code_utilisateur, email, mot_de_passe_hash, role, statut_compte,
       statut_verification, nom_affichage, telephone, ville, province, date_verification_email
     ) VALUES (
-      0, '', LOWER(p_email), '$2b$12$/pXwwdgiigA7K../pKX28Oj5P58wg/zCnc.xb7vdjwKVU/xy7NGda',
+      0, '', v_email_effectif, '$2b$12$/pXwwdgiigA7K../pKX28Oj5P58wg/zCnc.xb7vdjwKVU/xy7NGda',
       'ETUDIANT', 'ACTIF', 'VERIFIE', p_nom, p_telephone, 'Goma', 'Nord-Kivu', CURRENT_TIMESTAMP
     );
     SET v_utilisateur_id = @campushub_dernier_id;
   ELSE
-    UPDATE utilisateurs SET nom_affichage = p_nom, telephone = p_telephone,
+    UPDATE utilisateurs SET nom_affichage = p_nom, telephone = p_telephone, role = 'ETUDIANT',
       statut_compte = 'ACTIF', statut_verification = 'VERIFIE',
       date_verification_email = COALESCE(date_verification_email, CURRENT_TIMESTAMP)
     WHERE id = v_utilisateur_id;
