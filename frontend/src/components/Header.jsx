@@ -1,6 +1,6 @@
-import { Menu, Search, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { AccountMenu } from './AccountMenu.jsx';
 import { LanguageSelector } from './LanguageSelector.jsx';
@@ -16,22 +16,17 @@ export function Header() {
   const { estConnecte, utilisateur } = useAuth();
   const language = globalThis.localStorage?.getItem('campushub-language') || 'fr';
   const labels = headerLabels[language] || headerLabels.fr;
-  const navigate = useNavigate();
   const espace = utilisateur?.role === 'ADMINISTRATEUR' ? '/administration'
     : utilisateur?.role === 'ETUDIANT' ? '/espace-etudiant'
       : utilisateur?.role === 'UNIVERSITE' ? '/espace-universite' : '/reseau';
-  function ouvrirAssistant() {
-    setMenuOpen(false);
-    globalThis.dispatchEvent?.(new Event('campushub:ouvrir-assistant'));
-  }
   return <header className="site-header notranslate" translate="no"><div className="container header-inner">
     <Link className="brand" to="/" aria-label="Accueil CampusHub"><span className="brand-mark brand-mark--logo"><img src="/favicon.svg" alt="" /></span><span>Campus<span>Hub</span></span></Link>
     <nav className={`main-nav ${menuOpen ? 'main-nav--open' : ''}`} aria-label="Navigation principale">
-      <NavLink to="/" end onClick={() => setMenuOpen(false)}>{labels.home}</NavLink><NavLink to="/universites" onClick={() => setMenuOpen(false)}>{labels.institutions}</NavLink><NavLink to="/offres" onClick={() => setMenuOpen(false)}>{labels.offers}</NavLink><button className="main-nav__assistant" type="button" onClick={ouvrirAssistant}>CampusHubIA</button><NavLink to="/reseau" onClick={() => setMenuOpen(false)}>{labels.network}</NavLink><NavLink to="/faq" onClick={() => setMenuOpen(false)}>FAQ</NavLink><NavLink to="/contact" onClick={() => setMenuOpen(false)}>{labels.contact}</NavLink>
-      {!estConnecte && <><NavLink className="nav-mobile-action" to="/inscription-visiteur" onClick={() => setMenuOpen(false)}>{labels.signup}</NavLink><NavLink className="nav-mobile-action nav-mobile-action--login" to="/connexion" onClick={() => setMenuOpen(false)}>{labels.login}</NavLink></>}
+      <NavLink to="/" end onClick={() => setMenuOpen(false)}>{labels.home}</NavLink><NavLink to="/universites" onClick={() => setMenuOpen(false)}>{labels.institutions}</NavLink><NavLink to="/offres" onClick={() => setMenuOpen(false)}>{labels.offers}</NavLink><NavLink to="/reseau" onClick={() => setMenuOpen(false)}>{labels.network}</NavLink><NavLink to="/faq" onClick={() => setMenuOpen(false)}>FAQ</NavLink><NavLink to="/contact" onClick={() => setMenuOpen(false)}>{labels.contact}</NavLink>
+      {!estConnecte && <><NavLink className="nav-mobile-action" to="/connexion#creer-compte" onClick={() => setMenuOpen(false)}>{labels.signup}</NavLink><NavLink className="nav-mobile-action nav-mobile-action--login" to="/connexion" onClick={() => setMenuOpen(false)}>{labels.login}</NavLink></>}
     </nav>
-    <div className="header-actions"><LanguageSelector compact /><button className="icon-button header-search" aria-label={labels.search} onClick={() => navigate('/reseau')}><Search size={19} /></button>
-      {estConnecte ? <><Link className="button button--small" to={espace}>{utilisateur?.role === 'VISITEUR' ? labels.myNetwork : labels.mySpace}</Link><AccountMenu variant="header" /></> : <><Link className="header-signup" to="/inscription-visiteur">{labels.signup}</Link><Link className="button button--small" to="/connexion">{labels.login}</Link></>}
+    <div className="header-actions"><LanguageSelector compact />
+      {estConnecte ? <><Link className="button button--small" to={espace}>{utilisateur?.role === 'VISITEUR' ? labels.myNetwork : labels.mySpace}</Link><AccountMenu variant="header" /></> : <><Link className="header-signup" to="/connexion#creer-compte">{labels.signup}</Link><Link className="button button--small" to="/connexion">{labels.login}</Link></>}
       <button className="menu-button" onClick={() => setMenuOpen((value) => !value)} aria-label={labels.menu}>{menuOpen ? <X /> : <Menu />}</button>
     </div>
   </div></header>;

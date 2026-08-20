@@ -28,7 +28,7 @@ const schemaEnvironnement = z.object({
   EMAIL_VERIFICATION_MAX_ATTEMPTS: z.coerce.number().int().min(3).max(10).default(5),
   CAMPUSHUB_IA_URL: z.string().url().default('http://127.0.0.1:5000'),
   CAMPUSHUB_IA_TOKEN: z.string().default(''),
-  CAMPUSHUB_IA_MODEL: z.string().min(1).default('campushub-ia-local-v1'),
+  CAMPUSHUB_IA_MODEL: z.string().min(1).default('campushubai'),
   CAMPUSHUB_IA_TIMEOUT_MS: z.coerce.number().int().min(500).max(30000).default(8000),
   CAMPUSHUB_WEB_ENABLED: z.string().default('true').transform((valeur) => valeur !== 'false'),
   CAMPUSHUB_WEB_TIMEOUT_MS: z.coerce.number().int().min(500).max(10000).default(3500),

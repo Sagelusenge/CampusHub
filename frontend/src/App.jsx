@@ -48,11 +48,13 @@ import { FinalistOrientationPage } from './pages/FinalistOrientationPage.jsx';
 import { FaqPage } from './pages/FaqPage.jsx';
 import { ProfessionalReportsPage } from './pages/ProfessionalReportsPage.jsx';
 import { ScrollToTop } from './components/ScrollToTop.jsx';
+import { PublicUserProfilePage } from './pages/PublicUserProfilePage.jsx';
+import { AppToast } from './components/AppToast.jsx';
 
 const protectAdmin = <ProtectedRoute roles={['ADMINISTRATEUR']}><DashboardShell role="admin" /></ProtectedRoute>;
 const protectInstitution = <ProtectedRoute roles={['UNIVERSITE']}><InstitutionProvider><DashboardShell role="institution" /></InstitutionProvider></ProtectedRoute>;
 const protectStudent = <ProtectedRoute roles={['ETUDIANT']}><DashboardShell role="student" /></ProtectedRoute>;
-const protectNetwork = <ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ADMINISTRATEUR']}><SocialPageLayout /></ProtectedRoute>;
+const protectNetwork = <ProtectedRoute roles={['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ENTREPRISE', 'ADMINISTRATEUR']}><SocialPageLayout /></ProtectedRoute>;
 
 function SocialPageLayout() {
   const { utilisateur } = useAuth();
@@ -70,6 +72,7 @@ function destinationFor(role) {
   if (role === 'ETUDIANT') return '/espace-etudiant';
   if (role === 'UNIVERSITE') return '/espace-universite';
   if (role === 'VISITEUR') return '/reseau';
+  if (role === 'ENTREPRISE') return '/reseau';
   return null;
 }
 
@@ -101,6 +104,7 @@ export function App() {
       <Route path="/reseau" element={<SocialFeedPage embedded />} />
       <Route path="/annonces" element={<SocialFeedPage key="annonces" initialFilter="ANNONCE" />} />
       <Route path="/relations" element={<SocialRelationsPage />} />
+      <Route path="/profils-utilisateurs/:code" element={<PublicUserProfilePage />} />
       <Route path="/chat" element={<div className="container social-utility-page"><MessagesPage /></div>} />
       <Route path="/notifications" element={<div className="container social-utility-page"><NotificationsPage /></div>} />
       <Route path="/parametres" element={<section className="public-settings-page"><div className="container"><SettingsPage /></div></section>} />
@@ -173,5 +177,5 @@ export function App() {
     </Route>
 
     <Route path="*" element={<NotFoundPage />} />
-  </Routes><GlobalCampusHubAssistant /></>;
+  </Routes><GlobalCampusHubAssistant /><AppToast /></>;
 }

@@ -80,7 +80,7 @@ Lancez le service Python du dossier `My Agent`, puis ajoutez ces variables dans 
 ```dotenv
 CAMPUSHUB_IA_URL=http://127.0.0.1:5000
 CAMPUSHUB_IA_TOKEN=
-CAMPUSHUB_IA_MODEL=campushub-ia-local-v1
+CAMPUSHUB_IA_MODEL=campushubai
 CAMPUSHUB_IA_TIMEOUT_MS=8000
 CAMPUSHUB_WEB_ENABLED=true
 CAMPUSHUB_WEB_TIMEOUT_MS=3500

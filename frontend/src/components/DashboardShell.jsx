@@ -78,15 +78,14 @@ function institutionNavigation(isSchool) {
     { to: '/espace-universite/offres', label: 'Offres', icon: BriefcaseBusiness },
     { to: '/espace-universite/inscriptions-en-ligne', label: 'Inscriptions en ligne', icon: ClipboardCheck },
     { to: '/espace-universite/partenaires', label: 'Partenaires', icon: Handshake },
+    { to: '/espace-universite/affiliations', label: isSchool ? 'Demandes des élèves' : 'Demandes étudiantes', icon: ClipboardCheck },
+    { to: '/espace-universite/etudiants', label: isSchool ? 'Gestion des élèves' : 'Gestion des étudiants', icon: Users },
     { to: '/espace-universite/publications', label: 'Publications', icon: FileText },
     { to: '/espace-universite/reseau', label: 'Réseau CampusHub', icon: Newspaper },
     { to: '/espace-universite/rapports', label: 'Rapports', icon: FileText },
   ];
   if (!isSchool) navigation.push({ to: '/espace-universite/copilote', label: 'Copilote établissement', icon: Bot });
   navigation.push(
-    { to: '/espace-universite/messages', label: 'Messages', icon: MessageCircle },
-    { to: '/espace-universite/affiliations', label: isSchool ? 'Demandes des élèves' : 'Demandes étudiantes', icon: ClipboardCheck },
-    { to: '/espace-universite/etudiants', label: isSchool ? 'Gestion des élèves' : 'Gestion des étudiants', icon: Users },
     { to: '/espace-universite/abonnement', label: 'Abonnement', icon: CreditCard },
     { to: '/espace-universite/notifications', label: 'Notifications', icon: Bell },
   );
@@ -96,7 +95,6 @@ function institutionNavigation(isSchool) {
 const studentNavigation = [
   { to: '/espace-etudiant', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/espace-etudiant/reseau', label: 'Réseau CampusHub', icon: Newspaper },
-  { to: '/espace-etudiant/orientation', label: 'CampusHubIA', icon: Bot },
   { to: '/espace-etudiant/orientation-finaliste', label: 'Orientation finaliste', icon: BookOpen },
   { to: '/espace-etudiant/messages', label: 'Messages', icon: MessageCircle },
   { to: '/espace-etudiant/affiliation', label: 'Mon affiliation', icon: Building2 },
@@ -107,7 +105,6 @@ const studentNavigation = [
 
 const visitorNavigation = [
   { to: '/reseau', label: 'Réseau', icon: Newspaper, end: true },
-  { action: 'assistant', label: 'CampusHubIA', icon: Bot },
   { to: '/universites', label: 'Établissements', icon: Building2 },
   { to: '/offres', label: 'Offres', icon: BriefcaseBusiness },
   { to: '/contact', label: 'Contact', icon: Mail },
@@ -223,11 +220,6 @@ function DashboardShellContent({ role, institution, children }) {
     navigate('/connexion');
   }
 
-  function ouvrirAssistant() {
-    window.dispatchEvent(new CustomEvent('campushub:ouvrir-assistant'));
-    setMobileOpen(false);
-  }
-
   return (
     <div className={`app-shell ${collapsed ? 'app-shell--collapsed' : ''}`}>
       <aside className={`app-sidebar ${mobileOpen ? 'app-sidebar--open' : ''}`}>
@@ -246,10 +238,6 @@ function DashboardShellContent({ role, institution, children }) {
               </button>
               {campusOpen && <div className="nav-group__children">{item.children.map((child) => <NavLink key={child.to} to={child.to} onClick={() => setMobileOpen(false)}><child.icon /><span>{child.label}</span></NavLink>)}</div>}
             </div>
-          ) : item.action === 'assistant' ? (
-            <button className="app-navigation__action" key={item.action} type="button" onClick={ouvrirAssistant} title={collapsed ? item.label : undefined}>
-              <item.icon /><span>{item.label}</span>
-            </button>
           ) : (
             <NavLink key={item.to} to={item.to} end={item.end} onClick={() => setMobileOpen(false)} title={collapsed ? item.label : undefined}>
               <item.icon /><span>{item.label}</span>

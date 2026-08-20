@@ -5,6 +5,7 @@ import {
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PageShell } from '../components/PageShell.jsx';
+import { EmailVerificationStep } from '../components/EmailVerificationStep.jsx';
 import { Spinner } from '../components/Spinner.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -14,6 +15,7 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [requestChoiceOpen, setRequestChoiceOpen] = useState(false);
+  const [verificationPending, setVerificationPending] = useState(false);
   const { connexion } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,9 +33,22 @@ export function LoginPage() {
       navigate(destination, { replace: true });
     } catch (err) {
       setError(err.message);
+      if (err.status === 403 && /confirm/i.test(err.message)) setVerificationPending(true);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function finishVerification() {
+    setLoading(true); setError('');
+    try {
+      const session = await connexion(form.email, form.motDePasse);
+      const destination = session.utilisateur.role === 'ADMINISTRATEUR' ? '/administration'
+        : session.utilisateur.role === 'ETUDIANT' ? '/espace-etudiant'
+          : session.utilisateur.role === 'UNIVERSITE' ? '/espace-universite' : '/reseau';
+      navigate(destination, { replace: true });
+    } catch (err) { setError(err.message); setVerificationPending(false); }
+    finally { setLoading(false); }
   }
 
   return (
@@ -50,7 +65,7 @@ export function LoginPage() {
         </div>
 
         <div className="auth-form-wrap">
-          <form className="form-card" onSubmit={handleSubmit}>
+          {verificationPending ? <div className="form-card"><EmailVerificationStep email={form.email} emailMasque={form.email} onVerified={finishVerification} /><button className="verification-back" type="button" onClick={() => { setVerificationPending(false); setError(''); }}>Revenir à la connexion</button></div> : <form className="form-card" onSubmit={handleSubmit}>
             <span className="eyebrow eyebrow--accent">Heureux de vous revoir</span>
             <h2>Connexion</h2>
             <p>Entrez les identifiants liés à votre compte.</p>
@@ -71,13 +86,14 @@ export function LoginPage() {
               {loading ? <Spinner label="Connexion" /> : <>Se connecter <ArrowRight size={18} /></>}
             </button>
 
-            <div className="form-divider"><span>Nouvel établissement ?</span></div>
-            <button className="button button--outline button--full" type="button" onClick={() => setRequestChoiceOpen(true)}>Envoyer une demande</button>
+            <div className="form-divider" id="creer-compte"><span>Créer un compte</span></div>
             <div className="auth-role-options">
               <Link className="auth-role-card" to="/inscription-etudiant"><span><GraduationCap /></span><div><strong>Je suis étudiant</strong><small>Créer mon espace</small></div><ArrowRight /></Link>
               <Link className="auth-role-card" to="/inscription-visiteur"><span><Users /></span><div><strong>Je suis visiteur</strong><small>Rejoindre le réseau</small></div><ArrowRight /></Link>
+              <button className="auth-role-card" type="button" onClick={() => setRequestChoiceOpen(true)}><span><Building2 /></span><div><strong>Nouvel établissement</strong><small>Soumettre une demande</small></div><ArrowRight /></button>
+              <Link className="auth-role-card" to="/partenariat-organisation"><span><BriefcaseBusiness /></span><div><strong>Organisation</strong><small>Créer un partenariat</small></div><Handshake /></Link>
             </div>
-          </form>
+          </form>}
         </div>
       </section>
       {requestChoiceOpen && <div className="request-choice-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setRequestChoiceOpen(false); }}><section className="request-choice-modal" role="dialog" aria-modal="true" aria-labelledby="request-choice-title"><button className="request-choice-close" type="button" onClick={() => setRequestChoiceOpen(false)} aria-label="Fermer"><X /></button><span className="eyebrow eyebrow--accent">Choisissez votre parcours</span><h2 id="request-choice-title">Quelle demande souhaitez-vous envoyer ?</h2><p>Les deux demandes sont examinées par l’administration avant activation ou mise en relation.</p><div><Link to="/partenariat"><span><Building2 /></span><div><strong>Établissement scolaire</strong><small>Université, institut supérieur ou école secondaire.</small></div><ArrowRight /></Link><Link to="/partenariat-organisation"><span><BriefcaseBusiness /></span><div><strong>Entreprise ou organisation</strong><small>Financement, partenariat, stage, emploi ou opportunité.</small></div><Handshake /></Link></div></section></div>}

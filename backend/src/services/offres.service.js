@@ -2,6 +2,8 @@ import { baseDeDonnees } from '../config/base-de-donnees.js';
 import { ErreurApi } from '../utils/erreur-api.js';
 import { construireMiseAJour, metaPagination, pagination } from '../utils/sql.js';
 import { trouverUniversiteParCode, verifierGestionUniversite } from './autorisations.service.js';
+import { envoyerAlerteAdministration } from './email.service.js';
+import { verifierContenuAvantPublication } from './moderation-automatique.service.js';
 
 async function offreInterne(code) {
   const [lignes] = await baseDeDonnees.execute(
@@ -76,6 +78,7 @@ export async function listerMesOffres(utilisateur, filtres) {
 }
 
 export async function creerOffre(utilisateur, donnees) {
+  verifierContenuAvantPublication(donnees.titre, donnees.description, donnees.conditions);
   const universite = await trouverUniversiteParCode(donnees.codeUniversite);
   await verifierGestionUniversite(utilisateur, universite.id);
   const [resultat] = await baseDeDonnees.execute(
@@ -95,12 +98,24 @@ export async function creerOffre(utilisateur, donnees) {
   const [lignes] = await baseDeDonnees.execute(
     'SELECT * FROM vue_offres_etablissements WHERE id = ? LIMIT 1', [resultat.insertId],
   );
-  return lignes[0];
+  const offre = lignes[0];
+  if (donnees.publier) {
+    try {
+      await envoyerAlerteAdministration({
+        titre: 'Nouvelle offre publiée',
+        introduction: `${universite.nom} vient de publier une offre.`,
+        details: [donnees.titre, `Type : ${donnees.type}`, `Référence : ${offre.code_offre}`],
+        chemin: '/offres',
+      });
+    } catch (erreur) { console.error('Échec de l’e-mail de nouvelle offre :', erreur.code || erreur.message); }
+  }
+  return offre;
 }
 
 export async function modifierOffre(code, donnees, utilisateur) {
   const offre = await offreInterne(code);
   await verifierGestionUniversite(utilisateur, offre.universite_id);
+  verifierContenuAvantPublication(donnees.titre, donnees.description, donnees.conditions);
   const normalisees = { ...donnees };
   for (const champ of ['conditions', 'ville', 'province', 'urlCandidature', 'emailContact', 'urlImage', 'urlDocument', 'nomDocument', 'dateDebut', 'dateLimite']) {
     if (normalisees[champ] === '') normalisees[champ] = null;

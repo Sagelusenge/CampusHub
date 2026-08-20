@@ -4,6 +4,7 @@ import { environnement } from '../config/environnement.js';
 import { ErreurApi } from '../utils/erreur-api.js';
 import { construireMiseAJour, metaPagination, pagination } from '../utils/sql.js';
 import { trouverUtilisateurParId } from './utilisateurs.service.js';
+import { envoyerAlerteGestionnaires } from './email.service.js';
 
 const colonnesPubliques = `id, code_utilisateur, role, statut_verification,
   nom_affichage, url_photo_profil, biographie, pays, ville, province, date_creation`;
@@ -32,6 +33,7 @@ export async function listerUtilisateurs(filtres) {
   const valeurs = [];
   if (filtres.role) { conditions.push('role = ?'); valeurs.push(filtres.role); }
   if (filtres.statut) { conditions.push('statut_compte = ?'); valeurs.push(filtres.statut); }
+  if (filtres.verification) { conditions.push('statut_verification = ?'); valeurs.push(filtres.verification); }
   if (filtres.recherche) {
     conditions.push('(nom_affichage LIKE ? OR email LIKE ? OR code_utilisateur = ?)');
     valeurs.push(`%${filtres.recherche}%`, `%${filtres.recherche}%`, filtres.recherche.toUpperCase());
@@ -138,8 +140,20 @@ export async function creerUtilisateurParAdministration(donnees) {
         'Étudiant CampusHub', JSON.stringify([]), null,
       ]);
     }
+    const utilisateurCree = await obtenirUtilisateurAdministration(cree.code_utilisateur, connexion);
     await connexion.commit();
-    return obtenirUtilisateurAdministration(cree.code_utilisateur, connexion);
+    try {
+      await envoyerAlerteGestionnaires({
+        emails: [utilisateurCree.email],
+        titre: 'Votre compte CampusHub a été créé',
+        introduction: `L’administration a créé et vérifié le compte de ${utilisateurCree.nom_affichage}.`,
+        details: [`Identifiant : ${utilisateurCree.email}`, `Rôle : ${utilisateurCree.role}`],
+        chemin: '/connexion',
+      });
+    } catch (erreurEmail) {
+      console.error('Échec de l’e-mail de création administrative :', erreurEmail.message);
+    }
+    return utilisateurCree;
   } catch (erreur) {
     await connexion.rollback();
     if (erreur.code === 'ER_DUP_ENTRY') throw new ErreurApi(409, 'L’adresse e-mail ou le matricule est déjà utilisé.');
@@ -243,6 +257,17 @@ export async function changerStatutUtilisateur(code, donnees, administrateurId) 
     'SELECT id, code_utilisateur, email, role, statut_compte, statut_verification FROM utilisateurs WHERE code_utilisateur = ?',
     [code.toUpperCase()],
   );
+  try {
+    await envoyerAlerteGestionnaires({
+      emails: [cible.email],
+      titre: 'Mise à jour de votre compte CampusHub',
+      introduction: `Le statut du compte de ${cible.nom_affichage} a été modifié par l’administration.`,
+      details: [`Nouveau statut : ${donnees.statutCompte.replaceAll('_', ' ')}`],
+      chemin: donnees.statutCompte === 'ACTIF' ? '/connexion' : '/',
+    });
+  } catch (erreurEmail) {
+    console.error('Échec de l’e-mail de statut utilisateur :', erreurEmail.message);
+  }
   return lignes[0];
 }
 

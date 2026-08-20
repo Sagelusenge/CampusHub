@@ -67,9 +67,12 @@ try {
      SET derniere_valeur = (SELECT COALESCE(MAX(id), 0) FROM plans_abonnement)
      WHERE nom_sequence = 'plans_abonnement'`,
   );
+  // Les codes utilisent une séquence sur quatre chiffres (ADM0001AAAA, ETU0002AAAA…).
+  // Garder la graine sous 9 000 évite que LPAD tronque deux identifiants successifs
+  // avec le même préfixe, tout en conservant des codes difficiles à deviner.
   await connexion.execute(
     "UPDATE compteurs_sequences SET derniere_valeur = ? WHERE nom_sequence = 'utilisateurs'",
-    [randomInt(100_000, 900_000)],
+    [randomInt(1_000, 8_000)],
   );
 
   const hash = await bcrypt.hash(motDePasse, environnement.BCRYPT_ROUNDS);

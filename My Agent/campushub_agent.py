@@ -16,7 +16,7 @@ from typing import Any
 from response_engine import LocalResponseEngine
 
 
-MODEL_NAME = "campushub-ia-local-v1"
+MODEL_NAME = "campushubai"
 
 
 def _text(value: Any, fallback: str = "") -> str:

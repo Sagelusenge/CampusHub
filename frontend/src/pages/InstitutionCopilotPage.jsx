@@ -78,7 +78,7 @@ export function InstitutionCopilotPage() {
     <div className="copilot-status">
       <span className={configuration?.disponible ? 'ai-status-dot ai-status-dot--live' : 'ai-status-dot'} />
       <div><strong>{configuration?.disponible ? 'CampusHubIA opérationnel' : 'Moteur local de secours'}</strong><small>{configuration?.message || 'Vérification de la configuration…'}</small></div>
-      <span><Sparkles />{configuration?.modele || 'campushub-ia-local-v1'}</span>
+      <span><Sparkles />{configuration?.modele || 'campushubai'}</span>
     </div>
     {error && <div className="alert alert--error">{error}</div>}
 
@@ -89,13 +89,13 @@ export function InstitutionCopilotPage() {
     <div className="copilot-layout">
       <form className="app-panel copilot-editor" onSubmit={generer}>
         <header><span><outilActif.icon /></span><div><small>Outil sélectionné</small><h2>{outilActif.titre}</h2><p>{outilActif.description}</p></div></header>
-        <label className="editor-field"><span>Ce que vous souhaitez obtenir</span><textarea required minLength="10" rows="6" value={form.demande} onChange={(event) => setForm({ ...form, demande: event.target.value })} /></label>
+        <label className="editor-field"><span>Vos attentes pour le texte</span><textarea required minLength="10" rows="5" value={form.demande} onChange={(event) => setForm({ ...form, demande: event.target.value })} placeholder="Décrivez le sujet, les informations indispensables et l’action attendue du lecteur." /></label>
         <div className="form-grid">
           <label className="editor-field"><span>Ton du brouillon</span><select value={form.ton} onChange={(event) => setForm({ ...form, ton: event.target.value })}><option value="PROFESSIONNEL">Professionnel</option><option value="ACCUEILLANT">Accueillant</option><option value="DYNAMIQUE">Dynamique</option><option value="INSTITUTIONNEL">Institutionnel</option></select></label>
           <label className="editor-field"><span>Public concerné</span><input value={form.publicCible} onChange={(event) => setForm({ ...form, publicCible: event.target.value })} /></label>
           {form.type === 'PRESENTATION_FILIERE' && <label className="editor-field editor-field--wide"><span>Filière à présenter</span><select required value={form.codeFiliere} onChange={(event) => setForm({ ...form, codeFiliere: event.target.value })}><option value="">Choisir une filière</option>{(contexte?.filieres || []).map((filiere) => <option value={filiere.code_filiere} key={filiere.code_filiere}>{filiere.nom} — {filiere.niveau_diplome}</option>)}</select></label>}
         </div>
-        <button className="button button--full copilot-submit" disabled={loading}>{loading ? <><Spinner />Le copilote prépare le brouillon…</> : <><Bot />Générer un brouillon <Sparkles /></>}</button>
+        <button className="button button--full copilot-submit" disabled={loading}>{loading ? <><Spinner />Le copilote prépare le texte…</> : <><Bot />Générer le texte <Sparkles /></>}</button>
         <p className="copilot-notice"><CheckCircle2 />Vous relisez et validez toujours le résultat avant toute publication.</p>
       </form>
 

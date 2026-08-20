@@ -63,7 +63,7 @@ export function EmailVerificationStep({
     <span className="email-verification-card__icon"><MailCheck /></span>
     <small>Protection du compte</small>
     <h2>Confirmez votre adresse e-mail</h2>
-    <p>Entrez le code à six chiffres envoyé à <strong>{emailMasque || email}</strong>.</p>
+    <p>Entrez le code à six chiffres envoyé à <strong>{emailMasque || email}</strong>. S’il n’apparaît pas dans la boîte de réception, consultez aussi les dossiers <strong>Spam</strong> et <strong>Messages indésirables</strong>.</p>
     {message && <div className="verification-notice"><CheckCircle2 />{message}</div>}
     {error && <div className="alert alert--error">{error}</div>}
     <form onSubmit={confirmer}>

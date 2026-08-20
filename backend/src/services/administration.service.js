@@ -1,6 +1,7 @@
 import { baseDeDonnees } from '../config/base-de-donnees.js';
 import { ErreurApi } from '../utils/erreur-api.js';
 import { metaPagination, pagination } from '../utils/sql.js';
+import { envoyerAlerteGestionnaires } from './email.service.js';
 
 export async function tableauDeBord() {
   const [lignes] = await baseDeDonnees.query(`
@@ -68,7 +69,14 @@ export async function verifierUniversite(code, statut, administrateurId) {
   try {
     await connexion.beginTransaction();
     const [universites] = await connexion.execute(
-      'SELECT id, code_universite, nom FROM universites WHERE code_universite = ? FOR UPDATE',
+      `SELECT u.id, u.code_universite, u.nom,
+        GROUP_CONCAT(DISTINCT gestionnaire.email SEPARATOR ',') AS emails_gestionnaires
+       FROM universites u
+       LEFT JOIN membres_universite membre ON membre.universite_id = u.id AND membre.est_proprietaire = 1
+       LEFT JOIN utilisateurs gestionnaire ON gestionnaire.id = membre.utilisateur_id
+       WHERE u.code_universite = ?
+       GROUP BY u.id, u.code_universite, u.nom
+       FOR UPDATE`,
       [code.toUpperCase()],
     );
     if (!universites[0]) throw new ErreurApi(404, 'Université introuvable.');
@@ -85,6 +93,21 @@ export async function verifierUniversite(code, statut, administrateurId) {
         universite.id],
     );
     await connexion.commit();
+    try {
+      await envoyerAlerteGestionnaires({
+        emails: String(universite.emails_gestionnaires || '').split(',').filter(Boolean),
+        titre: statut === 'VERIFIEE' ? 'Votre établissement a été vérifié' : 'Votre fiche nécessite des corrections',
+        introduction: statut === 'VERIFIEE'
+          ? `${universite.nom} est maintenant visible dans l’annuaire CampusHub.`
+          : `${universite.nom} n’a pas encore été publié par l’administration.`,
+        details: statut === 'VERIFIEE'
+          ? ['La fiche publique est active.', 'Les formations et services peuvent maintenant être consultés.']
+          : ['Connectez-vous pour vérifier et compléter les informations de la fiche.'],
+        chemin: '/espace-universite/fiche',
+      });
+    } catch (erreurEmail) {
+      console.error('Échec de l’e-mail de vérification institutionnelle :', erreurEmail.message);
+    }
     return { ...universite, statut_verification: statut };
   } catch (erreur) {
     await connexion.rollback();

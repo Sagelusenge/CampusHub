@@ -54,6 +54,7 @@ export const schemaInfrastructure = z.object({
   nom: z.string().trim().min(2).max(140),
   categorie: z.string().trim().min(2).max(100),
   description: nullable(z.string().trim().max(5000)),
+  urlImage: nullable(z.string().url().max(500)),
   quantite: nullable(z.coerce.number().int().nonnegative()),
 });
 export const schemaInfrastructureModification = schemaInfrastructure.partial().refine((o) => Object.keys(o).length > 0);

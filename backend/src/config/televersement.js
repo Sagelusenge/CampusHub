@@ -45,7 +45,10 @@ export const televerserPreuve = multer({
 });
 export const televerserDocument = multer({
   storage: stockage('documents'), limits: { fileSize: 20 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => cb(null, file.mimetype === 'application/pdf'),
+  fileFilter: (_req, file, cb) => cb(
+    null,
+    imagesAcceptees.has(file.mimetype) || fichiersAcceptes.has(file.mimetype),
+  ),
 });
 export const televerserMedia = multer({
   storage: stockage('medias'), limits: { fileSize: 60 * 1024 * 1024 },

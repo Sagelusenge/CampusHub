@@ -92,7 +92,7 @@ export async function envoyerCodeVerification({ email, nom, code, dureeMinutes }
     from: expediteur(),
     to: email,
     subject: sujet,
-    text: `Bonjour ${nom || ''},\n\nVotre code de confirmation CampusHub est : ${code}\n\nIl expire dans ${dureeMinutes} minutes. Ne le partagez avec personne.\n\nL’équipe CampusHub`,
+    text: `Bonjour ${nom || ''},\n\nVotre code de confirmation CampusHub est : ${code}\n\nIl expire dans ${dureeMinutes} minutes. Ne le partagez avec personne. Si vous ne voyez pas cet e-mail, consultez aussi Spam ou Messages indésirables.\n\nL’équipe CampusHub`,
     html: miseEnPageEmail({
       titre: 'Confirmez votre adresse e-mail',
       preheader: `Votre code CampusHub est ${code}. Il expire dans ${dureeMinutes} minutes.`,
@@ -100,10 +100,43 @@ export async function envoyerCodeVerification({ email, nom, code, dureeMinutes }
       contenu: `<div style="padding:20px;text-align:center;border:1px solid #bce4dd;border-radius:14px;background:#ecfaf7">
         <span style="display:block;color:#607b7a;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Code de confirmation</span>
         <strong style="display:block;margin-top:7px;color:#087f74;font-size:34px;letter-spacing:9px">${code}</strong>
-      </div><p style="margin:15px 0 0">Ce code expire dans <strong>${dureeMinutes} minutes</strong> et ne peut être utilisé qu’une seule fois.</p>`,
+      </div><p style="margin:15px 0 0">Ce code expire dans <strong>${dureeMinutes} minutes</strong> et ne peut être utilisé qu’une seule fois.</p><p style="margin:12px 0 0;padding:12px;border-radius:9px;background:#f6f9fc;color:#607286">Vous ne trouvez pas le message ? Consultez également vos dossiers <strong>Spam</strong> et <strong>Messages indésirables</strong>.</p>`,
       conclusion: 'Si vous n’avez pas créé ce compte, ignorez simplement cet e-mail.',
     }),
   });
+}
+
+export async function envoyerAlerteAdministration({ titre, introduction, details = [], chemin = '/administration' }) {
+  const destinataire = emailAdministration();
+  if (!destinataire) return false;
+  const liste = details.map((detail) => `<li style="margin:6px 0">${echapperHtml(detail)}</li>`).join('');
+  await obtenirTransporteur().sendMail({
+    from: expediteur(), to: destinataire, subject: `[CampusHub] ${titre}`,
+    text: `${titre}\n\n${details.join('\n')}\n\nOuvrir CampusHub : ${new URL(chemin, environnement.FRONTEND_URL)}`,
+    html: miseEnPageEmail({
+      titre,
+      introduction: echapperHtml(introduction),
+      contenu: liste ? `<ul style="margin:0;padding:16px 16px 16px 34px;border-radius:12px;background:#f2f7fb">${liste}</ul>` : '',
+      action: { libelle: 'Ouvrir dans l’administration', chemin },
+    }),
+  });
+  return true;
+}
+
+export async function envoyerAlerteGestionnaires({ emails, titre, introduction, details = [], chemin = '/espace-universite' }) {
+  const destinataires = [...new Set((emails || []).filter(Boolean))];
+  if (!destinataires.length) return false;
+  const liste = details.map((detail) => `<li style="margin:6px 0">${echapperHtml(detail)}</li>`).join('');
+  await obtenirTransporteur().sendMail({
+    from: expediteur(), to: destinataires, subject: `[CampusHub] ${titre}`,
+    text: `${titre}\n\n${details.join('\n')}\n\nOuvrir CampusHub : ${new URL(chemin, environnement.FRONTEND_URL)}`,
+    html: miseEnPageEmail({
+      titre, introduction: echapperHtml(introduction),
+      contenu: liste ? `<ul style="margin:0;padding:16px 16px 16px 34px;border-radius:12px;background:#f2f7fb">${liste}</ul>` : '',
+      action: { libelle: 'Consulter dans CampusHub', chemin },
+    }),
+  });
+  return true;
 }
 
 export async function envoyerActivationEssai({ email, nom, dateFin }) {

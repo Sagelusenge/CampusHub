@@ -1,5 +1,6 @@
 import { baseDeDonnees } from '../config/base-de-donnees.js';
 import { ErreurApi } from '../utils/erreur-api.js';
+import { envoyerAlerteGestionnaires } from './email.service.js';
 
 function json(value, fallback) {
   if (value == null) return fallback;
@@ -215,6 +216,19 @@ export async function soumettreInscription(utilisateur, codeUniversite, reponses
      FROM membres_universite m WHERE m.universite_id = ?`,
     [utilisateur.id, `${utilisateur.nom_affichage} a envoyé un dossier d’inscription.`, formulaire.universite_id],
   );
+  try {
+    const [gestionnaires] = await baseDeDonnees.execute(
+      `SELECT DISTINCT u.email FROM membres_universite m JOIN utilisateurs u ON u.id = m.utilisateur_id
+       WHERE m.universite_id = ? AND u.statut_compte = 'ACTIF'`, [formulaire.universite_id],
+    );
+    await envoyerAlerteGestionnaires({
+      emails: gestionnaires.map((item) => item.email),
+      titre: 'Nouveau dossier d’inscription en ligne',
+      introduction: `${utilisateur.nom_affichage} a envoyé une candidature à votre établissement.`,
+      details: [`Formulaire : ${formulaire.titre}`, `Candidat : ${utilisateur.email}`],
+      chemin: '/espace-universite/inscriptions-en-ligne',
+    });
+  } catch (erreur) { console.error('Échec de l’e-mail d’inscription en ligne :', erreur.code || erreur.message); }
   const [lignes] = await baseDeDonnees.execute(
     `SELECT code_demande, statut, date_creation FROM demandes_inscription_ligne
      WHERE formulaire_id = ? AND candidat_id = ? LIMIT 1`,
@@ -229,7 +243,7 @@ export async function listerDemandesGestionnaire(utilisateurId) {
     `SELECT d.code_demande, d.statut, d.reponses, d.note_etablissement,
             d.date_creation, d.date_traitement,
             u.code_utilisateur AS code_candidat, u.nom_affichage AS nom_candidat,
-            u.email, NULL AS telephone
+            u.email, u.telephone
      FROM demandes_inscription_ligne d JOIN utilisateurs u ON u.id = d.candidat_id
      WHERE d.universite_id = ?
      ORDER BY FIELD(d.statut, 'SOUMISE','EN_ETUDE','DOCUMENTS_REQUIS','ACCEPTEE','REFUSEE'), d.date_creation DESC`,
@@ -256,6 +270,20 @@ export async function traiterInscription(utilisateurId, code, donnees) {
      VALUES (0, '', ?, ?, 'SYSTEME', 'Mise à jour de votre inscription', ?)`,
     [demandes[0].candidat_id, utilisateurId, donnees.noteEtablissement || `Votre dossier est maintenant : ${donnees.statut}.`],
   );
+  try {
+    const [candidats] = await baseDeDonnees.execute(
+      `SELECT c.email, c.nom_affichage, u.nom AS nom_universite
+       FROM utilisateurs c JOIN universites u ON u.id = ? WHERE c.id = ? LIMIT 1`,
+      [institution.id, demandes[0].candidat_id],
+    );
+    if (candidats[0]) await envoyerAlerteGestionnaires({
+      emails: [candidats[0].email],
+      titre: 'Mise à jour de votre dossier d’inscription',
+      introduction: `Bonjour ${candidats[0].nom_affichage}, ${candidats[0].nom_universite} a mis à jour votre candidature.`,
+      details: [`Statut : ${donnees.statut.replaceAll('_', ' ')}`, donnees.noteEtablissement || 'Consultez votre espace CampusHub pour le détail.', `Référence : ${code.toUpperCase()}`],
+      chemin: '/reseau',
+    });
+  } catch (erreur) { console.error('Échec de l’e-mail de suivi d’inscription :', erreur.code || erreur.message); }
   return { codeDemande: code.toUpperCase(), statut: donnees.statut };
 }
 

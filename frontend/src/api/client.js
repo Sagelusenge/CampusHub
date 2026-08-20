@@ -28,6 +28,11 @@ export async function apiRequest(path, options = {}) {
     const message = payload?.erreur?.message || payload?.message || 'Une erreur inattendue est survenue.';
     throw new ApiError(message, response.status, payload?.erreur);
   }
+  if (requestOptions.method && requestOptions.method.toUpperCase() !== 'GET') {
+    globalThis.dispatchEvent?.(new CustomEvent('campushub:toast', {
+      detail: { message: payload?.message || 'Enregistrement effectué avec succès.', type: 'success' },
+    }));
+  }
   return payload;
 }
 
@@ -39,6 +44,7 @@ export async function uploadFile(path, file, token) {
   });
   const payload = await response.json().catch(() => null);
   if (!response.ok) throw new ApiError(payload?.erreur?.message || 'Le fichier n’a pas pu être envoyé.', response.status, payload?.erreur);
+  globalThis.dispatchEvent?.(new CustomEvent('campushub:toast', { detail: { message: 'Fichier chargé avec succès.', type: 'success' } }));
   return payload;
 }
 

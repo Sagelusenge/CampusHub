@@ -13,7 +13,7 @@ import {
   notifierDemandeAffiliation,
   validerChoixAffiliation,
 } from './affiliations.service.js';
-import { envoyerCodeVerification } from './email.service.js';
+import { envoyerAlerteAdministration, envoyerCodeVerification } from './email.service.js';
 import { activerEssaiGratuit, notifierActivationEssai } from './abonnements.service.js';
 
 function creerJeton(utilisateur) {
@@ -215,7 +215,8 @@ export async function confirmerCodeVerification(email, code) {
     await connexion.execute(
       `UPDATE utilisateurs
        SET date_verification_email = CURRENT_TIMESTAMP,
-           statut_compte = CASE WHEN role IN ('ETUDIANT', 'VISITEUR') THEN 'ACTIF' ELSE statut_compte END
+           statut_compte = CASE WHEN role IN ('ETUDIANT', 'VISITEUR', 'ENTREPRISE') THEN 'ACTIF' ELSE statut_compte END,
+           statut_verification = CASE WHEN role = 'UNIVERSITE' THEN 'EN_ATTENTE' ELSE statut_verification END
        WHERE id = ?`,
       [utilisateur.id],
     );
@@ -236,10 +237,29 @@ export async function confirmerCodeVerification(email, code) {
       console.error('Échec de la notification d’affiliation après vérification :', erreur.code || erreur.message);
     }
   }
+  if (utilisateur.role === 'UNIVERSITE') {
+    try {
+      await baseDeDonnees.execute(
+        `INSERT INTO notifications
+          (id, code_notification, destinataire_id, acteur_id, type_notification, titre, message, url_action)
+         SELECT 0, '', a.id, ?, 'SYSTEME', 'Nouvelle demande institutionnelle', ?, '/administration/demandes'
+         FROM utilisateurs a WHERE a.role = 'ADMINISTRATEUR' AND a.statut_compte = 'ACTIF'`,
+        [utilisateur.id, `${utilisateur.nom_affichage} a confirmé son adresse e-mail et attend votre vérification.`],
+      );
+      await envoyerAlerteAdministration({
+        titre: 'Nouvel établissement à examiner',
+        introduction: `${utilisateur.nom_affichage} a confirmé son adresse e-mail.`,
+        details: [`Compte : ${utilisateur.email}`, 'La fiche et l’identité de l’établissement doivent être vérifiées.'],
+        chemin: '/administration/demandes',
+      });
+    } catch (erreur) {
+      console.error('Échec de la notification institutionnelle :', erreur.code || erreur.message);
+    }
+  }
   await notifierActivationEssai(essaiGratuit);
   return {
     email_verifie: true,
-    statut_compte: ['ETUDIANT', 'VISITEUR', 'UNIVERSITE'].includes(utilisateur.role) ? 'ACTIF' : utilisateur.statut_compte,
+    statut_compte: ['ETUDIANT', 'VISITEUR', 'UNIVERSITE', 'ENTREPRISE'].includes(utilisateur.role) ? 'ACTIF' : utilisateur.statut_compte,
     essai_gratuit: essaiGratuit?.abonnement ?? null,
   };
 }

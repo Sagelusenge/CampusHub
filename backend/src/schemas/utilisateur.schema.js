@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const schemaListeUtilisateurs = z.object({
   role: z.enum(['VISITEUR', 'ETUDIANT', 'UNIVERSITE', 'ENTREPRISE', 'ADMINISTRATEUR']).optional(),
   statut: z.enum(['EN_ATTENTE', 'ACTIF', 'SUSPENDU', 'BLOQUE', 'SUPPRIME']).optional(),
+  verification: z.enum(['NON_VERIFIE', 'EN_ATTENTE', 'VERIFIE', 'REJETE']).optional(),
   recherche: z.string().trim().max(120).optional(),
   page: z.coerce.number().int().positive().default(1),
   limite: z.coerce.number().int().min(1).max(100).default(20),

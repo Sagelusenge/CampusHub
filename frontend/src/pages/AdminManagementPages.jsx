@@ -24,7 +24,7 @@ function useRemoteList(loader) {
 
 export function AdminRequestsPage() {
   const { token } = useAuth();
-  const loader = useCallback(async () => (await apiRequest('/utilisateurs?role=UNIVERSITE&statut=EN_ATTENTE&page=1&limite=50', { token })).donnees || [], [token]);
+  const loader = useCallback(async () => (await apiRequest('/utilisateurs?role=UNIVERSITE&verification=EN_ATTENTE&page=1&limite=50', { token })).donnees || [], [token]);
   const list = useRemoteList(loader);
   const [processing, setProcessing] = useState('');
   const [message, setMessage] = useState('');
@@ -48,6 +48,8 @@ export function AdminUniversitiesPage() {
   const [filter, setFilter] = useState('TOUTES');
   const [processing, setProcessing] = useState('');
   const [message, setMessage] = useState('');
+  const [editor, setEditor] = useState(null);
+  const [actionError, setActionError] = useState('');
   const visible = useMemo(() => filter === 'TOUTES' ? list.data : list.data.filter((row) => row.statut_verification === filter), [list.data, filter]);
   const categoryLabel = (item) => ({ UNIVERSITE: 'Université', INSTITUT_SUPERIEUR: 'Institut supérieur', ECOLE_SECONDAIRE: 'École secondaire' }[item.categorie_etablissement] || 'Université');
 
@@ -61,7 +63,25 @@ export function AdminUniversitiesPage() {
     } finally { setProcessing(''); }
   }
 
-  return <ManagementPage title="Établissements" description="Contrôlez les fiches avant leur publication dans l’annuaire." icon={Building2} list={{ ...list, data: visible }} message={message} extra={<div className="filter-tabs">{['TOUTES','EN_ATTENTE','VERIFIEE','REJETEE'].map((item) => <button className={filter === item ? 'active' : ''} onClick={() => setFilter(item)} key={item}>{item.replace('_',' ')}</button>)}</div>} columns={['Établissement', 'Catégorie', 'Localisation', 'Filières', 'Statut', 'Actions']} renderRow={(item) => <tr key={item.code_universite}><td><Identity title={item.nom} subtitle={`${item.code_universite} • ${item.type_universite === 'PUBLIQUE' ? 'Public' : 'Privé'}`} icon={Building2} /></td><td>{categoryLabel(item)}</td><td>{item.ville}, {item.province}</td><td>{item.nombre_filieres || 0}</td><td><StatusBadge status={item.statut_verification} /></td><td><div className="table-actions"><Link className="table-action" title="Consulter" to={`/universites/${item.code_universite}`} target="_blank"><Eye /></Link>{item.statut_verification === 'EN_ATTENTE' && <><button className="table-action table-action--success" disabled={processing === item.code_universite} onClick={() => verifier(item,true)}><Check /></button><button className="table-action table-action--danger" disabled={processing === item.code_universite} onClick={() => verifier(item,false)}><X /></button></>}</div></td></tr>} />;
+  async function saveInstitution(event) {
+    event.preventDefault(); setProcessing(editor.code_universite); setActionError('');
+    try {
+      const body = { nom: editor.nom, email: editor.email || null, telephone: editor.telephone || null, ville: editor.ville, province: editor.province, description: editor.description || null };
+      await apiRequest(`/universites/${editor.code_universite}`, { method: 'PATCH', token, body });
+      setMessage('La fiche de l’établissement a été modifiée.'); setEditor(null); await list.refresh();
+    } catch (error) { setActionError(error.message); }
+    finally { setProcessing(''); }
+  }
+
+  async function removeInstitution(item) {
+    if (!window.confirm(`Supprimer définitivement « ${item.nom} » et ses données académiques ?`)) return;
+    setProcessing(item.code_universite); setActionError('');
+    try { await apiRequest(`/universites/${item.code_universite}`, { method: 'DELETE', token }); setMessage('L’établissement a été supprimé.'); await list.refresh(); }
+    catch (error) { setActionError(error.message); }
+    finally { setProcessing(''); }
+  }
+
+  return <><ManagementPage title="Établissements" description="Modifiez, vérifiez, bloquez ou supprimez les établissements depuis une seule vue." icon={Building2} list={{ ...list, data: visible }} message={message} externalError={actionError} extra={<div className="filter-tabs">{['TOUTES','EN_ATTENTE','VERIFIEE','REJETEE'].map((item) => <button className={filter === item ? 'active' : ''} onClick={() => setFilter(item)} key={item}>{item.replace('_',' ')}</button>)}</div>} columns={['Établissement', 'Catégorie', 'Localisation', 'Filières', 'Statut', 'Actions']} renderRow={(item) => <tr key={item.code_universite}><td><Identity title={item.nom} subtitle={`${item.code_universite} • ${item.type_universite === 'PUBLIQUE' ? 'Public' : 'Privé'}`} icon={Building2} /></td><td>{categoryLabel(item)}</td><td>{item.ville}, {item.province}</td><td>{item.nombre_filieres || 0}</td><td><StatusBadge status={item.statut_verification} /></td><td><div className="table-actions"><Link className="table-action" title="Consulter" to={`/universites/${item.code_universite}`} target="_blank"><Eye /></Link><button className="table-action" title="Modifier" onClick={() => setEditor({ ...item })}><Pencil /></button>{item.statut_verification !== 'VERIFIEE' && <button className="table-action table-action--success" title="Vérifier" disabled={processing === item.code_universite} onClick={() => verifier(item,true)}><Check /></button>}{item.statut_verification !== 'REJETEE' && <button className="table-action table-action--warning" title="Bloquer la fiche" disabled={processing === item.code_universite} onClick={() => verifier(item,false)}><Ban /></button>}<button className="table-action table-action--danger" title="Supprimer" disabled={processing === item.code_universite} onClick={() => removeInstitution(item)}><Trash2 /></button></div></td></tr>} />{editor && <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setEditor(null); }}><form className="resource-modal resource-modal--large" onSubmit={saveInstitution}><header className="resource-modal__heading"><div><span className="eyebrow">Administration</span><h2>Modifier l’établissement</h2></div><button type="button" onClick={() => setEditor(null)}><X /></button></header>{actionError && <div className="alert alert--error">{actionError}</div>}<div className="form-grid"><label className="editor-field form-field--wide"><span>Nom officiel</span><input required value={editor.nom || ''} onChange={(event) => setEditor({ ...editor, nom: event.target.value })} /></label><label className="editor-field"><span>E-mail public</span><input type="email" value={editor.email || ''} onChange={(event) => setEditor({ ...editor, email: event.target.value })} /></label><label className="editor-field"><span>Téléphone</span><input value={editor.telephone || ''} onChange={(event) => setEditor({ ...editor, telephone: event.target.value })} /></label><label className="editor-field"><span>Ville</span><input required value={editor.ville || ''} onChange={(event) => setEditor({ ...editor, ville: event.target.value })} /></label><label className="editor-field"><span>Province</span><input required value={editor.province || ''} onChange={(event) => setEditor({ ...editor, province: event.target.value })} /></label><label className="editor-field form-field--wide"><span>Description</span><textarea rows="5" value={editor.description || ''} onChange={(event) => setEditor({ ...editor, description: event.target.value })} /></label></div><button className="button button--full" disabled={processing === editor.code_universite}>{processing === editor.code_universite ? <Spinner /> : <><Check />Enregistrer</>}</button></form></div>}</>;
 }
 
 export function AdminUsersPage() {
@@ -118,6 +138,7 @@ export function AdminUsersPage() {
       message={message}
       externalError={actionError}
       actions={<button className="button" type="button" onClick={() => setEditor({ mode: 'create', item: null })}><Plus />Ajouter un utilisateur</button>}
+      tableClassName="admin-users-table"
       extra={<div className="management-filters"><select className="compact-select" value={role} onChange={(event) => setRole(event.target.value)}><option value="">Tous les rôles</option><option value="VISITEUR">Visiteurs</option><option value="ETUDIANT">Étudiants</option><option value="UNIVERSITE">Universités</option><option value="ENTREPRISE">Entreprises</option><option value="ADMINISTRATEUR">Administrateurs</option></select><select className="compact-select" value={statut} onChange={(event) => setStatut(event.target.value)}><option value="">Tous les statuts</option><option value="ACTIF">Actifs</option><option value="SUSPENDU">Suspendus</option><option value="BLOQUE">Bloqués</option><option value="SUPPRIME">Supprimés</option></select></div>}
       columns={['Utilisateur','Rôle','Localisation','Vérification','Statut','Actions']}
       renderRow={(item) => {
@@ -182,10 +203,10 @@ export function AdminAuditPage() {
     if (groupMode === 'JOUR') return item.date_creation ? new Date(item.date_creation).toLocaleDateString('fr-FR', { dateStyle: 'long' }) : 'Date inconnue';
     return '';
   }, [groupMode]);
-  return <ManagementPage title="Journal d’audit" description="Traçabilité des consultations et opérations sensibles, avec valeurs avant/après et adresse IP." icon={FileClock} list={{ ...list, data: visible }} groupBy={groupMode === 'AUCUN' ? null : groupBy} extra={<div className="management-filters"><select className="compact-select" value={actionFilter} onChange={(event) => setActionFilter(event.target.value)}><option value="">Toutes les actions</option>{actions.map((action) => <option key={action}>{action}</option>)}</select><select className="compact-select" value={entityFilter} onChange={(event) => setEntityFilter(event.target.value)}><option value="">Toutes les entités</option>{entities.map((entity) => <option key={entity}>{entity}</option>)}</select><select className="compact-select" value={groupMode} onChange={(event) => setGroupMode(event.target.value)}><option value="JOUR">Grouper par jour</option><option value="ACTION">Grouper par action</option><option value="ENTITE">Grouper par entité</option><option value="AUCUN">Sans groupement</option></select></div>} columns={['Action','Entité','Utilisateur','Détails','Date']} renderRow={(item) => <tr key={item.code_audit || item.id}><td><strong>{item.action}</strong><small className="cell-subtitle">{item.code_audit}</small></td><td><span className="role-chip">{item.type_entite}</span><small className="cell-subtitle">ID {item.identifiant_entite || '—'}</small></td><td>{item.nom_affichage || 'Système / anonyme'}<small className="cell-subtitle">{item.code_utilisateur || item.adresse_ip || ''}</small></td><td className="audit-details-cell"><details><summary>Consulter les données</summary><pre>{formatAuditDetails(item)}</pre></details></td><td>{formatDateTime(item.date_creation)}</td></tr>} />;
+  return <ManagementPage title="Journal d’audit" description="Traçabilité des consultations et opérations sensibles, avec valeurs avant/après et adresse IP." icon={FileClock} list={{ ...list, data: visible }} groupBy={groupMode === 'AUCUN' ? null : groupBy} extra={<div className="management-filters"><select className="compact-select" value={actionFilter} onChange={(event) => setActionFilter(event.target.value)}><option value="">Toutes les actions</option>{actions.map((action) => <option key={action}>{action}</option>)}</select><select className="compact-select" value={entityFilter} onChange={(event) => setEntityFilter(event.target.value)}><option value="">Toutes les entités</option>{entities.map((entity) => <option key={entity}>{entity}</option>)}</select><select className="compact-select" value={groupMode} onChange={(event) => setGroupMode(event.target.value)}><option value="JOUR">Grouper par jour</option><option value="ACTION">Grouper par action</option><option value="ENTITE">Grouper par entité</option><option value="AUCUN">Sans groupement</option></select></div>} columns={['Action','Entité','Utilisateur','Détails','Date']} renderRow={(item) => <tr key={item.code_audit || item.id}><td><strong>{humaniserNom(item.action)}</strong><small className="cell-subtitle">{item.code_audit}</small></td><td><span className="role-chip">{humaniserNom(item.type_entite)}</span><small className="cell-subtitle">ID {item.identifiant_entite || '—'}</small></td><td>{item.nom_affichage || 'Système / anonyme'}<small className="cell-subtitle">{item.code_utilisateur || item.adresse_ip || ''}</small></td><td className="audit-details-cell"><AuditDetails item={item} /></td><td>{formatDateTime(item.date_creation)}</td></tr>} />;
 }
 
-function ManagementPage({ title, description, icon: Icon, list, columns, renderRow, extra, message, externalError, groupBy, actions }) {
+function ManagementPage({ title, description, icon: Icon, list, columns, renderRow, extra, message, externalError, groupBy, actions, tableClassName = '' }) {
   const [search, setSearch] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
@@ -203,13 +224,25 @@ function ManagementPage({ title, description, icon: Icon, list, columns, renderR
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [list.data, pageSize]);
-  return <div><DashboardPageHeader title={title} description={description} actions={<div className="management-header-actions">{actions}<button className="secondary-action" onClick={list.refresh}><RefreshCw /> Actualiser</button></div>} />{message && <div className="alert alert--success"><Check /> {message}</div>}{(externalError || list.error) && <div className="alert alert--error">{externalError || list.error}</div>}<section className="app-panel management-panel"><div className="management-toolbar"><label><Search /><input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Rechercher dans la liste…" /></label>{extra}</div>{list.loading ? <div className="content-loading"><Spinner /> Chargement…</div> : ordered.length ? <><div className="table-scroll"><table className="data-table"><thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{visible.map((item, index) => { const group = groupBy?.(item); const previousGroup = index > 0 ? groupBy?.(visible[index - 1]) : null; return <Fragment key={item.code_audit || item.code_utilisateur || item.code_universite || item.code_signalement || item.id || index}>{groupBy && group !== previousGroup && <tr className="table-group-row"><td colSpan={columns.length}>{group}</td></tr>}{renderRow(item)}</Fragment>; })}</tbody></table></div><ListPagination page={currentPage} pageSize={pageSize} total={ordered.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} /></> : <div className="management-empty"><span><Icon /></span><h3>Aucun élément</h3><p>La liste est actuellement vide.</p></div>}</section></div>;
+  return <div><DashboardPageHeader title={title} description={description} actions={<div className="management-header-actions">{actions}<button className="secondary-action" onClick={list.refresh}><RefreshCw /> Actualiser</button></div>} />{message && <div className="alert alert--success"><Check /> {message}</div>}{(externalError || list.error) && <div className="alert alert--error">{externalError || list.error}</div>}<section className="app-panel management-panel"><div className="management-toolbar"><label><Search /><input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Rechercher dans la liste…" /></label>{extra}</div>{list.loading ? <div className="content-loading"><Spinner /> Chargement…</div> : ordered.length ? <><div className="table-scroll"><table className={`data-table ${tableClassName}`}><thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{visible.map((item, index) => { const group = groupBy?.(item); const previousGroup = index > 0 ? groupBy?.(visible[index - 1]) : null; return <Fragment key={item.code_audit || item.code_utilisateur || item.code_universite || item.code_signalement || item.id || index}>{groupBy && group !== previousGroup && <tr className="table-group-row"><td colSpan={columns.length}>{group}</td></tr>}{renderRow(item)}</Fragment>; })}</tbody></table></div><ListPagination page={currentPage} pageSize={pageSize} total={ordered.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} /></> : <div className="management-empty"><span><Icon /></span><h3>Aucun élément</h3><p>La liste est actuellement vide.</p></div>}</section></div>;
 }
 
 function Identity({ title, subtitle, icon: Icon }) { return <div className="table-identity"><span>{Icon ? <Icon /> : title?.slice(0,2).toUpperCase()}</span><div><strong>{title}</strong><small>{subtitle}</small></div></div>; }
 function formatDate(value) { return value ? new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium'}).format(new Date(value)) : '—'; }
 function formatDateTime(value) { return value ? new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium',timeStyle:'short'}).format(new Date(value)) : '—'; }
-function formatAuditDetails(item) {
-  const parse = (value) => { if (!value) return null; if (typeof value === 'object') return value; try { return JSON.parse(value); } catch { return value; } };
-  return JSON.stringify({ avant: parse(item.anciennes_valeurs), apres: parse(item.nouvelles_valeurs), adresseIp: item.adresse_ip || null }, null, 2);
+function parseAudit(value) { if (!value) return null; if (typeof value === 'object') return value; try { return JSON.parse(value); } catch { return value; } }
+function humaniserNom(value = '') { return String(value).replaceAll('_', ' ').toLocaleLowerCase('fr-FR').replace(/^./, (letter) => letter.toLocaleUpperCase('fr-FR')); }
+function valeursLisibles(value) {
+  if (value == null) return [];
+  if (typeof value !== 'object') return [String(value)];
+  return Object.entries(value).flatMap(([key, content]) => {
+    if (content == null || content === '' || (typeof content === 'object' && !Object.keys(content).length)) return [];
+    if (typeof content === 'object') return valeursLisibles(content).map((line) => `${humaniserNom(key)} — ${line}`);
+    return [`${humaniserNom(key)} : ${String(content)}`];
+  });
+}
+function AuditDetails({ item }) {
+  const before = valeursLisibles(parseAudit(item.anciennes_valeurs));
+  const after = valeursLisibles(parseAudit(item.nouvelles_valeurs));
+  return <details><summary>Voir le résumé</summary><div className="audit-readable">{before.length > 0 && <section><strong>Avant l’action</strong>{before.map((line) => <span key={`before-${line}`}>{line}</span>)}</section>}{after.length > 0 && <section><strong>Résultat de l’action</strong>{after.map((line) => <span key={`after-${line}`}>{line}</span>)}</section>}<section><strong>Origine</strong><span>Adresse IP : {item.adresse_ip || 'non enregistrée'}</span></section></div></details>;
 }

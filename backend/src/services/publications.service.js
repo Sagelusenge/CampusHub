@@ -2,6 +2,8 @@ import { baseDeDonnees } from '../config/base-de-donnees.js';
 import { ErreurApi } from '../utils/erreur-api.js';
 import { construireMiseAJour, metaPagination, pagination } from '../utils/sql.js';
 import { verifierGestionUniversite, verifierProprietaireOuAdmin } from './autorisations.service.js';
+import { envoyerAlerteGestionnaires } from './email.service.js';
+import { verifierContenuAvantPublication } from './moderation-automatique.service.js';
 
 async function publicationInterne(code) {
   const [lignes] = await baseDeDonnees.execute(
@@ -100,6 +102,7 @@ export async function creerPublication(utilisateur, donnees) {
   if (utilisateur.role === 'VISITEUR') {
     throw new ErreurApi(403, 'Le compte visiteur peut consulter le réseau, mais ne peut pas publier.');
   }
+  verifierContenuAvantPublication(donnees.titre, donnees.contenu, ...(donnees.etiquettes || []));
   let universiteId = null;
   if (donnees.codeUniversite) {
     const [u] = await baseDeDonnees.execute('SELECT id FROM universites WHERE code_universite = ? LIMIT 1', [donnees.codeUniversite.toUpperCase()]);
@@ -126,12 +129,29 @@ export async function creerPublication(utilisateur, donnees) {
     [utilisateur.id, universiteId, donnees.titre ?? null, donnees.contenu, donnees.type,
       JSON.stringify(donnees.etiquettes), donnees.publier ? 1 : 0],
   );
-  return resultats[0][0];
+  const publication = resultats[0][0];
+  if (utilisateur.role === 'ETUDIANT' && universiteId && donnees.publier) {
+    try {
+      const [gestionnaires] = await baseDeDonnees.execute(
+        `SELECT DISTINCT u.email FROM membres_universite m JOIN utilisateurs u ON u.id = m.utilisateur_id
+         WHERE m.universite_id = ? AND u.statut_compte = 'ACTIF'`, [universiteId],
+      );
+      await envoyerAlerteGestionnaires({
+        emails: gestionnaires.map((item) => item.email),
+        titre: 'Nouvelle publication d’un étudiant',
+        introduction: `${utilisateur.nom_affichage} vient de publier dans le réseau de votre établissement.`,
+        details: [donnees.titre || 'Publication sans titre', `Référence : ${publication.code_publication}`],
+        chemin: '/espace-universite/reseau',
+      });
+    } catch (erreur) { console.error('Échec de l’e-mail de publication étudiante :', erreur.code || erreur.message); }
+  }
+  return publication;
 }
 
 export async function modifierPublication(code, donnees, utilisateur) {
   const publication = await publicationInterne(code);
   verifierProprietaireOuAdmin(utilisateur, publication.auteur_id, 'Vous ne pouvez pas modifier cette publication.');
+  verifierContenuAvantPublication(donnees.titre, donnees.contenu, ...(donnees.etiquettes || []));
   const normalisees = { ...donnees };
   if (normalisees.etiquettes) normalisees.etiquettes = JSON.stringify(normalisees.etiquettes);
   const { clause, valeurs } = construireMiseAJour(normalisees, {
@@ -178,6 +198,7 @@ export async function supprimerMedia(codeMedia, utilisateur) {
 }
 
 export async function ajouterCommentaire(codePublication, donnees, utilisateur) {
+  verifierContenuAvantPublication(donnees.contenu);
   const publication = await publicationInterne(codePublication);
   let parentId = null;
   if (donnees.codeCommentaireParent) {

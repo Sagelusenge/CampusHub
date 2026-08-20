@@ -18,7 +18,7 @@ export const schemaReponseRelation = z.object({
 const champFormulaire = z.object({
   id: z.string().trim().min(1).max(60).regex(/^[a-zA-Z0-9_-]+$/),
   label: z.string().trim().min(2).max(120),
-  type: z.enum(['TEXTE', 'EMAIL', 'TELEPHONE', 'DATE', 'NOMBRE', 'ZONE_TEXTE', 'SELECT']),
+  type: z.enum(['TEXTE', 'EMAIL', 'TELEPHONE', 'DATE', 'NOMBRE', 'ZONE_TEXTE', 'SELECT', 'DOCUMENT', 'IMAGE']),
   obligatoire: z.boolean().default(false),
   options: z.array(z.string().trim().min(1).max(100)).max(30).optional().default([]),
 });

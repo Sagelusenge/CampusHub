@@ -153,15 +153,15 @@ export async function creerInfrastructure(codeUniversite, donnees, utilisateur) 
   const universite = await trouverUniversiteParCode(codeUniversite);
   await verifierGestionUniversite(utilisateur, universite.id);
   return insererPuisLire(
-    `INSERT INTO infrastructures (code_infrastructure, universite_id, nom, categorie, description, quantite)
-     VALUES ('', ?, ?, ?, ?, ?)`,
-    [universite.id, donnees.nom, donnees.categorie, donnees.description ?? null, donnees.quantite ?? null],
+    `INSERT INTO infrastructures (code_infrastructure, universite_id, nom, categorie, description, url_image, quantite)
+     VALUES ('', ?, ?, ?, ?, ?, ?)`,
+    [universite.id, donnees.nom, donnees.categorie, donnees.description ?? null, donnees.urlImage ?? null, donnees.quantite ?? null],
     'infrastructures',
   );
 }
 export const modifierInfrastructure = (code, donnees, utilisateur) => modifierRessource({
   table: 'infrastructures', colonneCode: 'code_infrastructure', code, donnees, utilisateur,
-  mapping: { nom: 'nom', categorie: 'categorie', description: 'description', quantite: 'quantite' },
+  mapping: { nom: 'nom', categorie: 'categorie', description: 'description', urlImage: 'url_image', quantite: 'quantite' },
 });
 export const supprimerInfrastructure = (code, utilisateur) => supprimerRessource('infrastructures', 'code_infrastructure', code, utilisateur);
 

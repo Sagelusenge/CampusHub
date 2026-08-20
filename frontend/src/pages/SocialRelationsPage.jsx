@@ -15,7 +15,7 @@ export function SocialRelationsPage() {
   const [suggestions, setSuggestions] = useState([]); const [invitations, setInvitations] = useState([]);
   const [relations, setRelations] = useState([]); const [loading, setLoading] = useState(true);
   const [error, setError] = useState(''); const [message, setMessage] = useState('');
-  const [roleFilter, setRoleFilter] = useState(''); const [pageSize, setPageSize] = useState(10); const [page, setPage] = useState(1);
+  const [roleFilter, setRoleFilter] = useState(''); const [pageSize, setPageSize] = useState(15); const [page, setPage] = useState(1);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -79,13 +79,13 @@ export function SocialRelationsPage() {
       </div>
       {message && <div className="alert alert--success">{message}</div>}{error && <div className="alert alert--error">{error}</div>}
       {loading ? <div className="content-loading app-panel"><Spinner />Chargement du réseau…</div> : items.length ? <><div className="relations-grid">{visibleItems.map((person) => <article className="relation-card app-panel" key={person.code_relation || person.code_utilisateur}>
-        <span className="relation-card__avatar"><Avatar person={person} /></span><div><h2>{person.nom_affichage}</h2><p>{person.titre || person.nom_etablissement || (person.role === 'ETUDIANT' ? 'Étudiant CampusHub' : person.role)}</p>{person.message && <blockquote>{person.message}</blockquote>}</div>
+        <button className="relation-card__profile" type="button" onClick={() => navigate(`/profils-utilisateurs/${person.code_utilisateur}`)}><span className="relation-card__avatar"><Avatar person={person} /></span><div><h2>{person.nom_affichage}</h2><p>{person.titre || person.nom_etablissement || (person.role === 'ETUDIANT' ? 'Étudiant CampusHub' : person.role)}</p>{person.message && <blockquote>{person.message}</blockquote>}</div></button>
         <footer>{tab === 'suggestions' && (!person.statut_relation || ['REFUSEE', 'ANNULEE'].includes(person.statut_relation)) && <button className="button button--small" onClick={() => invite(person)}><UserPlus />Inviter</button>}
           {tab === 'suggestions' && person.statut_relation === 'EN_ATTENTE' && <span className="relation-status">Invitation {person.sens_relation === 'RECUE' ? 'reçue' : 'envoyée'}</span>}
           {tab === 'suggestions' && person.statut_relation === 'ACCEPTEE' && <button className="secondary-action" onClick={() => chat(person)}><MessageCircle />Message</button>}
           {tab === 'invitations' && <><button className="button button--small" onClick={() => answer(person, 'ACCEPTEE')}><Check />Accepter</button><button className="secondary-action" onClick={() => answer(person, 'REFUSEE')}><X />Refuser</button></>}
           {tab === 'relations' && <><button className="button button--small" onClick={() => chat(person)}><MessageCircle />Message</button><button className="secondary-action relation-remove" onClick={() => remove(person)}><UserMinus />Retirer</button></>}</footer>
-      </article>)}</div><ListPagination page={Math.min(page, pageCount)} pageSize={pageSize} total={items.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} /></> : <div className="management-empty app-panel"><Users /><h3>Aucun résultat</h3><p>Les nouvelles relations apparaîtront ici.</p></div>}
+      </article>)}</div><ListPagination page={Math.min(page, pageCount)} pageSize={pageSize} total={items.length} pageSizes={[15,30,45,60]} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} /></> : <div className="management-empty app-panel"><Users /><h3>Aucun résultat</h3><p>Les nouvelles relations apparaîtront ici.</p></div>}
     </div>
   </section>;
 }

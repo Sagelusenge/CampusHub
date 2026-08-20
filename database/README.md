@@ -15,7 +15,7 @@
 6. Exécuter `08_packs_et_certification.sql` pour la compatibilité de l’historique des paiements.
 7. Exécuter `09_messagerie_privee.sql` pour les conversations et messages privés.
 8. Exécuter `10_recherche_et_contact.sql` pour la recherche personnalisée et les contacts.
-9. Exécuter ensuite les scripts `11` à `30` dans l’ordre pour les cartes, stories, CampusHubIA, comptes de démonstration, offres, réseau, inscriptions en ligne, partenaires, vérification e-mail, messagerie enrichie, couvertures, gestion des étudiants, audit, essai gratuit de 30 jours, formules annuelle/à vie et gestion administrative complète des comptes.
+9. Exécuter ensuite les scripts `11` à `31` dans l’ordre pour les cartes, stories, CampusHubIA, comptes de démonstration, offres, réseau, inscriptions en ligne, partenaires, vérification e-mail, messagerie enrichie, couvertures, gestion des étudiants, audit, essai gratuit de 30 jours, formules annuelle/à vie, gestion administrative complète des comptes et finalisation des données ISIG.
 10. Actualiser la liste **Schemas** : la base `campushub` doit apparaître.
 
 ## Création depuis le client MySQL
