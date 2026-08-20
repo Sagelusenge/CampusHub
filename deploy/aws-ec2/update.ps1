@@ -27,7 +27,7 @@ if ($RemoteDirectory -ne '/opt/campushub') {
 
 $racineProjet = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $statut = & git -C $racineProjet status --porcelain
-Assert-LastExitCode 'Impossible de lire l’état Git du projet.'
+Assert-LastExitCode "Impossible de lire l’état Git du projet."
 if ($statut) {
   Write-Warning 'Les modifications non validées ne seront pas déployées. Seul le dernier commit Git sera envoyé.'
 }
@@ -40,7 +40,7 @@ $scriptDistantPath = "/tmp/campushub-deploy-$identifiant.sh"
 
 try {
   & git -C $racineProjet archive --format=tar --output=$archiveLocale HEAD
-  Assert-LastExitCode 'Impossible de créer l’archive Git de CampusHub.'
+  Assert-LastExitCode "Impossible de créer l’archive Git de CampusHub."
 
   & scp -i $KeyPath -o StrictHostKeyChecking=accept-new `
     $archiveLocale "ubuntu@${Server}:$archiveDistant"
