@@ -4,6 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#06246f" />
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem('campushub-theme');
+          const theme = saved === 'dark' || saved === 'light'
+            ? saved
+            : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+          document.querySelector('meta[name="theme-color"]')
+            ?.setAttribute('content', theme === 'dark' ? '#071525' : '#06246f');
+        } catch {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
     <meta name="description" content="CampusHub — trouvez un établissement vérifié, orientez votre parcours et rejoignez la communauté académique." />
     <meta name="application-name" content="CampusHub" />
     <meta name="apple-mobile-web-app-capable" content="yes" />

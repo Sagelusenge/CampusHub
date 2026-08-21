@@ -1,0 +1,278 @@
+/* Thème global CampusHub — chargé en dernier pour couvrir l'espace public et les tableaux de bord. */
+:root {
+  --theme-page: #f7f9fd;
+  --theme-panel: #ffffff;
+  --theme-panel-soft: #f3f7fc;
+  --theme-panel-raised: #ffffff;
+  --theme-text: #102038;
+  --theme-heading: #102d53;
+  --theme-muted: #647087;
+  --theme-border: #dce3ee;
+  --theme-input: #fbfcff;
+  --theme-overlay: rgba(255, 255, 255, .94);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  color: #e7eff9;
+  background: #07111f;
+  --ink: #e7eff9;
+  --muted: #9badc1;
+  --line: #2a4058;
+  --surface: #0e1e31;
+  --soft: #172a41;
+  --navy: #4f7ee6;
+  --blue: #6e97ee;
+  --teal: #37c7b6;
+  --teal-light: #79e3d7;
+  --danger: #f0787f;
+  --success: #4bd0ae;
+  --shadow: 0 18px 48px rgba(0, 0, 0, .3);
+  --theme-page: #07111f;
+  --theme-panel: #0d1c2e;
+  --theme-panel-soft: #101f32;
+  --theme-panel-raised: #13243a;
+  --theme-text: #dce7f3;
+  --theme-heading: #f1f6fc;
+  --theme-muted: #9badc1;
+  --theme-border: #293e56;
+  --theme-input: #101f32;
+  --theme-overlay: rgba(7, 17, 31, .94);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--theme-page);
+}
+
+body {
+  color: var(--theme-text);
+  transition: background-color .22s ease, color .22s ease;
+}
+
+.theme-toggle {
+  position: relative;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--theme-border);
+  border-radius: 11px;
+  color: var(--theme-heading);
+  background: var(--theme-panel);
+  box-shadow: 0 5px 14px rgba(14, 42, 73, .06);
+  transition: transform .2s ease, color .2s ease, border-color .2s ease, background-color .2s ease;
+}
+.theme-toggle:hover { transform: translateY(-1px); color: var(--teal); border-color: var(--teal); }
+.theme-toggle__icons { position: relative; width: 19px; height: 19px; display: block; }
+.theme-toggle__icons svg { position: absolute; inset: 0; width: 19px; height: 19px; transition: opacity .22s ease, transform .3s ease; }
+.theme-toggle__moon { opacity: 1; transform: rotate(0) scale(1); }
+.theme-toggle__sun { opacity: 0; transform: rotate(-70deg) scale(.55); }
+:root[data-theme='dark'] .theme-toggle__moon { opacity: 0; transform: rotate(70deg) scale(.55); }
+:root[data-theme='dark'] .theme-toggle__sun { opacity: 1; transform: rotate(0) scale(1); color: #ffd166; }
+
+:root[data-theme='dark'] .site-header,
+:root[data-theme='dark'] .app-topbar,
+:root[data-theme='dark'] .social-topnav {
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+  background: rgba(9, 22, 37, .94);
+  box-shadow: 0 7px 24px rgba(0, 0, 0, .18);
+}
+:root[data-theme='dark'] .main-nav a { color: #aebdd0; }
+:root[data-theme='dark'] .main-nav a:hover,
+:root[data-theme='dark'] .main-nav a.active,
+:root[data-theme='dark'] .brand { color: #eef5ff; }
+:root[data-theme='dark'] .app-topbar__start strong,
+:root[data-theme='dark'] .topbar-profile strong { color: var(--theme-heading); }
+:root[data-theme='dark'] .topbar-icon,
+:root[data-theme='dark'] .language-selector,
+:root[data-theme='dark'] .header-profile-trigger .account-avatar {
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+  background: var(--theme-panel-soft);
+}
+:root[data-theme='dark'] .language-selector > .language-selector__code { color: var(--theme-text); }
+:root[data-theme='dark'] .topbar-profile,
+:root[data-theme='dark'] .account-menu__identity { border-color: var(--theme-border); }
+:root[data-theme='dark'] .topbar-icon span { box-shadow: 0 0 0 2px #0a1929; }
+
+:root[data-theme='dark'] .app-shell,
+:root[data-theme='dark'] .app-main,
+:root[data-theme='dark'] .app-content,
+:root[data-theme='dark'] .dashboard-page,
+:root[data-theme='dark'] .offers-directory,
+:root[data-theme='dark'] .offer-detail-section,
+:root[data-theme='dark'] .faq-section,
+:root[data-theme='dark'] .directory-section,
+:root[data-theme='dark'] .social-page--modern,
+:root[data-theme='dark'] .organization-application-page,
+:root[data-theme='dark'] .visitor-registration,
+:root[data-theme='dark'] .section--soft,
+:root[data-theme='dark'] .language-loading-overlay {
+  color: var(--theme-text);
+  background: var(--theme-page);
+}
+:root[data-theme='dark'] .section:not(.section--dark) { color: var(--theme-text); }
+:root[data-theme='dark'] .site-footer { color: var(--theme-muted); border-color: var(--theme-border); background: #0a1929; }
+:root[data-theme='dark'] .footer-bottom { border-color: var(--theme-border); }
+
+/* Surfaces de contenu réutilisées dans toutes les pages. */
+:root[data-theme='dark'] :where(
+  .app-panel, .metric-card, .stat-card, .form-card, .dashboard-nav,
+  .university-card, .project-mini, .empty-state, .empty-review,
+  .account-menu__dropdown, .language-loading-card, .mission-objectives article,
+  .actor-grid article, .faq-categories, .faq-group, .faq-empty,
+  .offer-filters, .public-offer-card, .public-offer-card__body, .offers-empty,
+  .offer-detail-content, .offer-detail-aside, .managed-offer,
+  .contact-modal, .social-post, .social-composer, .story-composer,
+  .social-list-modal, .social-relations-tabs, .relations-controls,
+  .location-map, .request-choice-modal, .organization-success,
+  .registration-success, .pack-card, .trial-renewal__plan,
+  .trial-access-card__date, .subscription-metrics article,
+  .student-management-summary article, .profile-editor, .institution-welcome,
+  .social-profile-stats button, .social-profile-stats article,
+  .campushub-chat__panel, .campushub-chat__composer,
+  .auth-role-card,
+  .directory-search, .detail-stats,
+  .partners-management-grid > article, .public-partners-grid article,
+  .renewal-form, .subscription-section, .settings-card,
+  .directory-category-summary span
+) {
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+  background: var(--theme-panel);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .16);
+}
+
+:root[data-theme='dark'] main :where(h1, h2, h3, h4) { color: var(--theme-heading); }
+:root[data-theme='dark'] .auth-role-card :where(strong, small) { color: var(--theme-text); }
+:root[data-theme='dark'] .auth-role-card > span { color: var(--teal); background: #143638; }
+
+:root[data-theme='dark'] :where(
+  .app-content, .auth-form-wrap, .form-card, .app-panel, .metric-card,
+  .stat-card, .university-card, .public-offer-card, .offer-detail-content,
+  .offer-detail-aside, .faq-group, .faq-categories, .social-post,
+  .social-composer, .story-composer, .request-choice-modal,
+  .account-menu__dropdown, .contact-modal, .settings-card
+) :where(h1, h2, h3, h4, strong, label) { color: var(--theme-heading); }
+
+:root[data-theme='dark'] :where(
+  .app-content, .form-card, .app-panel, .metric-card, .stat-card,
+  .university-card, .public-offer-card, .offer-detail-content,
+  .offer-detail-aside, .faq-group, .social-post, .settings-card
+) :where(p, small, dt) { color: var(--theme-muted); }
+
+:root[data-theme='dark'] :where(
+  .form-field input, .form-field select, .form-field textarea,
+  .university-form input, .university-form select, .university-form textarea,
+  .editor-field input, .editor-field select, .editor-field textarea,
+  .social-composer select, .social-composer > input, .social-composer textarea,
+  .trial-payment-form input, .trial-payment-form select,
+  .builder-field input, .builder-field select,
+  .relations-controls select, .compact-select
+) {
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+  background: var(--theme-input);
+}
+:root[data-theme='dark'] .directory-search :where(label, input, select) {
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+  background: var(--theme-input);
+}
+:root[data-theme='dark'] .directory-search label input { background: transparent; }
+:root[data-theme='dark'] :where(.input-with-icon, .management-toolbar > label, .institution-students-toolbar form, .offer-filters label, .offer-filters select, .faq-search, .social-relations-shell header form) {
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+  background: var(--theme-input);
+}
+:root[data-theme='dark'] :where(input, select, textarea) { color: var(--theme-text); }
+:root[data-theme='dark'] :where(input, textarea)::placeholder { color: #7f91a7; }
+:root[data-theme='dark'] select option { color: var(--theme-text); background: var(--theme-panel); }
+
+/* Tableaux, listes, cartes et menus secondaires. */
+:root[data-theme='dark'] .data-table th { color: #a7b7c9; border-color: var(--theme-border); background: #13243a; }
+:root[data-theme='dark'] .data-table td,
+:root[data-theme='dark'] .data-table tr,
+:root[data-theme='dark'] .compact-list > div,
+:root[data-theme='dark'] .notification-list article,
+:root[data-theme='dark'] .social-list-modal article { color: var(--theme-text); border-color: var(--theme-border); }
+:root[data-theme='dark'] :where(.data-table tbody tr:hover, .notification-list article:hover) { background: #14283f; }
+:root[data-theme='dark'] .notification-list article.notification--unread { background: #132b47; }
+:root[data-theme='dark'] :where(.table-identity strong, .compact-list strong, .management-empty h3, .content-heading h1, .dashboard-welcome h1, .app-panel__heading h2) { color: var(--theme-heading); }
+:root[data-theme='dark'] :where(.table-identity small, .cell-subtitle, .management-empty, .content-heading p, .dashboard-welcome p, .app-panel__heading p) { color: var(--theme-muted); }
+:root[data-theme='dark'] :where(.table-action, .secondary-action, .institution-students-pagination button, .managed-offer__actions button, .campus-filter button, .file-upload-field label) {
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+  background: var(--theme-panel-raised);
+}
+:root[data-theme='dark'] :where(.management-toolbar, .managed-offer__actions, .form-section__heading, .social-post > footer, .social-list-modal header) { border-color: var(--theme-border); }
+:root[data-theme='dark'] :where(.management-toolbar > label, .role-chip, .summary-rows a, .summary-rows--static > div, .completion-list a, .quick-actions > a, .builder-field, .enrollment-requests dl div, .relation-card blockquote, .file-upload-field, .offer-document-picker > div, .story-dropzone, .social-repost-source) {
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+  background: var(--theme-panel-soft);
+}
+:root[data-theme='dark'] :where(.detail-stats div div, .public-programs article, .feature-grid > div, .detail-facts > div) {
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+  background: var(--theme-panel-soft);
+}
+:root[data-theme='dark'] :where(.social-post > footer button:hover, .social-post > footer a:hover, .account-menu__dropdown > a:hover, .account-menu__dropdown > button:hover) { background: #172b42; }
+:root[data-theme='dark'] .account-menu__identity { background: linear-gradient(135deg, #14283e, #102b32); }
+
+/* Détails visuels qui resteraient autrement très clairs. */
+:root[data-theme='dark'] .auth-page { background: var(--theme-page); }
+:root[data-theme='dark'] .auth-form-wrap { background: radial-gradient(circle at 50% 30%, #14283f, var(--theme-page) 64%); }
+:root[data-theme='dark'] .form-save-bar { color: var(--theme-text); border-color: var(--theme-border); background: rgba(13, 28, 46, .95); }
+:root[data-theme='dark'] .profile-cover__image { color: #9eb0c4; background: linear-gradient(120deg, #192f48, #12383b); }
+:root[data-theme='dark'] .profile-logo { border-color: var(--theme-panel); }
+:root[data-theme='dark'] .public-offer-card__image,
+:root[data-theme='dark'] .managed-offer__visual { background: linear-gradient(135deg, #18324b, #153d3a); }
+:root[data-theme='dark'] .public-offer-card__logo { border-color: var(--theme-panel); background: #fff; }
+:root[data-theme='dark'] .bar-chart { border-color: var(--theme-border); background: repeating-linear-gradient(to bottom, #263b52 0, #263b52 1px, transparent 1px, transparent 72px); }
+:root[data-theme='dark'] .bar-chart__item > div { border-color: var(--theme-border); background: #14283f; }
+:root[data-theme='dark'] .donut::before { background: var(--theme-panel); }
+:root[data-theme='dark'] .social-topnav__account > button { color: var(--theme-text); border-color: var(--theme-border); background: var(--theme-panel-soft); }
+:root[data-theme='dark'] .campushub-chat__message > div,
+:root[data-theme='dark'] .campushub-chat__typing > span,
+:root[data-theme='dark'] .campushub-chat__suggestions button { color: var(--theme-text); border-color: var(--theme-border); background: var(--theme-panel-raised); }
+:root[data-theme='dark'] .campushub-chat__message--utilisateur > div { color: #fff; background: #175d99; }
+:root[data-theme='dark'] .campushub-chat__composer textarea { color: var(--theme-text); border-color: var(--theme-border); background: var(--theme-input); }
+:root[data-theme='dark'] .language-loading-progress { background: #263a50; }
+
+/* Les rapports et contrats restent blancs à l'écran et à l'impression. */
+:root[data-theme='dark'] :where(.report-paper, .report-document, .print-document) { color: #172a3e; background: #fff; }
+:root[data-theme='dark'] :where(.report-paper, .report-document, .print-document) :where(h1, h2, h3, h4, strong) { color: #172a3e; }
+
+@media (max-width: 900px) {
+  .header-actions { gap: 6px; }
+  .theme-toggle { width: 38px; height: 38px; padding: 0; }
+}
+
+@media (max-width: 560px) {
+  .site-header .header-inner { gap: 8px; }
+  .site-header .brand { font-size: 18px; }
+  .site-header .language-selector { min-width: 38px; width: 38px; padding: 0; justify-content: center; }
+  .site-header .language-selector > .language-selector__code,
+  .site-header .language-selector > .language-selector__chevron { display: none; }
+  .app-topbar__actions { gap: 6px; }
+  .app-topbar__actions .theme-toggle { width: 36px; height: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body, .theme-toggle, .theme-toggle__icons svg { transition: none !important; }
+}
+
+@media print {
+  :root[data-theme='dark'],
+  :root[data-theme='dark'] body,
+  :root[data-theme='dark'] #root { color: #172a3e !important; background: #fff !important; }
+}

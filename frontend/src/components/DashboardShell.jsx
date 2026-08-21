@@ -34,6 +34,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
 import { AccountMenu } from './AccountMenu.jsx';
 import { LanguageSelector } from './LanguageSelector.jsx';
+import { ThemeToggle } from './ThemeToggle.jsx';
 import { SocialNavigation } from './SocialNavigation.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useInstitution } from '../context/InstitutionContext.jsx';
@@ -262,6 +263,7 @@ function DashboardShellContent({ role, institution, children }) {
           </div>
           <div className="app-topbar__actions">
             <LanguageSelector compact />
+            <ThemeToggle />
             <NavLink className="topbar-icon" to={role === 'admin' ? '/administration/notifications' : role === 'student' ? '/espace-etudiant/notifications' : role === 'visitor' ? '/notifications' : '/espace-universite/notifications'} aria-label={`${unread} notification(s) non lue(s)`}><Bell />{unread > 0 && <span title={`${unread} non lue(s)`} />}</NavLink>
             <AccountMenu roleLabel={role === 'admin' ? 'Administrateur' : role === 'student' ? 'Étudiant' : role === 'visitor' ? 'Visiteur' : isSchool ? 'Gestionnaire scolaire' : 'Gestionnaire'} />
           </div>
