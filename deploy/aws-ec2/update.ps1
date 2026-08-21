@@ -90,6 +90,17 @@ fi
 
 cd "$NEXT/deploy/aws-lightsail"
 sudo docker compose -p aws-lightsail --env-file .env.runtime build app campushub-ia
+if ! grep -q '^VAPID_PUBLIC_KEY=' .env.runtime || ! grep -q '^VAPID_PRIVATE_KEY=' .env.runtime; then
+  sed -i '/^VAPID_PUBLIC_KEY=/d; /^VAPID_PRIVATE_KEY=/d; /^VAPID_SUBJECT=/d' .env.runtime
+  mapfile -t VAPID_KEYS < <(sudo docker compose -p aws-lightsail --env-file .env.runtime run --rm --no-deps app \
+    node -e "const w=require('web-push');const k=w.generateVAPIDKeys();console.log(k.publicKey);console.log(k.privateKey)")
+  if [ "${#VAPID_KEYS[@]}" -ne 2 ]; then
+    echo 'Impossible de générer les clés VAPID.' >&2
+    exit 1
+  fi
+  printf '\nVAPID_PUBLIC_KEY=%s\nVAPID_PRIVATE_KEY=%s\nVAPID_SUBJECT=mailto:contact@campushub.cd\n' \
+    "${VAPID_KEYS[0]}" "${VAPID_KEYS[1]}" >> .env.runtime
+fi
 
 sudo mv "$REMOTE_DIRECTORY" "$PREVIOUS"
 sudo mv "$NEXT" "$REMOTE_DIRECTORY"
@@ -97,7 +108,7 @@ cd "$REMOTE_DIRECTORY/deploy/aws-lightsail"
 MYSQL_ROOT_PASSWORD=$(grep '^MYSQL_ROOT_PASSWORD=' .env.runtime | cut -d= -f2-)
 # Les migrations 01 a 25 sont deja presentes sur cette installation. Ne pas les
 # rejouer : certaines contiennent des ALTER TABLE volontairement non repetables.
-for migration in 26_abonnement_annuel_unique.sql 27_campushub_ia_locale.sql 28_essai_gratuit_30_jours.sql 29_formules_annuelle_et_vie.sql 30_gestion_administrative_utilisateurs.sql 31_finalisation_isig_et_medias.sql; do
+for migration in 26_abonnement_annuel_unique.sql 27_campushub_ia_locale.sql 28_essai_gratuit_30_jours.sql 29_formules_annuelle_et_vie.sql 30_gestion_administrative_utilisateurs.sql 31_finalisation_isig_et_medias.sql 32_pwa_notifications_push.sql; do
   sudo docker compose -p aws-lightsail --env-file .env.runtime exec -T mysql \
     mysql -uroot -p"$MYSQL_ROOT_PASSWORD" campushub \
     < "$REMOTE_DIRECTORY/database/$migration"
