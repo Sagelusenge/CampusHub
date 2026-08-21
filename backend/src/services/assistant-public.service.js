@@ -197,8 +197,13 @@ export async function poserQuestionPublique({ question, historique }) {
         },
       });
       if (resultatWeb && resultatWeb.source !== 'fallback') {
-        resultat = resultatWeb;
-        sources = resultatWeb.source === 'live_context'
+        // Pour une question générale, le moteur de recherche a déjà classé les
+        // passages par pertinence. Conserver son premier résultat évite qu'un
+        // passage plus lexical mais moins utile soit choisi dans le corpus local.
+        resultat = questionGenerale
+          ? { ...resultatWeb, response: contexteWeb.documents[0], source: 'live_context' }
+          : resultatWeb;
+        sources = resultat.source === 'live_context'
           ? [...contexteWeb.sources, ...contexteCampusHub.sources].slice(0, 4)
           : [];
         modeExecution = 'CAMPUSHUB_IA_WEB';
