@@ -176,9 +176,12 @@ export async function poserQuestionPublique({ question, historique }) {
 
   let sources = resultat?.source === 'live_context' ? contexteCampusHub.sources : [];
   let modeExecution = resultat ? 'CAMPUSHUB_IA' : 'MOTEUR_REGLES';
+  const questionGenerale = !estQuestionCampusHub(questionRecherche) && !estConversationCourte(question);
   const rechercheWebNecessaire = !estConversationCourte(question)
     && resultat
-    && (resultat.source === 'fallback'
+    && resultat.source !== 'conversation'
+    && (questionGenerale
+      || resultat.source === 'fallback'
       || (resultat.source === 'knowledge_base' && Number(resultat.confidence || 0) < 0.35));
 
   if (rechercheWebNecessaire) {
