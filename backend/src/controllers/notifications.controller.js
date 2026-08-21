@@ -5,6 +5,29 @@ import {
   supprimerNotification,
 } from '../services/notifications.service.js';
 import { envoyerSucces } from '../utils/reponse-api.js';
+import {
+  configurationPush,
+  desactiverAbonnementPush,
+  enregistrerAbonnementPush,
+} from '../services/push.service.js';
+
+export async function obtenirConfigurationPush(_requete, reponse) {
+  return envoyerSucces(reponse, configurationPush(), 200, undefined, 'Configuration push chargée.');
+}
+
+export async function abonnerPush(requete, reponse) {
+  const resultat = await enregistrerAbonnementPush(
+    requete.utilisateur.id,
+    requete.validees.body,
+    requete.get('user-agent'),
+  );
+  return envoyerSucces(reponse, resultat, 201, undefined, 'Notifications push activées.');
+}
+
+export async function desabonnerPush(requete, reponse) {
+  const resultat = await desactiverAbonnementPush(requete.utilisateur.id, requete.validees.body.endpoint);
+  return envoyerSucces(reponse, resultat, 200, undefined, 'Notifications push désactivées.');
+}
 
 // GET /api/v1/notifications
 export async function lister(requete, reponse) {

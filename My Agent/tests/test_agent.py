@@ -93,6 +93,18 @@ class CampusHubAgentTests(unittest.TestCase):
         self.assertIn("très bien", result.response)
         self.assertEqual(result.source, "conversation")
 
+    def test_negative_feedback_receives_a_calm_answer(self):
+        result = self.agent.respond("Tu ne sers à rien")
+        self.assertIn("déçu", result.response)
+        self.assertIn("reprendre calmement", result.response)
+        self.assertEqual(result.source, "conversation")
+
+    def test_student_stress_receives_empathy_and_a_next_step(self):
+        result = self.agent.respond("Je suis stressé par mon orientation")
+        self.assertIn("sans jugement", result.response)
+        self.assertIn("prochaines étapes", result.response)
+        self.assertEqual(result.source, "conversation")
+
     def test_typo_is_corrected_before_retrieval(self):
         result = self.agent.respond("Qu’est-ce que CampusHub pour les établisssements ?")
         self.assertIn("établissements vérifiés", result.response)

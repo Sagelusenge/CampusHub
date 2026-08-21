@@ -160,6 +160,39 @@ class LocalResponseEngine:
         compact = re.sub(r"[^a-z0-9' ]+", " ", normalised)
         compact = re.sub(r"\s+", " ", compact).strip()
 
+        if re.search(r"\b(suicide|me suicider|en finir|plus envie de vivre|me faire du mal)\b", compact):
+            return (
+                "Je suis vraiment désolé que vous traversiez cela. Votre sécurité compte plus que cette conversation. "
+                "Restez si possible avec une personne de confiance et contactez immédiatement un proche, un professionnel "
+                "de santé ou les urgences de votre région. Si le danger est immédiat, ne restez pas seul. Je peux rester "
+                "avec vous pendant que vous cherchez cette aide, mais je ne remplace pas un professionnel."
+            )
+        if re.search(
+            r"\b(tu ne sers a rien|tu sers a rien|inutile|tu es nul|t'es nul|stupide|idiot|"
+            r"mauvais assistant|mauvaise reponse|n'importe quoi)\b",
+            compact,
+        ):
+            return (
+                "Je comprends que ma réponse vous ait déçu, et je suis désolé de ne pas avoir été utile. "
+                "Dites-moi simplement ce qui était incorrect ou ce que vous attendiez : je vais reprendre calmement, "
+                "avec une réponse plus précise et des sources lorsque c’est nécessaire."
+            )
+        if re.search(r"\b(je suis perdu|je ne comprends rien|je suis bloque|j'abandonne|decourage|frustre|enerve)\b", compact):
+            return (
+                "Je comprends, cela peut être frustrant. Prenons une seule étape à la fois. "
+                "Expliquez-moi où vous êtes bloqué ou indiquez votre objectif, et je vous proposerai une démarche courte et claire."
+            )
+        if re.search(r"\b(je suis stresse|j'ai peur|je suis inquiet|angoisse|anxieux|triste)\b", compact):
+            return (
+                "Je suis désolé que vous vous sentiez ainsi. Nous pouvons avancer doucement, sans jugement. "
+                "Si votre inquiétude concerne les études ou l’orientation, dites-moi ce qui vous préoccupe le plus et "
+                "je vous aiderai à transformer cela en prochaines étapes concrètes."
+            )
+        if re.search(r"\b(je suis content|je suis heureux|bonne nouvelle|j'ai reussi|j'ai ete admis)\b", compact):
+            return (
+                "C’est une excellente nouvelle, félicitations ! Je suis heureux de la partager avec vous. "
+                "Souhaitez-vous préparer la prochaine étape, par exemple l’inscription, les documents ou le choix de la formation ?"
+            )
         if re.search(r"\b(ca va|comment vas tu|comment allez vous|tu vas bien)\b", compact):
             return (
                 "Ça va très bien, merci ! Je suis prêt à vous aider avec CampusHub, "

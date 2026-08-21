@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { CampusHubChatWidget } from './components/CampusHubChatWidget.jsx';
 import { DashboardShell } from './components/DashboardShell.jsx';
@@ -5,51 +6,62 @@ import { PageShell } from './components/PageShell.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import { InstitutionProvider } from './context/InstitutionContext.jsx';
 import { useAuth } from './context/AuthContext.jsx';
-import { AdminDashboardPage } from './pages/AdminDashboardPage.jsx';
-import { AdminLocationsPage } from './pages/AdminLocationsPage.jsx';
-import { AdminContactsPage } from './pages/AdminContactsPage.jsx';
-import { AdminAuditPage, AdminModerationPage, AdminRequestsPage, AdminUniversitiesPage, AdminUsersPage } from './pages/AdminManagementPages.jsx';
-import { ComparePage } from './pages/ComparePage.jsx';
-import { ContactPage } from './pages/ContactPage.jsx';
-import { HomePage } from './pages/HomePage.jsx';
-import { InstitutionDashboardPage } from './pages/InstitutionDashboardPage.jsx';
-import { InstitutionCopilotPage } from './pages/InstitutionCopilotPage.jsx';
-import { InstitutionProfilePage } from './pages/InstitutionProfilePage.jsx';
-import { InstitutionProgramsPage } from './pages/InstitutionProgramsPage.jsx';
-import { InstitutionPublicationsPage } from './pages/InstitutionPublicationsPage.jsx';
-import { InstitutionResourcePage } from './pages/InstitutionResourcePage.jsx';
-import { LoginPage } from './pages/LoginPage.jsx';
-import { MessagesPage } from './pages/MessagesPage.jsx';
-import { NotFoundPage } from './pages/NotFoundPage.jsx';
-import { NotificationsPage } from './pages/NotificationsPage.jsx';
-import { OrientationAIPage } from './pages/OrientationAIPage.jsx';
-import { PortfolioDetailPage } from './pages/PortfolioDetailPage.jsx';
-import { PortfoliosPage } from './pages/PortfoliosPage.jsx';
-import { SettingsPage } from './pages/SettingsPage.jsx';
-import { SocialFeedPage } from './pages/SocialFeedPage.jsx';
-import { SocialRelationsPage } from './pages/SocialRelationsPage.jsx';
-import { StudentAffiliationPage, StudentDashboardPage, StudentProfilePage } from './pages/StudentPages.jsx';
-import { StudentRegistrationPage } from './pages/StudentRegistrationPage.jsx';
-import { AdminSubscriptionsPage, InstitutionSubscriptionPage } from './pages/SubscriptionsPages.jsx';
-import { UniversitiesPage } from './pages/UniversitiesPage.jsx';
-import { UniversityApplicationPage } from './pages/UniversityApplicationPage.jsx';
-import { OrganizationApplicationPage } from './pages/OrganizationApplicationPage.jsx';
-import { UniversityAffiliationsPage } from './pages/UniversityAffiliationsPage.jsx';
-import { InstitutionStudentsPage } from './pages/InstitutionStudentsPage.jsx';
-import { UniversityDetailPage } from './pages/UniversityDetailPage.jsx';
-import { VisitorRegistrationPage } from './pages/VisitorRegistrationPage.jsx';
-import { InstitutionOffersPage } from './pages/InstitutionOffersPage.jsx';
-import { OffersPage } from './pages/OffersPage.jsx';
-import { OfferDetailPage } from './pages/OfferDetailPage.jsx';
-import { OnlineEnrollmentPage } from './pages/OnlineEnrollmentPage.jsx';
-import { InstitutionEnrollmentPage } from './pages/InstitutionEnrollmentPage.jsx';
-import { InstitutionPartnersPage } from './pages/InstitutionPartnersPage.jsx';
-import { FinalistOrientationPage } from './pages/FinalistOrientationPage.jsx';
-import { FaqPage } from './pages/FaqPage.jsx';
-import { ProfessionalReportsPage } from './pages/ProfessionalReportsPage.jsx';
 import { ScrollToTop } from './components/ScrollToTop.jsx';
-import { PublicUserProfilePage } from './pages/PublicUserProfilePage.jsx';
 import { AppToast } from './components/AppToast.jsx';
+import { SeoManager } from './components/SeoManager.jsx';
+import { Spinner } from './components/Spinner.jsx';
+
+const lazyNamed = (chargeur, nom) => lazy(() => chargeur().then((module) => ({ default: module[nom] })));
+const AdminDashboardPage = lazyNamed(() => import('./pages/AdminDashboardPage.jsx'), 'AdminDashboardPage');
+const AdminLocationsPage = lazyNamed(() => import('./pages/AdminLocationsPage.jsx'), 'AdminLocationsPage');
+const AdminContactsPage = lazyNamed(() => import('./pages/AdminContactsPage.jsx'), 'AdminContactsPage');
+const AdminAuditPage = lazyNamed(() => import('./pages/AdminManagementPages.jsx'), 'AdminAuditPage');
+const AdminModerationPage = lazyNamed(() => import('./pages/AdminManagementPages.jsx'), 'AdminModerationPage');
+const AdminRequestsPage = lazyNamed(() => import('./pages/AdminManagementPages.jsx'), 'AdminRequestsPage');
+const AdminUniversitiesPage = lazyNamed(() => import('./pages/AdminManagementPages.jsx'), 'AdminUniversitiesPage');
+const AdminUsersPage = lazyNamed(() => import('./pages/AdminManagementPages.jsx'), 'AdminUsersPage');
+const ComparePage = lazyNamed(() => import('./pages/ComparePage.jsx'), 'ComparePage');
+const ContactPage = lazyNamed(() => import('./pages/ContactPage.jsx'), 'ContactPage');
+const HomePage = lazyNamed(() => import('./pages/HomePage.jsx'), 'HomePage');
+const InstitutionDashboardPage = lazyNamed(() => import('./pages/InstitutionDashboardPage.jsx'), 'InstitutionDashboardPage');
+const InstitutionCopilotPage = lazyNamed(() => import('./pages/InstitutionCopilotPage.jsx'), 'InstitutionCopilotPage');
+const InstitutionProfilePage = lazyNamed(() => import('./pages/InstitutionProfilePage.jsx'), 'InstitutionProfilePage');
+const InstitutionProgramsPage = lazyNamed(() => import('./pages/InstitutionProgramsPage.jsx'), 'InstitutionProgramsPage');
+const InstitutionPublicationsPage = lazyNamed(() => import('./pages/InstitutionPublicationsPage.jsx'), 'InstitutionPublicationsPage');
+const InstitutionResourcePage = lazyNamed(() => import('./pages/InstitutionResourcePage.jsx'), 'InstitutionResourcePage');
+const LoginPage = lazyNamed(() => import('./pages/LoginPage.jsx'), 'LoginPage');
+const MessagesPage = lazyNamed(() => import('./pages/MessagesPage.jsx'), 'MessagesPage');
+const NotFoundPage = lazyNamed(() => import('./pages/NotFoundPage.jsx'), 'NotFoundPage');
+const NotificationsPage = lazyNamed(() => import('./pages/NotificationsPage.jsx'), 'NotificationsPage');
+const OrientationAIPage = lazyNamed(() => import('./pages/OrientationAIPage.jsx'), 'OrientationAIPage');
+const PortfolioDetailPage = lazyNamed(() => import('./pages/PortfolioDetailPage.jsx'), 'PortfolioDetailPage');
+const PortfoliosPage = lazyNamed(() => import('./pages/PortfoliosPage.jsx'), 'PortfoliosPage');
+const SettingsPage = lazyNamed(() => import('./pages/SettingsPage.jsx'), 'SettingsPage');
+const SocialFeedPage = lazyNamed(() => import('./pages/SocialFeedPage.jsx'), 'SocialFeedPage');
+const SocialRelationsPage = lazyNamed(() => import('./pages/SocialRelationsPage.jsx'), 'SocialRelationsPage');
+const StudentAffiliationPage = lazyNamed(() => import('./pages/StudentPages.jsx'), 'StudentAffiliationPage');
+const StudentDashboardPage = lazyNamed(() => import('./pages/StudentPages.jsx'), 'StudentDashboardPage');
+const StudentProfilePage = lazyNamed(() => import('./pages/StudentPages.jsx'), 'StudentProfilePage');
+const StudentRegistrationPage = lazyNamed(() => import('./pages/StudentRegistrationPage.jsx'), 'StudentRegistrationPage');
+const AdminSubscriptionsPage = lazyNamed(() => import('./pages/SubscriptionsPages.jsx'), 'AdminSubscriptionsPage');
+const InstitutionSubscriptionPage = lazyNamed(() => import('./pages/SubscriptionsPages.jsx'), 'InstitutionSubscriptionPage');
+const UniversitiesPage = lazyNamed(() => import('./pages/UniversitiesPage.jsx'), 'UniversitiesPage');
+const UniversityApplicationPage = lazyNamed(() => import('./pages/UniversityApplicationPage.jsx'), 'UniversityApplicationPage');
+const OrganizationApplicationPage = lazyNamed(() => import('./pages/OrganizationApplicationPage.jsx'), 'OrganizationApplicationPage');
+const UniversityAffiliationsPage = lazyNamed(() => import('./pages/UniversityAffiliationsPage.jsx'), 'UniversityAffiliationsPage');
+const InstitutionStudentsPage = lazyNamed(() => import('./pages/InstitutionStudentsPage.jsx'), 'InstitutionStudentsPage');
+const UniversityDetailPage = lazyNamed(() => import('./pages/UniversityDetailPage.jsx'), 'UniversityDetailPage');
+const VisitorRegistrationPage = lazyNamed(() => import('./pages/VisitorRegistrationPage.jsx'), 'VisitorRegistrationPage');
+const InstitutionOffersPage = lazyNamed(() => import('./pages/InstitutionOffersPage.jsx'), 'InstitutionOffersPage');
+const OffersPage = lazyNamed(() => import('./pages/OffersPage.jsx'), 'OffersPage');
+const OfferDetailPage = lazyNamed(() => import('./pages/OfferDetailPage.jsx'), 'OfferDetailPage');
+const OnlineEnrollmentPage = lazyNamed(() => import('./pages/OnlineEnrollmentPage.jsx'), 'OnlineEnrollmentPage');
+const InstitutionEnrollmentPage = lazyNamed(() => import('./pages/InstitutionEnrollmentPage.jsx'), 'InstitutionEnrollmentPage');
+const InstitutionPartnersPage = lazyNamed(() => import('./pages/InstitutionPartnersPage.jsx'), 'InstitutionPartnersPage');
+const FinalistOrientationPage = lazyNamed(() => import('./pages/FinalistOrientationPage.jsx'), 'FinalistOrientationPage');
+const FaqPage = lazyNamed(() => import('./pages/FaqPage.jsx'), 'FaqPage');
+const ProfessionalReportsPage = lazyNamed(() => import('./pages/ProfessionalReportsPage.jsx'), 'ProfessionalReportsPage');
+const PublicUserProfilePage = lazyNamed(() => import('./pages/PublicUserProfilePage.jsx'), 'PublicUserProfilePage');
 
 const protectAdmin = <ProtectedRoute roles={['ADMINISTRATEUR']}><DashboardShell role="admin" /></ProtectedRoute>;
 const protectInstitution = <ProtectedRoute roles={['UNIVERSITE']}><InstitutionProvider><DashboardShell role="institution" /></InstitutionProvider></ProtectedRoute>;
@@ -93,7 +105,7 @@ function GlobalCampusHubAssistant() {
 }
 
 export function App() {
-  return <><ScrollToTop /><Routes>
+  return <><ScrollToTop /><SeoManager /><Suspense fallback={<div className="page-lazy-loading"><Spinner /><span>Chargement de CampusHub…</span></div>}><Routes>
     <Route path="/" element={<ConnectedHome><HomePage /></ConnectedHome>} />
     <Route path="/universites" element={<UniversitiesPage />} />
     <Route path="/universites/:code" element={<UniversityDetailPage />} />
@@ -177,5 +189,5 @@ export function App() {
     </Route>
 
     <Route path="*" element={<NotFoundPage />} />
-  </Routes><GlobalCampusHubAssistant /><AppToast /></>;
+  </Routes></Suspense><GlobalCampusHubAssistant /><AppToast /></>;
 }

@@ -10,8 +10,10 @@ CampusHubIA est notre propre agent local. Il fonctionne sans API de modèle d’
 
 - le corpus est construit à partir des données publiques et vérifiées de CampusHub ;
 - MySQL fournit en direct les formations, frais, campus et conditions ;
-- le moteur comprend les échanges courants et corrige les fautes de frappe proches du vocabulaire académique ;
-- pour une question générale absente du corpus, Express peut consulter Wikipédia et affiche toujours les liens utilisés ;
+- le moteur comprend les échanges courants, certaines émotions et les critiques formulées par l’utilisateur ;
+- il corrige les fautes de frappe proches du vocabulaire académique ;
+- pour une question générale absente du corpus, Express lance une recherche web contrôlée et affiche les sources consultées ;
+- la recherche combine un fournisseur web configurable, DuckDuckGo et Wikipédia, en privilégiant les sources officielles ;
 - chaque recommandation conserve ses sources et son score de compatibilité ;
 - les réponses et leur mode d’exécution sont sauvegardés dans le dossier d’orientation ;
 - si le service Python redémarre, un moteur de règles MySQL prend automatiquement le relais.
@@ -40,11 +42,13 @@ CampusHub/
 
 Le backend suit le chemin `route → middleware → controller → service → MySQL/CampusHubIA` pour rester simple à lire et à déboguer. Le service IA n’est pas exposé publiquement en production ; Express l’appelle sur le réseau Docker privé avec un jeton interne.
 
+Le frontend est une PWA installable sur mobile et ordinateur. Il inclut un manifeste, des icônes adaptatives, un écran hors connexion, un service worker et des notifications Web Push. Le référencement public comprend un sitemap dynamique, `robots.txt`, des métadonnées sociales, des URL canoniques et des données structurées pour les établissements vérifiés.
+
 ## Installation locale
 
 Prérequis : Node.js 20+, Python 3.12+ et MySQL 8+.
 
-1. Exécuter les scripts du dossier `database` dans l’ordre `01` à `30`.
+1. Exécuter les scripts du dossier `database` dans l’ordre numérique, jusqu’à `32_pwa_notifications_push.sql`.
 2. Configurer et lancer l’API :
 
 ```powershell

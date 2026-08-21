@@ -1,0 +1,59 @@
+{
+  "id": "/",
+  "name": "CampusHub — Orientation et réseau académique",
+  "short_name": "CampusHub",
+  "description": "Découvrez des établissements, trouvez une formation et rejoignez la communauté académique CampusHub.",
+  "lang": "fr-CD",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f3f7fc",
+  "theme_color": "#06246f",
+  "categories": ["education", "social", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Établissements",
+      "short_name": "Établissements",
+      "description": "Rechercher un établissement",
+      "url": "/universites?source=pwa-shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Orientation",
+      "short_name": "Orientation",
+      "description": "Préparer son orientation avec CampusHubIA",
+      "url": "/orientation-finaliste?source=pwa-shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Offres",
+      "short_name": "Offres",
+      "description": "Consulter les opportunités",
+      "url": "/offres?source=pwa-shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

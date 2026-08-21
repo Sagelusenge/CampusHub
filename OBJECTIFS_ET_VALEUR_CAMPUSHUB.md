@@ -1,174 +1,205 @@
-# CampusHub — Objectifs, acteurs et proposition de valeur
+# CampusHub — Objectifs et proposition de valeur
 
-## 1. Vision du projet
+> Document de référence produit — mise à jour : 21 août 2026
+>
+> Ce document doit être actualisé à chaque ajout, retrait ou évolution importante d’une fonctionnalité.
 
-CampusHub est une plateforme numérique d’orientation, de découverte des établissements et de mise en relation de la communauté éducative. Son ambition est de rendre l’information académique plus accessible, plus fiable et plus utile, d’abord en République démocratique du Congo, puis dans d’autres pays.
+## 1. Résumé du projet
 
-La plateforme réunit dans un même environnement les universités, les instituts supérieurs, les écoles secondaires, les étudiants, les finalistes, les visiteurs, les partenaires et l’administration CampusHub. Elle ne se limite pas à présenter des établissements : elle accompagne l’utilisateur depuis la recherche d’une formation jusqu’à l’inscription, puis dans sa vie académique et professionnelle.
+CampusHub est une plateforme numérique d’orientation, de découverte des établissements, d’inscription et de mise en relation de la communauté éducative. Elle rassemble dans un environnement unique les universités, instituts supérieurs, écoles secondaires, étudiants, finalistes, visiteurs, organisations partenaires et administrateurs.
 
-## 2. Objectifs généraux
+Sa mission est de rendre l’information académique plus accessible, plus fiable et plus exploitable, d’abord en République démocratique du Congo, puis dans d’autres pays. CampusHub accompagne l’utilisateur depuis la recherche d’une formation jusqu’à l’inscription, puis dans sa vie académique et professionnelle.
 
-- centraliser les informations vérifiées sur les établissements et leurs formations ;
-- faciliter l’orientation scolaire, académique et professionnelle ;
-- permettre aux établissements de gérer leur présence numérique depuis un espace simple ;
-- offrir un réseau social éducatif consacré aux projets, annonces et opportunités ;
-- simplifier les demandes d’affiliation et les inscriptions en ligne ;
-- améliorer la communication entre étudiants, établissements et partenaires ;
-- promouvoir les talents, les projets et les opportunités locales ;
-- assurer la traçabilité des actions grâce à un système d’audit ;
-- fournir des statistiques réelles pour faciliter la prise de décision ;
-- protéger les comptes et les données avec des contrôles d’accès adaptés à chaque rôle.
+## 2. Problèmes auxquels CampusHub répond
 
-## 3. Objectifs pour les universités et instituts supérieurs
+Dans de nombreux contextes, les informations sur les établissements, les filières, les conditions d’admission, les frais et les opportunités sont dispersées, difficiles à vérifier ou rapidement dépassées. Les candidats manquent d’outils pour comparer leurs possibilités, tandis que les établissements disposent rarement d’un espace numérique complet et facile à administrer.
 
-CampusHub permet à chaque établissement supérieur de construire et d’administrer une fiche institutionnelle complète comprenant sa présentation, sa localisation, ses campus, ses facultés, ses filières, ses services, ses infrastructures, ses conditions d’admission, ses partenaires et ses moyens de contact.
+CampusHub répond à ces difficultés en proposant :
 
-L’établissement peut notamment :
+- un annuaire structuré d’établissements et de formations ;
+- un processus de contrôle avant publication des établissements ;
+- une orientation fondée sur le profil réel du candidat ;
+- des inscriptions et demandes d’affiliation dématérialisées ;
+- un réseau social centré sur l’éducation et les opportunités ;
+- des outils de gestion, de communication et de suivi pour les établissements ;
+- une administration centrale assurant la qualité, la sécurité et la traçabilité.
 
-- modifier son logo, sa photo de profil et sa couverture ;
-- présenter ses campus sur une carte ;
-- publier des actualités, des photos, des vidéos et des documents ;
-- diffuser des offres, stages, bourses, concours ou appels à candidatures ;
-- préparer un formulaire d’inscription en ligne adapté à ses besoins ;
-- recevoir et traiter les demandes d’affiliation des étudiants ;
-- gérer les étudiants affiliés : activation, suspension, blocage ou retrait motivé ;
-- suivre les candidatures, publications, offres et activités à travers des indicateurs réels ;
-- produire des rapports professionnels imprimables ;
-- dialoguer avec les membres autorisés de la communauté ;
-- bénéficier d’un copilote institutionnel pour préparer des contenus et améliorer la communication.
+## 3. Objectifs stratégiques
 
-L’objectif est d’offrir aux établissements un outil de visibilité, de communication et de gestion accessible sans exiger une équipe informatique spécialisée.
+CampusHub vise à :
 
-## 4. Objectifs pour les écoles secondaires
+1. centraliser des informations académiques claires et actualisées ;
+2. aider les candidats à choisir un parcours cohérent avec leurs résultats, leurs préférences et leurs moyens ;
+3. donner aux établissements une présence numérique professionnelle sans exiger une équipe informatique spécialisée ;
+4. simplifier les affiliations, candidatures, inscriptions et communications ;
+5. rapprocher étudiants, établissements, entreprises et organisations ;
+6. valoriser les projets, talents, recherches, offres, stages et bourses ;
+7. fournir des données et rapports utiles à la prise de décision ;
+8. protéger la communauté grâce à la vérification, la modération et l’audit ;
+9. construire progressivement un écosystème éducatif numérique fiable et inclusif.
 
-Les écoles secondaires disposent également d’un espace de gestion, mais avec un vocabulaire et des fonctionnalités adaptés à leur réalité : sites scolaires, sections, options, élèves, conditions d’inscription et activités scolaires.
+## 4. Valeur pour les universités et instituts supérieurs
 
-Elles peuvent :
+Chaque établissement supérieur dispose d’un espace institutionnel lui permettant de :
 
-- présenter leur école et ses différentes implantations ;
-- publier leurs sections, options, services et infrastructures ;
-- gérer les demandes des élèves ;
-- proposer des formulaires d’inscription en ligne ;
-- diffuser des communiqués, événements et offres scolaires ;
-- valoriser les réussites des élèves et les projets pédagogiques ;
-- suivre leur activité grâce à des tableaux de bord et rapports.
+- gérer son identité, son logo, ses photos de profil et de couverture ;
+- indiquer son adresse et sélectionner sa position exacte sur une carte ;
+- présenter ses campus, facultés, filières, services et infrastructures avec images ;
+- communiquer ses conditions d’admission et l’état réel de ses inscriptions ;
+- afficher ses partenaires académiques, sociaux, technologiques ou professionnels ;
+- publier des actualités, photos, vidéos, documents, offres, stages, bourses et appels à candidatures ;
+- créer des formulaires d’inscription personnalisables, y compris avec dépôt de documents et d’images ;
+- recevoir, confirmer ou refuser les demandes d’affiliation des étudiants ;
+- gérer ses étudiants : ajout, vérification, modification, suspension, blocage ou retrait ;
+- recevoir des notifications dans l’application et par e-mail lors des actions importantes ;
+- consulter des tableaux de bord alimentés par les données réelles de la plateforme ;
+- générer des rapports et documents professionnels imprimables ;
+- utiliser un copilote institutionnel pour préparer et améliorer ses communications.
 
-## 5. Objectifs pour les étudiants
+L’objectif est de réunir visibilité, administration et communication dans un outil unique, simple à prendre en main et facile à faire évoluer.
 
-CampusHub donne à l’étudiant un espace personnel qui l’aide à construire son parcours académique et son identité numérique.
+## 5. Valeur pour les écoles secondaires
 
-L’étudiant peut :
+Les écoles secondaires disposent d’un espace adapté à leur fonctionnement. Elles peuvent présenter leurs sites, sections, options, services, infrastructures et conditions d’inscription, gérer les demandes des élèves, personnaliser leurs formulaires, publier des activités et opportunités, puis suivre leur visibilité grâce à des indicateurs et rapports.
 
-- rechercher et comparer des établissements supérieurs compatibles ;
-- découvrir les filières, frais, campus, services et conditions d’admission ;
-- envoyer une demande d’affiliation à son établissement ;
-- faire confirmer son matricule et son statut académique ;
-- créer un profil et valoriser ses compétences, projets et publications ;
-- consulter les offres, stages, annonces, bourses et opportunités ;
-- rejoindre le réseau CampusHub et établir des relations ;
-- commenter, aimer, suivre et republier des contenus autorisés ;
-- échanger dans une messagerie avec pièces jointes et indicateurs de lecture ;
-- recevoir des notifications sur les décisions et activités importantes ;
+Cette distinction évite d’imposer aux écoles secondaires une organisation conçue uniquement pour les universités.
+
+## 6. Valeur pour les étudiants
+
+L’étudiant dispose d’un espace personnel pour construire son parcours et son identité académique. Il peut :
+
+- rechercher et comparer uniquement des établissements de même catégorie ;
+- filtrer les établissements, formations, campus et offres ;
+- consulter les frais, conditions d’admission, partenaires, services et localisations ;
+- demander son affiliation à une université à l’aide de son matricule ;
+- être confirmé par le gestionnaire de son établissement ;
+- remplir et envoyer des formulaires d’inscription en ligne ;
+- présenter ses compétences, projets et publications ;
+- consulter des offres, stages, annonces, bourses et opportunités ;
+- créer des relations et échanger par messagerie après acceptation de la connexion ;
+- partager des médias autorisés, commenter, aimer, suivre et republier ;
+- recevoir des notifications sur les décisions et événements importants ;
 - obtenir des recommandations d’orientation personnalisées ;
-- produire un rapport professionnel de son parcours CampusHub.
+- générer un rapport professionnel de son activité CampusHub.
 
-## 6. Objectifs pour les finalistes
+## 7. Valeur pour les finalistes et visiteurs
 
-Le module d’orientation finaliste aide les élèves en fin d’études secondaires à mieux comprendre les possibilités qui correspondent à leur profil.
+Le finaliste ou visiteur peut découvrir les établissements, leurs formations, leurs partenaires, leurs offres et leur localisation sans disposer d’un statut étudiant confirmé. Il peut créer un profil, suivre des comptes, établir des relations autorisées, utiliser la messagerie et contacter l’administration.
 
-Les recommandations peuvent tenir compte de l’option suivie, du pourcentage obtenu, des domaines préférés, de la localisation, du budget, du niveau souhaité et des conditions proposées par les établissements. Le but n’est pas de décider à la place du finaliste, mais de lui présenter des choix cohérents, compréhensibles et vérifiables.
+Le module d’orientation analyse notamment :
 
-## 7. Objectifs pour les visiteurs
+- l’option ou la formation secondaire suivie ;
+- le pourcentage obtenu ;
+- les domaines d’intérêt ;
+- le budget et la localisation ;
+- le niveau souhaité ;
+- les formations actives et conditions publiées par les établissements.
 
-Un visiteur peut créer un compte afin de rejoindre la communauté sans être considéré comme étudiant ou gestionnaire d’établissement.
+Le système ne décide pas à la place du candidat : il lui présente des possibilités cohérentes, explicables et vérifiables. Pour préserver la qualité du réseau, un visiteur peut consulter les publications, mais ne peut pas publier ni créer de story.
 
-Il peut :
+## 8. Valeur pour les entreprises, organisations et partenaires
 
-- consulter les établissements et leurs fiches ;
-- rechercher des formations et des offres ;
-- lire les publications du réseau ;
-- suivre des comptes et établir des relations autorisées ;
-- utiliser la messagerie après acceptation d’une demande de connexion ;
-- modifier son profil et ses préférences ;
-- contacter l’administration et consulter le centre d’aide.
+Les entreprises et organisations peuvent participer à l’écosystème en soutenant des établissements, en finançant des initiatives ou en diffusant des opportunités. Leur présence permet de :
 
-Pour protéger la qualité du réseau, le visiteur ne peut pas publier de contenu ni créer de story.
+- rendre visibles les partenariats réels ;
+- rapprocher les formations des besoins professionnels ;
+- faciliter l’accès aux stages, emplois, bourses et projets ;
+- soutenir des étudiants ou programmes éducatifs ;
+- améliorer l’employabilité et l’impact des formations.
 
-## 8. Objectifs pour l’administration CampusHub
+## 9. Réseau social éducatif
 
-L’administration garantit la qualité, la sécurité et la cohérence de la plateforme.
+CampusHub intègre un réseau social conçu pour la communauté académique. Il permet de publier des projets, recherches, articles, annonces, stages, photos et vidéos, ainsi que de commenter, répondre, aimer, suivre et republier les contenus autorisés.
 
-Elle peut :
+La messagerie inclut les relations préalables, les pièces jointes, les indicateurs d’envoi et de lecture, la présence en ligne, l’état « en train d’écrire », le blocage et les messages éphémères. Les stories et la publication sont réservées aux profils autorisés.
 
-- valider ou rejeter les demandes des établissements ;
-- vérifier les fiches avant leur publication dans l’annuaire ;
-- gérer les utilisateurs et leurs statuts ;
-- contrôler les abonnements, paiements et certifications ;
-- traiter les signalements et modérer les contenus ;
-- examiner les suggestions de localisation ;
-- répondre aux demandes de contact ;
-- suivre les indicateurs globaux depuis un tableau de bord ;
-- consulter le journal d’audit avec l’utilisateur, l’action, la date, l’adresse IP et les valeurs avant/après ;
-- produire des rapports professionnels pour le pilotage de la plateforme.
+Le réseau doit rester utile, respectueux et orienté vers l’éducation. Les contenus contraires aux règles de la communauté peuvent être détectés, bloqués, signalés ou examinés par l’administration.
 
-## 9. Objectifs pour les partenaires
+## 10. CampusHubIA
 
-CampusHub permet aux établissements de présenter leurs partenaires académiques, technologiques, sociaux et professionnels. Cette fonctionnalité vise à :
+CampusHubIA est l’assistant d’orientation et d’information de la plateforme. Il exploite les données autorisées de CampusHub pour :
 
-- rendre visibles les collaborations réelles ;
-- faciliter l’accès aux stages, bourses et projets ;
-- rapprocher les établissements du monde professionnel ;
-- renforcer la crédibilité et l’impact des programmes proposés.
+- répondre aux questions sur les établissements et formations ;
+- comprendre des formulations naturelles et certaines fautes de frappe ;
+- proposer des établissements selon le profil du candidat ;
+- demander les informations manquantes avant de recommander ;
+- expliquer les fonctionnalités et guider l’utilisateur dans ses démarches ;
+- assister les gestionnaires dans la préparation de contenus ;
+- contribuer à la détection de contenus contraires aux règles.
 
-## 10. Pourquoi choisir CampusHub ?
+CampusHubIA reconnaît également certaines émotions exprimées dans la conversation. Il répond avec calme à la frustration ou aux critiques, encourage l’utilisateur lorsqu’il est inquiet et adapte son ton sans prétendre remplacer un conseiller, un enseignant ou un professionnel de santé.
 
-### Une plateforme spécialisée
+Lorsque les données internes ne suffisent pas, CampusHubIA peut les compléter par une recherche Internet contrôlée. Les sources sont affichées et datées, les sites officiels sont privilégiés et une donnée non vérifiée ne doit jamais être présentée comme certaine. Les informations CampusHub validées restent prioritaires pour les formations, frais, admissions et établissements présents sur la plateforme.
 
-CampusHub est conçu pour l’écosystème éducatif. Les établissements, filières, affiliations, inscriptions, projets et opportunités se trouvent dans un environnement cohérent, au lieu d’être dispersés sur plusieurs sites et réseaux généralistes.
+## 11. Administration, sécurité et gouvernance
+
+L’administration CampusHub assure le pilotage général de la plateforme. Elle peut :
+
+- examiner, valider, modifier, bloquer ou supprimer un établissement ;
+- créer et administrer les utilisateurs autorisés ;
+- traiter les demandes institutionnelles, messages de contact et signalements ;
+- suivre les accès, essais gratuits, abonnements et paiements ;
+- superviser les publications et appliquer les règles communautaires ;
+- consulter un journal d’audit compréhensible indiquant l’acteur, l’action, la date et l’adresse IP ;
+- produire des rapports, contrats, factures, reçus et relevés ;
+- suivre les indicateurs globaux de progression de CampusHub.
+
+La sécurité repose notamment sur la séparation des rôles, le hachage des mots de passe, la confirmation des adresses e-mail par code OTP, les contrôles d’autorisation, les notifications, la validation des fichiers, la traçabilité des opérations sensibles et la protection des secrets dans les variables d’environnement.
+
+## 12. Modèle d’accès institutionnel
+
+Les établissements bénéficient d’un mois d’essai gratuit avant de choisir une formule :
+
+- accès annuel : 20 USD par an, renouvelable sans limitation ;
+- accès à vie : paiement unique de 200 USD.
+
+Le paiement ouvre l’accès aux fonctionnalités institutionnelles prévues par la formule. Sa validation, son historique et les documents associés sont gérés depuis l’espace administratif.
+
+## 13. Pourquoi choisir CampusHub ?
+
+### Une solution spécialisée
+
+CampusHub réunit orientation, établissements, formations, inscriptions, affiliation, réseau éducatif, opportunités et gestion institutionnelle dans une plateforme cohérente.
 
 ### Des informations plus fiables
 
-Les établissements passent par un processus de validation administrative. Les badges, statuts et abonnements sont séparés afin que l’utilisateur comprenne clairement ce qui a été vérifié.
+Les établissements passent par un contrôle administratif et restent responsables de l’actualisation de leurs informations. Les données critiques sont reliées à la base MySQL et les actions sensibles sont historisées.
 
 ### Une orientation contextualisée
 
-Les recommandations prennent en compte la réalité de l’utilisateur : formation antérieure, résultats, budget, localisation et objectifs. Cette approche est plus utile qu’une simple liste générique d’universités.
+Les propositions tiennent compte du parcours, des résultats, des intérêts, du budget, de la localisation et des conditions réellement déclarées par les établissements.
 
-### Un réseau social éducatif
+### Une expérience utile pour chaque acteur
 
-Le réseau CampusHub valorise les publications académiques, les projets étudiants, les recherches, les annonces et les stages. Il favorise des échanges centrés sur l’apprentissage et les opportunités.
+Chaque rôle dispose d’un espace, d’une navigation et de permissions adaptés. Les visiteurs découvrent, les étudiants construisent leur parcours, les établissements administrent leur présence et les partenaires créent des opportunités.
 
-### Un outil accessible aux établissements
+### Une architecture évolutive
 
-L’interface est organisée par rôle, avec une navigation claire, des formulaires compréhensibles et des données directement reliées à MySQL. Une université ou une école peut gérer sa présence sans développer son propre portail.
+L’architecture React, Express.js, MySQL et CampusHubIA permet d’ajouter progressivement de nouveaux pays, langues, moyens de paiement, services de stockage, sources d’information et fonctions d’intelligence artificielle.
 
-### Une solution évolutive
+### Une application accessible et installable
 
-L’architecture React, Express.js et MySQL permet d’ajouter progressivement de nouveaux pays, systèmes de paiement, langues, services de stockage et fonctionnalités d’intelligence artificielle.
+CampusHub fonctionne sur le Web et peut être installé comme une Progressive Web App sur un téléphone, une tablette ou un ordinateur. L’application propose un accès rapide, un écran hors connexion et des notifications push, y compris lorsque le site n’est pas ouvert, sous réserve de l’autorisation de l’utilisateur.
 
-### Une meilleure traçabilité
+### Une visibilité renforcée dans les moteurs de recherche
 
-Les opérations sensibles sont enregistrées dans un journal d’audit. Les mots de passe, jetons et codes de confirmation sont masqués, tandis que les décisions importantes conservent leur motif et leur historique.
+Le référencement technique de CampusHub comprend des métadonnées adaptées, des liens canoniques, un plan de site dynamique, des données structurées et une page indexable pour chaque établissement vérifié. L’objectif est de rendre visibles CampusHub, ses contenus publics et les établissements présents dans l’annuaire lors des recherches pertinentes. Le futur domaine officiel prévu est `campushub.cd` ; la configuration définitive sera activée après son acquisition et son raccordement au serveur.
 
-### Une expérience multilingue
+## 14. Résultats attendus
 
-Les utilisateurs peuvent choisir la langue d’affichage de la plateforme. Les noms des langues restent stables afin d’éviter la confusion lors du changement de langue.
+CampusHub cherche à mesurer et produire les résultats suivants :
 
-## 11. Résultats attendus
+- réduction du temps nécessaire pour trouver une formation adaptée ;
+- augmentation du nombre d’établissements disposant d’informations complètes et actualisées ;
+- amélioration du traitement des demandes d’affiliation et d’inscription ;
+- augmentation de la visibilité des projets, talents et opportunités ;
+- amélioration de la communication entre candidats, étudiants et établissements ;
+- meilleure traçabilité des décisions et opérations administratives ;
+- création progressive d’une base de connaissances éducative locale fiable ;
+- rapprochement durable entre le monde académique et le monde professionnel.
 
-CampusHub vise à produire les résultats suivants :
+## 15. Positionnement essentiel
 
-- réduire le temps nécessaire pour trouver une formation adaptée ;
-- augmenter la visibilité numérique des établissements locaux ;
-- améliorer la qualité des informations communiquées aux candidats ;
-- simplifier le traitement des affiliations et inscriptions ;
-- favoriser les relations entre étudiants, établissements et partenaires ;
-- accroître la visibilité des projets et talents étudiants ;
-- rendre les décisions administratives plus transparentes ;
-- constituer progressivement un écosystème éducatif numérique fiable et inclusif.
+CampusHub n’est pas uniquement un annuaire, un réseau social ou un logiciel administratif. C’est un écosystème éducatif intégré qui aide chaque acteur à mieux s’informer, choisir, s’inscrire, communiquer, gérer et progresser.
 
-## 12. Conclusion
-
-CampusHub répond à un besoin concret : connecter l’orientation, l’information institutionnelle, l’inscription, la communication et le réseau académique dans une seule plateforme. Sa valeur repose sur la combinaison d’informations vérifiées, d’outils de gestion institutionnelle, d’un accompagnement personnalisé et d’une communauté éducative structurée.
-
-Choisir CampusHub, c’est choisir une solution conçue pour aider chaque utilisateur à mieux comprendre ses possibilités, prendre de meilleures décisions et participer activement à l’écosystème éducatif.
+Sa valeur centrale repose sur quatre engagements : **orienter avec pertinence, informer avec fiabilité, connecter avec utilité et administrer avec transparence**.

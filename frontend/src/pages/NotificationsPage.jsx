@@ -6,6 +6,7 @@ import { Spinner } from "../components/Spinner.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import {
   activerNotificationsNavigateur,
+  statutAbonnementPush,
   statutNotificationsNavigateur,
 } from "../utils/notifications-navigateur.js";
 
@@ -35,6 +36,9 @@ export function NotificationsPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
+  useEffect(() => {
+    statutAbonnementPush().then(setPushStatus).catch(() => null);
+  }, []);
   async function readAll() {
     await apiRequest("/notifications/tout-lire", { method: "PATCH", token });
     load();
@@ -70,8 +74,8 @@ export function NotificationsPage() {
   async function enablePush() {
     setError("");
     try {
-      await activerNotificationsNavigateur();
-      setPushStatus("granted");
+      await activerNotificationsNavigateur(token);
+      setPushStatus("ACTIVE");
     } catch (err) {
       setPushStatus(statutNotificationsNavigateur());
       setError(err.message);
@@ -82,7 +86,7 @@ export function NotificationsPage() {
       <DashboardPageHeader
         title="Notifications"
         description={`${data.nonLues} notification(s) non lue(s).`}
-        actions={<><button className={`secondary-action ${pushStatus === "granted" ? "notification-push--active" : ""}`} onClick={enablePush} disabled={pushStatus === "granted" || pushStatus === "NON_SUPPORTE"}><BellRing />{pushStatus === "granted" ? "Push activé" : "Activer les push"}</button><button className="secondary-action" onClick={readAll}><CheckCheck />Tout marquer comme lu</button></>}
+        actions={<><button className={`secondary-action ${pushStatus === "ACTIVE" ? "notification-push--active" : ""}`} onClick={enablePush} disabled={pushStatus === "ACTIVE" || pushStatus === "NON_SUPPORTE"}><BellRing />{pushStatus === "ACTIVE" ? "Push activé" : "Activer les push"}</button><button className="secondary-action" onClick={readAll}><CheckCheck />Tout marquer comme lu</button></>}
       />
       {error && <div className="alert alert--error">{error}</div>}
       <section className="app-panel notification-list">

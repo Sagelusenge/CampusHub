@@ -32,6 +32,7 @@ services:
       NODE_ENV: production
       PORT: 4000
       FRONTEND_URL: https://${CAMPUSHUB_DOMAIN}
+      PUBLIC_SITE_URL: https://${CAMPUSHUB_DOMAIN}
       DB_HOST: mysql
       DB_PORT: 3306
       DB_USER: campushub
@@ -56,8 +57,12 @@ services:
       CAMPUSHUB_IA_MODEL: campushubai
       CAMPUSHUB_IA_TIMEOUT_MS: 8000
       CAMPUSHUB_WEB_ENABLED: ${CAMPUSHUB_WEB_ENABLED:-true}
-      CAMPUSHUB_WEB_TIMEOUT_MS: ${CAMPUSHUB_WEB_TIMEOUT_MS:-3500}
-      CAMPUSHUB_WEB_MAX_SOURCES: ${CAMPUSHUB_WEB_MAX_SOURCES:-2}
+      CAMPUSHUB_WEB_TIMEOUT_MS: ${CAMPUSHUB_WEB_TIMEOUT_MS:-7000}
+      CAMPUSHUB_WEB_MAX_SOURCES: ${CAMPUSHUB_WEB_MAX_SOURCES:-4}
+      BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY:-}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:contact@campushub.cd}
     volumes:
       - uploads_data:/app/backend/uploads
     depends_on:

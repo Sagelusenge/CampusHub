@@ -1,17 +1,47 @@
+import { apiRequest } from '../api/client.js';
+
 const cleDerniereNotification = 'campushub_derniere_notification_push';
+
+function convertirCleVapid(cle) {
+  const remplissage = '='.repeat((4 - (cle.length % 4)) % 4);
+  const base64 = (cle + remplissage).replace(/-/g, '+').replace(/_/g, '/');
+  const brute = window.atob(base64);
+  return Uint8Array.from([...brute].map((caractere) => caractere.charCodeAt(0)));
+}
 
 export function statutNotificationsNavigateur() {
   if (!('Notification' in window) || !('serviceWorker' in navigator)) return 'NON_SUPPORTE';
   return Notification.permission;
 }
 
-export async function activerNotificationsNavigateur() {
+export async function statutAbonnementPush() {
+  const permission = statutNotificationsNavigateur();
+  if (permission !== 'granted') return permission;
+  const registration = await navigator.serviceWorker.ready;
+  return (await registration.pushManager.getSubscription()) ? 'ACTIVE' : 'granted';
+}
+
+export async function activerNotificationsNavigateur(token) {
   if (!('Notification' in window) || !('serviceWorker' in navigator)) {
     throw new Error('Ce navigateur ne prend pas en charge les notifications push.');
   }
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') throw new Error('Les notifications ont été refusées dans le navigateur.');
   const registration = await navigator.serviceWorker.ready;
+  const configuration = await apiRequest('/notifications/push/configuration', { token });
+  if (!configuration.donnees?.disponible || !configuration.donnees?.clePublique) {
+    throw new Error('Les notifications push ne sont pas encore configurées sur le serveur CampusHub.');
+  }
+  let abonnement = await registration.pushManager.getSubscription();
+  if (!abonnement) abonnement = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: convertirCleVapid(configuration.donnees.clePublique),
+  });
+  await apiRequest('/notifications/push/abonnement', {
+    method: 'POST',
+    token,
+    body: abonnement.toJSON(),
+  });
   await registration.showNotification('Notifications CampusHub activées', {
     body: 'Vous serez averti des nouveaux messages, invitations et activités importantes.',
     icon: '/favicon.svg',

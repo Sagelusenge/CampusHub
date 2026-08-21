@@ -11,6 +11,7 @@ import { dossierTeleversements } from './config/televersement.js';
 import { gestionnaireErreurs, routeIntrouvable } from './middlewares/erreurs.middleware.js';
 import { auditerActions } from './middlewares/audit.middleware.js';
 import { routesApi } from './routes/index.js';
+import { robotsTxt, servirPageSeo, sitemapXml } from './services/seo.service.js';
 
 export const app = express();
 const racineProjet = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -54,6 +55,22 @@ app.use(morgan(environnement.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, limit: 300 }));
 
 if (environnement.NODE_ENV === 'production' && existsSync(dossierFrontend)) {
+  app.get('/robots.txt', (_requete, reponse) => reponse.type('text/plain').send(robotsTxt()));
+  app.get('/sitemap.xml', async (_requete, reponse, suivant) => {
+    try {
+      reponse.setHeader('Cache-Control', 'public, max-age=1800');
+      return reponse.type('application/xml').send(await sitemapXml());
+    } catch (erreur) {
+      return suivant(erreur);
+    }
+  });
+  app.use(async (requete, reponse, suivant) => {
+    try {
+      return await servirPageSeo(requete, reponse, suivant, dossierFrontend);
+    } catch (erreur) {
+      return suivant(erreur);
+    }
+  });
   app.use(express.static(dossierFrontend, { index: 'index.html', maxAge: '1h' }));
 } else {
   app.get('/', (_requete, reponse) => {

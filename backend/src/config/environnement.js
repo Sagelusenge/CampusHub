@@ -31,8 +31,13 @@ const schemaEnvironnement = z.object({
   CAMPUSHUB_IA_MODEL: z.string().min(1).default('campushubai'),
   CAMPUSHUB_IA_TIMEOUT_MS: z.coerce.number().int().min(500).max(30000).default(8000),
   CAMPUSHUB_WEB_ENABLED: z.string().default('true').transform((valeur) => valeur !== 'false'),
-  CAMPUSHUB_WEB_TIMEOUT_MS: z.coerce.number().int().min(500).max(10000).default(3500),
-  CAMPUSHUB_WEB_MAX_SOURCES: z.coerce.number().int().min(1).max(3).default(2),
+  CAMPUSHUB_WEB_TIMEOUT_MS: z.coerce.number().int().min(500).max(15000).default(7000),
+  CAMPUSHUB_WEB_MAX_SOURCES: z.coerce.number().int().min(1).max(5).default(4),
+  BRAVE_SEARCH_API_KEY: z.string().default(''),
+  PUBLIC_SITE_URL: z.string().url().default('https://campushub.cd'),
+  VAPID_PUBLIC_KEY: z.string().default(''),
+  VAPID_PRIVATE_KEY: z.string().default(''),
+  VAPID_SUBJECT: z.string().default('mailto:contact@campushub.cd'),
 });
 
 const resultat = schemaEnvironnement.safeParse(process.env);
