@@ -58,6 +58,11 @@ function estConversationCourte(question) {
     || /\b(ca va|comment vas tu|comment allez vous|tu vas bien|qui es tu|quel est ton nom|je m'appelle)\b/.test(texte);
 }
 
+function estQuestionCampusHub(question) {
+  const texte = normaliser(question).replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return /\b(campushub|admission\w*|campus|candidature\w*|ecole\w*|etablissement\w*|etudiant\w*|faculte\w*|filiere\w*|formation\w*|inscription\w*|institut\w*|orientation\w*|partenaire\w*|universit\w*)\b/.test(texte);
+}
+
 function estQuestionNombreEtablissements(question) {
   const texte = normaliser(question).replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
   const demandeNombre = /\b(combien|nombre|total)\b/.test(texte);
@@ -154,7 +159,11 @@ export async function poserQuestionPublique({ question, historique }) {
   const precedenteQuestion = [...historiqueRecent].reverse().find((message) => message.role === 'UTILISATEUR')?.contenu;
   const questionRecherche = extraireMots(question).length <= 2 && precedenteQuestion
     ? `${precedenteQuestion} ${question}` : question;
-  const contexteCampusHub = estConversationCourte(question)
+  // Les données de l'annuaire ne doivent être injectées que lorsque la question
+  // concerne réellement CampusHub ou l'orientation. Sans ce garde-fou, un nom
+  // de pays (par exemple « RDC ») pouvait faire remonter un établissement local
+  // et détourner une question de culture générale de la recherche web.
+  const contexteCampusHub = estConversationCourte(question) || !estQuestionCampusHub(questionRecherche)
     ? { documents: [], sources: [] }
     : await chercherContextePublic(questionRecherche);
 
