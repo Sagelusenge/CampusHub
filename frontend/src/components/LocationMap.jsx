@@ -1,5 +1,7 @@
 import { ExternalLink, MapPin } from 'lucide-react';
 import { Circle, MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { MapResizeSync } from './MapResizeSync';
 
 const cityCoordinates = {
   goma: [-1.6792, 29.2228], bukavu: [-2.5083, 28.8608], kinshasa: [-4.325, 15.3222],
@@ -24,6 +26,7 @@ export function LocationMap({ latitude, longitude, adresse, ville, province, pay
     <div className="location-map__leaflet">
       <MapContainer key={`${lat}-${lon}`} center={[lat, lon]} zoom={hasCoordinates ? 16 : cityCoordinates[cityKey] ? 13 : 5} scrollWheelZoom={false}>
         <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <MapResizeSync />
         {hasCoordinates ? <Marker position={[lat, lon]}><Popup><strong>{titre}</strong><br />{query}</Popup></Marker>
           : <Circle center={[lat, lon]} radius={cityCoordinates[cityKey] ? 1800 : 350000} pathOptions={{ color: '#078d82', fillOpacity: 0.13 }} />}
       </MapContainer>

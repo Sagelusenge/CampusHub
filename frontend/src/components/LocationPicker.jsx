@@ -2,6 +2,7 @@ import { Crosshair, MapPin, Navigation } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { MapResizeSync } from './MapResizeSync';
 
 const CENTRE_RDC = [-2.8797, 23.656];
 
@@ -70,6 +71,7 @@ export function LocationPicker({ latitude, longitude, adresse, onChange, compact
     <div className="location-picker__map">
       <MapContainer center={position || CENTRE_RDC} zoom={position ? 17 : 5} scrollWheelZoom>
         <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <MapResizeSync />
         <MapInteraction position={position} onSelect={onChange} />
         <MapViewport position={position} />
         <RecentreMap position={position} />
